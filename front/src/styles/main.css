@@ -313,9 +313,9 @@ hr {
 .status-EnCaminoaRecoger, .status-EnRutaatuDestino {
     background-color: var(--color-primary); /* Rojo/Naranja Principal */
 }
-.status-Entregado-¡Disfruta! {
-    background-color: var(--color-success); /* Verde */
-}
+/* .status-Entregado-¡Disfruta! {
+    background-color: var(--color-success);} /* Verde */
+
 
 .map-placeholder {
     height: 200px;

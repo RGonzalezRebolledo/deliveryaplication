@@ -88,8 +88,6 @@ function Home() {
   return (
     <div className="home-page">
 
-
-
       <div className="hero-section">
         <h1 className="hero-visual-container">🚀</h1> {/* Corregí la clase (eliminé el punto inicial) */}
         
