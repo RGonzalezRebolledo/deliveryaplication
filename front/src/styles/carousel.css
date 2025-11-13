@@ -1,0 +1,55 @@
+
+  .carousel-container {
+    width: 100%;
+    margin: 0 auto;
+  }
+  
+  .slide {
+    position: relative;
+    text-align: center;
+  }
+  
+  .slide img {
+    width: 100%;
+    height: 400px;
+    /* object-fit: cover; */
+  }
+  
+  .slide-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-radius: 60px;
+  }
+  
+  .slide-content h2 {
+    margin: 0;
+  }
+  
+  .slide-content p {
+    margin: 10px 0 0 0;
+  }
+  
+  /* Estilos para los botones (más grandes) */
+  .slide-button {
+    display: inline-block;
+    padding: 20px 40px; /* Grande: mucho padding */
+    background-color: #ff6b35; /* Color naranja */
+    color: rgb(10, 10, 10);
+    text-decoration: none;
+    border-radius: 25px;
+    font-size: 1.5rem; /* Fuente grande */
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .slide-button:hover {
+    background-color: #e55a2b;
+    transform: translateY(-3px);
+  }
+  

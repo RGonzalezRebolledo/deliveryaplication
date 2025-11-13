@@ -1,0 +1,219 @@
+=========================================================
+/* 1. RESET Y ESTILOS GLOBALES */
+/* ========================================================= */
+:root {
+    --color-primary: #FF5722; /* Naranja Caliente (Entrega Rápida) */
+    --color-secondary: #00BCD4; /* Turquesa (Tecnología y Frescura) */
+    --color-background: #f4f7f6; /* Gris muy claro */
+    --color-text-dark: #333;
+    --color-success: #4CAF50; /* Verde */
+    --color-error: #F44336;   /* Rojo */
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: var(--color-background);
+    color: var(--color-text-dark);
+}
+
+.app-container {
+    padding: var(--spacing-md);
+    max-width: 600px; /* Ancho típico de móvil/tablet */
+    margin: 0 auto;
+}
+
+/* ========================================================= */
+/* 2. ESTILOS DE BOTONES BASE */
+/* ========================================================= */
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-weight: bold;
+    width: 100%; /* Botones de ancho completo para móvil */
+    margin-top: 10px;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #E64A19;
+}
+
+.btn-success {
+    background-color: var(--color-success);
+    color: white;
+}
+
+/* Botones específicos en Home.jsx */
+.btn-client {
+    background-color: var(--color-secondary);
+    color: var(--color-text-dark);
+}
+.btn-delivery {
+    background-color: var(--color-text-dark);
+    color: white;
+}
+
+
+/* ========================================================= */
+/* 3. ESTILOS DE FORMULARIOS */
+/* ========================================================= */
+.form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+input[type="text"], 
+textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    resize: vertical; /* Permite redimensionar el textarea verticalmente */
+}
+
+.price-summary {
+    text-align: center;
+    padding: var(--spacing-md);
+    margin: var(--spacing-lg) 0;
+    border: 2px solid var(--color-primary);
+    border-radius: 8px;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+/* ========================================================= */
+/* 4. ESTILOS ESPECÍFICOS DE HOME.JSX */
+/* ========================================================= */
+.hero-section {
+    text-align: center;
+    padding: var(--spacing-lg) 0;
+    background-color: white;
+    margin-bottom: var(--spacing-lg);
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.hero-section h1 {
+    color: var(--color-primary);
+    font-size: 2.5em;
+    margin-bottom: 5px;
+}
+
+.tagline {
+    font-style: italic;
+    color: #666;
+    margin-bottom: var(--spacing-md);
+}
+
+.portal-selection {
+    padding: var(--spacing-md);
+}
+
+.portal-card {
+    background-color: white;
+    padding: var(--spacing-lg);
+    border-radius: 10px;
+    margin-bottom: var(--spacing-md);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.portal-card h3 {
+    margin-bottom: 5px;
+    color: var(--color-text-dark);
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), #ccc, rgba(0, 0, 0, 0));
+    margin: var(--spacing-lg) 0;
+}
+
+.footer-info {
+    text-align: center;
+    padding: var(--spacing-md) 0;
+    font-size: 0.9em;
+    color: #999;
+}
+
+/* ========================================================= */
+/* 5. ESTILOS ESPECÍFICOS DE DASHBOARD Y TRACKING */
+/* ========================================================= */
+.client-dashboard h3, .order-tracking h3 {
+    margin-top: var(--spacing-lg);
+    color: var(--color-primary);
+    border-bottom: 2px solid #eee;
+    padding-bottom: 5px;
+}
+
+.order-card {
+    background-color: white;
+    padding: var(--spacing-md);
+    border-radius: 8px;
+    margin-top: 10px;
+    border-left: 5px solid var(--color-secondary);
+}
+
+/* Seguimiento (Tracking) */
+.status-display {
+    text-align: center;
+    padding: var(--spacing-lg);
+    margin: var(--spacing-lg) 0;
+    border-radius: 10px;
+    color: white;
+}
+
+/* Colores para estados (se asignan dinámicamente en OrderTracking.jsx) */
+.status-EsperandoRepartidor {
+    background-color: #FFC107; /* Amarillo */
+}
+.status-EnCaminoaRecoger, .status-RepartidorAceptóelServicio {
+    background-color: var(--color-secondary);
+}
+.status-EnRutaatuDestino {
+    background-color: var(--color-primary);
+}
+.status-EntregadoDisfruta {
+    background-color: var(--color-success);
+}
+
+.map-placeholder {
+    height: 200px;
+    background-color: #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: var(--spacing-md) 0;
+    border-radius: 8px;
+    font-style: italic;
+}
+
+.rating-section button {
+    width: auto;
+    margin: 5px;
+    background-color: gold;
+    color: var(--color-text-dark);
+}
