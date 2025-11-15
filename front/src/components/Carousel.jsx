@@ -1,6 +1,7 @@
 import React from 'react';
 import Slider from 'react-slick';
 import '../styles/carousel.css'; // Importa los estilos locales
+import motoDelivery from '../assets/moto-delivery.jpg';
 
 const Carousel = () => {
   // Configuración del carrusel (puedes ajustar estas opciones)
@@ -18,7 +19,7 @@ const Carousel = () => {
   const slides = [
     {
       id: 1,
-      image: 'src/assets/moto delivery.jpg', // Reemplaza con tu imagen real
+      image: motoDelivery, // Reemplaza con tu imagen real
       title: 'Bienvenido a nuestra app',
       description: 'Solicita entregas rápidas y seguras.',
     },
