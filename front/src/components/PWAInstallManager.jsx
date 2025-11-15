@@ -65,7 +65,8 @@ const PWAInstallManager = () => {
           border: 'none',
           borderRadius: '5px',
           cursor: 'pointer',
-          fontWeight: 'bold'
+          fontWeight: 'bold',
+          margin: '0 20px 20px 20px'
         }}
       >
         Descargar e Instalar la App 📱 (Opción Rápida)
@@ -74,7 +75,7 @@ const PWAInstallManager = () => {
   }
   
   // Caso 2: El evento NO se disparó (Firefox, Safari, Opera variable)
-  return <ManualInstallInstructions />;
+  //return <ManualInstallInstructions />;
 
 };
 
