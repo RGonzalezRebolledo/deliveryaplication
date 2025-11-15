@@ -72,7 +72,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom'; // Importamos useNavigate
 import Carousel from '../../components/Carousel.jsx';
  import { Link } from "react-router-dom";
- import PWAInstallButton from '../../components/PwaInstalButton.jsx';
+ import PWAInstallManager from '../../components/PWAInstallManager.jsx';
 
 function Home() {
  
@@ -99,7 +99,7 @@ function Home() {
         </div>
                   {/* Inserta el componente del botón aquí */}
                   <div >
-      <PWAInstallButton />
+      <PWAInstallManager  />
       </div>
 
         <Carousel />

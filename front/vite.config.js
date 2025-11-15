@@ -35,8 +35,8 @@ export default defineConfig({
       },
         screenshots: [
           {
-            src:'/screenshots/fast320.jpeg',
-            sizes: '320x320',
+            src:'/screenshots/fast512.jpeg',
+            sizes: '512x512',
             type: 'image/jpeg',
             form_factor: 'wide'
           },
