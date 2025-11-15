@@ -15,7 +15,12 @@
     "react-router-dom": "^7.9.5",
     "react-slick": "^0.31.0",
     "slick-carousel": "^1.8.1",
-    "vite-plugin-pwa": "^1.1.0"
+    "vite-plugin-pwa": "^1.1.0",
+    "workbox-core": "^7.3.0",
+    "workbox-expiration": "^7.3.0",
+    "workbox-precaching": "^7.3.0",
+    "workbox-routing": "^7.3.0",
+    "workbox-strategies": "^7.3.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

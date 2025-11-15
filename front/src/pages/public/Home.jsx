@@ -71,10 +71,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom'; // Importamos useNavigate
 import Carousel from '../../components/Carousel.jsx';
+ import { Link } from "react-router-dom";
+ import PWAInstallButton from '../../components/PwaInstalButton.jsx';
 
 function Home() {
-  const navigate = useNavigate(); // ✅ Hook llamado DENTRO del componente
-  
+ 
   const handleClientLogin = () => {
     console.log("Navegando a la página de login o dashboard del Cliente...");
     navigate('/client/dashboard'); // Ejemplo de navegación
@@ -85,6 +86,7 @@ function Home() {
     navigate('/delivery/login'); // Ejemplo de navegación
   };
 
+
   return (
     <div className="home-page">
 
@@ -94,47 +96,14 @@ function Home() {
         <p className="hero-tagline-container">Contacto</p> {/* Corregí la clase (eliminé el punto inicial) */}
         <p>Registrarse</p>
         <p>Acceder</p>
+        </div>
+                  {/* Inserta el componente del botón aquí */}
+                  <div >
+      <PWAInstallButton />
       </div>
-                  
-        {/* Aquí integro el carrusel justo después del h1 */}
-     
+
         <Carousel />
-      {/* La sección comentada de portales queda igual */}
-      {/* <section className="portal-selection">
-        <h2>¿Cómo deseas usar la aplicación hoy?</h2>
-        
-        <div className="portal-card client-portal">
-          <h3>📦 Soy un Cliente</h3>
-          <p>Solicita una entrega, rastrea tu pedido en vivo y califica a tu repartidor.</p>
-          
-          <button 
-            onClick={handleClientLogin} 
-            className="btn-client"
-          >
-            Hacer un Pedido Ahora
-          </button>
-        </div>
-        
-        <hr />
-
-        <div className="portal-card delivery-portal">
-          <h3>🛵 Soy un Repartidor</h3>
-          <p>Acepta pedidos cercanos, gestiona tus entregas y gana dinero extra.</p>
-          <button 
-            onClick={handleDeliveryLogin} 
-            className="btn-delivery"
-          >
-            Iniciar Sesión como Repartidor
-          </button>
-        </div>
-      </section> */}
- 
- {/* <footer className="footer-info">
-<p>¿Tienes preguntas? Visita nuestra sección de ayuda.</p>
-</footer> */}
     </div>
-
-
  
   );
 }
