@@ -17,7 +17,7 @@ export default defineConfig({
 		react(),
 		VitePWA({
 			manifest: {
-				background_color: '#d4d4d4', // color de fondo de la aplicacion
+				background_color: 'green', // color de fondo de la aplicacion
 				categories: [ "education", "music"],
 				description: 'Aplicacion Delivery',
         start_url: '/',

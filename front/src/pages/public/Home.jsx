@@ -26,13 +26,18 @@ function Home() {
         <h1 className="hero-visual-container">🚀</h1> {/* Corregí la clase (eliminé el punto inicial) */}
 
         <Link to="/contact" className="mi-enlace" >Contacto</Link>
-        <Link to="/register" className="mi-enlace" >Registrarse</Link> 
         <Link to="/public/Login" className="mi-enlace" >Acceder</Link> 
 
         </div>
                   {/* Inserta el componente del botón aquí */}
         <div >
       <PWAInstallManager/>
+      </div>
+      <div className="hero-section">
+      <Link to="/client/Dashboard" className="mi-enlace" >Cliente</Link>  
+      </div>
+      <div className="hero-section">
+      <Link to="/delivery/Dashboard" className="mi-enlace" >Deliver</Link>  
       </div>
 
         <Carousel />

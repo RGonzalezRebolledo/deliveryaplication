@@ -4,12 +4,12 @@ import { Routes, Route } from 'react-router-dom';
 
 // Importamos todos los componentes, pero NO los usamos inicialmente
 import Home from './pages/public/Home.jsx'; 
-import ClientDashboard from './pages/client/ClientDashboard.jsx';
+import ClientDashboard from './pages/client/Dashboard.jsx';
 import OrderForm from './pages/client/OrderForm.jsx';
 import OrderTracking from './pages/client/OrderTracking.jsx';
 
  import Login from './pages/public/Login.jsx';
-import DeliveryDashboard from './pages/delivery/DeliveryDashboard.jsx';
+import DeliveryDashboard from './pages/delivery/Dashboard.jsx';
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -26,7 +26,7 @@ function App() {
         <Route path="/" element={<Home />} />
         
         {/* RUTAS CLIENTE: Comentadas para la prueba */}
-        <Route path="/client/dashboard" element={<ClientDashboard />} />
+        <Route path="/client/Dashboard" element={<ClientDashboard />} />
         <Route path="/client/new-order" element={<OrderForm />} />
          <Route path="/client/tracking/:orderId" element={<OrderTracking />} />
         
