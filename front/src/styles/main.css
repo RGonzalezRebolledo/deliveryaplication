@@ -347,3 +347,23 @@ hr {
 .rating-section button:hover {
     background-color: #fff3e0;
 }
+
+
+.mi-enlace {
+    color: black; /* Color del texto */
+    text-decoration: none; /* Quita el subrayado por defecto */
+    font-size: 16px;
+    padding: 10px 20px;
+   /* border: 1px solid blue; */
+    border-radius: 5px;
+    transition: background-color 0.3s; /* Efecto hover suave */
+  }
+  
+  .mi-enlace:hover {
+    background-color: lightblue; /* Cambia el fondo al pasar el mouse */
+    color: white;
+  }
+  
+  .mi-enlace:active {
+    color: darkblue; /* Color cuando se hace clic */
+  }

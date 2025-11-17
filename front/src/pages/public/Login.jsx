@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Importamos useNavigate
 
-function DeliveryLogin() {
+function Login() {
     const navigate = useNavigate(); // ✅ Hook llamado DENTRO del componente
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -59,4 +59,4 @@ function DeliveryLogin() {
   );
 }
 
-export default DeliveryLogin;
+export default Login;
