@@ -8,15 +8,15 @@ import Carousel from '../../components/Carousel.jsx';
 function Home() {
   const navigate = useNavigate(); // ✅ Agregado: Declaración del hook
  
-  const handleClientLogin = () => {
-    console.log("Navegando a la página de login o dashboard del Cliente...");
-    navigate('/client/dashboard'); // Ejemplo de navegación
-  };
+  // const handleClientLogin = () => {
+  //   console.log("Navegando a la página de login o dashboard del Cliente...");
+  //   navigate('/client/dashboard'); // Ejemplo de navegación
+  // };
 
-  const handleDeliveryLogin = () => {
-    console.log("Navegando a la página de login del Repartidor...");
-    navigate('/delivery/login'); // Ejemplo de navegación
-  };
+  // const handleDeliveryLogin = () => {
+  //   console.log("Navegando a la página de login del Repartidor...");
+  //   navigate('/delivery/login'); // Ejemplo de navegación
+  // };
 
 
   return (
@@ -26,19 +26,28 @@ function Home() {
         <h1 className="hero-visual-container">🚀</h1> {/* Corregí la clase (eliminé el punto inicial) */}
 
         <Link to="/contact" className="mi-enlace" >Contacto</Link>
-        <Link to="/public/Login" className="mi-enlace" >Acceder</Link> 
+        {/* <Link to="/public/Login" className="mi-enlace" >Acceder</Link>  */}
 
         </div>
                   {/* Inserta el componente del botón aquí */}
         <div >
       <PWAInstallManager/>
       </div>
-      <div className="hero-section">
-      <Link to="/client/Dashboard" className="mi-enlace" >Cliente</Link>  
+      {/* <div className="hero-section">
+      <Link to="/public/Login" className="mi-enlace" >Cliente</Link>  
       </div>
       <div className="hero-section">
-      <Link to="/delivery/Dashboard" className="mi-enlace" >Deliver</Link>  
+      <Link to="/public/Login" className="mi-enlace" >Deliver</Link>  
+      </div> */}
+       <div className="hero-section">
+        {/* Pasamos el role 'cliente' en el state del Link */}
+        <Link to="/public/Login" state={{ role: 'cliente' }} className="mi-enlace">Cliente</Link>
       </div>
+      <div className="hero-section">
+        {/* Pasamos el role 'delivery' en el state del Link */}
+        <Link to="/public/Login" state={{ role: 'delivery' }} className="mi-enlace">Delivery</Link>
+      </div>
+      
 
         <Carousel />
     </div>

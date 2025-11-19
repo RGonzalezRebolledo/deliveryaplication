@@ -11,6 +11,8 @@ import OrderTracking from './pages/client/OrderTracking.jsx';
  import Login from './pages/public/Login.jsx';
 import DeliveryDashboard from './pages/delivery/Dashboard.jsx';
 
+import  Register  from './pages/register/Register.jsx'
+
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
@@ -33,6 +35,9 @@ function App() {
         {/* RUTAS REPARTIDOR: Comentadas para la prueba */}
         <Route path="/public/Login" element={<Login/>} />
         <Route path="/delivery/dashboard" element={<DeliveryDashboard/>} />
+
+        {/*RUTAS GENERALES */}
+        <Route path="register" element={<Register/>} />
 
         <Route path="*" element={<h2>404 - Página no encontrada</h2>} />
 
