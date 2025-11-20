@@ -38,7 +38,7 @@ function Login() {
   };
 
   return (
-    <div className="delivery-login"> {/* Puedes cambiar la clase si quieres una genérica, ej. "login-form" */}
+    <div className="order-form"> {/* Puedes cambiar la clase si quieres una genérica, ej. "login-form" */}
       <h2>{role === 'cliente' ? '🔑 Acceso para Clientes' : '🔑 Acceso para Repartidores'}</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
