@@ -1,5 +1,5 @@
 import { pool } from '../db.js';
-// import bcrypt from 'bcrypt';  // Asegúrate de instalarlo
+import bcrypt from 'bcrypt';  // Asegúrate de instalarlo
 
 export const validateUser = async (req, res, next) => {
   const { email, password } = req.body;  // Cambia a 'password' para consistencia con React
