@@ -3,7 +3,7 @@ import express from 'express'
 import { pgdb } from './config.js'
 import morgan  from 'morgan'
 import cors from 'cors'
-import routerUsers from './routes/users.route.js'
+// import routerUsers from './routes/users.route.js'
 import routerLogin from './routes/login.route.js'
 
 
@@ -25,7 +25,7 @@ app.use((err, req, res, next) => {
     });
   });
 
-  app.use(routerUsers)
+  // app.use(routerUsers)
   app.use(routerLogin)
 app.listen (pgdb.PORT)
 console.log ('conectado en el puerto', pgdb.PORT)

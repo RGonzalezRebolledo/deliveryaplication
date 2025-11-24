@@ -7,6 +7,7 @@ CREATE DATABASE delivery_app;
 -- Crear tabla: usuarios
 CREATE TABLE usuarios (
     id SERIAL PRIMARY KEY,
+    password_hash VARCHAR(255) NOT NULL, -- Almacenar hashes de contraseñas, no contraseñas en texto plano
     nombre VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL, 
     telefono VARCHAR(20),
