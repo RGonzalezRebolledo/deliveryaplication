@@ -1,4 +1,3 @@
-
 -- ------------------------------------------------------------------
 -- SCRIPT COMPLETO PARA CONSOLA PSQL - ESQUEMA 'delivery'
 -- ------------------------------------------------------------------
@@ -157,8 +156,3 @@ INSERT INTO repartidores_pedidos (repartidor_id, pedido_id) VALUES
 
 INSERT INTO repartidores (usuario_id, direccion_residencia, documento_identidad, tipo_documento, foto) VALUES
 (2, 'Calle de los Repartidores 789, Madrid, 28002', '12345678A', 'DNI', '/uploads/fotos/ana_lopez.jpg');
-
-
-
-
-

@@ -11,7 +11,7 @@ import OrderTracking from './pages/client/OrderTracking.jsx';
  import Login from './pages/public/Login.jsx';
 import DeliveryDashboard from './pages/delivery/Dashboard.jsx';
 
-import  Register  from './pages/register/Register.jsx'
+import  Register  from './pages/public/Register.jsx'
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";

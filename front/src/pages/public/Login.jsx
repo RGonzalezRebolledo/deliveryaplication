@@ -5,7 +5,7 @@ import axios from 'axios';
 function Login() {
   const navigate = useNavigate();
   const location = useLocation();
-  const role = location.state?.role || 'repartidor';
+  const role = location.state?.role || 'conductor';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');  // Cambia a 'password' para consistencia
@@ -44,7 +44,7 @@ function Login() {
 
   return (
     <div className="order-form">
-      <h2>{role === 'cliente' ? '🔑 Acceso para Clientes' : '🔑 Acceso para Repartidores'}</h2>
+      <h2>{role === 'cliente' ? '🔑 Acceso para Clientes' : '🔑 Acceso para Conductores'}</h2>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <form onSubmit={handleSubmit}>
         <div className="form-group">
@@ -69,7 +69,8 @@ function Login() {
             required 
           />
         </div>
-        <button type="submit" className={role === 'cliente' ? 'btn-client' : 'btn-delivery'}>
+        {/* <button type="submit" className={role === 'cliente' ? 'btn-client' : 'btn-delivery'}> */}
+        <button type="submit" className={'btn-delivery'}>
           Iniciar Sesión
         </button>
       </form>

@@ -31,7 +31,7 @@ const RegistrationForm = () => {
   };
 
   return (
-    <div className="order-form"> {/* Reutilizamos la clase para consistencia con el CSS */}
+    <div className='order-form'> {/* Reutilizamos la clase para consistencia con el CSS */}
       <h2>Registro de Usuario</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">

@@ -232,6 +232,7 @@ hr {
 
 .form-group {
     margin-bottom: var(--spacing-md);
+    
 }
 
 .form-group label {
@@ -241,7 +242,7 @@ hr {
     color: #555;
 }
 
-.form-group input[type="text"], 
+.form-group input, 
 .form-group textarea {
     width: 100%;
     padding: var(--spacing-sm);
@@ -251,9 +252,9 @@ hr {
     transition: border-color 0.2s;
 }
 
-.form-group input[type="text"]:focus, 
+.form-group input:focus, 
 .form-group textarea:focus {
-    border-color: var(--color-primary);
+    border-color: var(--color-secondary);
     outline: none;
 }
 
