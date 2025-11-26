@@ -37,7 +37,7 @@ function App() {
         <Route path="/delivery/dashboard" element={<DeliveryDashboard/>} />
 
         {/*RUTAS GENERALES */}
-        <Route path="register" element={<Register/>} />
+        <Route path="/Register" element={<Register/>} />
 
         <Route path="*" element={<h2>404 - Página no encontrada</h2>} />
 

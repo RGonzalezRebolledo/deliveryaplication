@@ -45,7 +45,7 @@ function Home() {
       </div>
       <div className="hero-section">
         {/* Pasamos el role 'delivery' en el state del Link */}
-        <Link to="/public/Login" state={{ role: 'delivery' }} className="mi-enlace">Conductor</Link>
+        <Link to="/public/Login" state={{ role: 'conductor' }} className="mi-enlace">Conductor</Link>
       </div>
       
 

@@ -39,7 +39,8 @@ function Login() {
   };
 
   const handleRegister = () => {
-    navigate('/register');
+    // navigate('/Register');
+    navigate('/Register', { state: { role: role } });
   };
 
   return (
