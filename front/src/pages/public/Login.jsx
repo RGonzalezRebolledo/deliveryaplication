@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 function Login() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -16,10 +16,22 @@ function Login() {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:4000/login', {
-        email,
-        password,  // Cambia a 'password' para que coincida con Express
-      });
+      // const response = await axios.post('http://localhost:4000/login', {
+      //   email,
+      //   password,  // Cambia a 'password' para que coincida con Express
+        
+      // });
+      const response = await axios.post(
+        `${API_BASE_URL}/login`, 
+        {
+            email,
+            password, 
+        },
+        {
+            // 💡 INTEGRACIÓN DE LAS CREDENCIALES
+            withCredentials: true 
+        }
+    );
 
       // Axios resuelve solo para status 2xx, así que esto se ejecuta en éxito
       alert('Inicio de sesión exitoso. Navegando al Dashboard.');

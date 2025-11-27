@@ -112,14 +112,32 @@ const hashedpassword = await bcrypt.hash(password_hash,salt)
     );
 
       // creo el token 
+      // const token = jwt.sign ({
+      //   email: newUser.rows.email
+      // },
+      // process.env.JWT_SECRET,
+      // {
+      //   expiresIn: '1h'
+      // }
+      // )
+
       const token = jwt.sign ({
-        email: newUser.rows.email
-      },
-      process.env.JWT_SECRET,
-      {
+        email: newUser.rows[0].email, // Asegúrate de que apunte al email
+        tipo: newUser.rows[0].tipo,     // Es útil incluir el tipo/rol
+        nombre: newUser.rows[0].nombre
+    },
+    process.env.JWT_SECRET,
+    {
         expiresIn: '1h'
-      }
-      )
+    });
+
+    // 💡 CAMBIO CLAVE: Configurar el token como una Cookie HTTP-Only
+res.cookie('accessToken', token, {
+  httpOnly: true,             // INACCESIBLE desde JavaScript (Protección XSS)
+  secure: process.env.NODE_ENV === 'production', // Solo enviar en HTTPS en producción
+  sameSite: 'Lax',            // O 'Strict' o 'None' (ajustar por seguridad/CORS)
+  maxAge: 3600000             // 1 hora en milisegundos (mismo que expiresIn)
+});
     res.status(201).json({ mensaje: token });
   
   } catch (error) {

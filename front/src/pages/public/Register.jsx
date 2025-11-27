@@ -3,7 +3,9 @@ import axios from 'axios'; // Importamos Axios
 import { useLocation } from 'react-router-dom'; // <--- Importar useLocation
 
 // Asegúrate de cambiar esta URL base por la dirección de tu API (ej: 'http://localhost:3000/api')
-const API_BASE_URL = 'http://localhost:4000'; 
+// const API_BASE_URL = 'http://localhost:4000'; 
+// const API_BASE_URL = process.env.REACT_APP_API_URL;
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const RegistrationForm = () => {
   // 💡 USAR useLocation PARA LEER EL STATE
@@ -18,6 +20,7 @@ const RegistrationForm = () => {
         confirmPassword: '',
         rol: initialRole, // Corresponde al campo 'tipo' en tu backend
     });
+
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [isError, setIsError] = useState(false);
@@ -58,7 +61,10 @@ const RegistrationForm = () => {
         try {
             const response = await axios.post(
                 `${API_BASE_URL}/users`, // Asume que la ruta de tu API es /api/usuarios
-                dataToSend
+                dataToSend,
+                {
+                    withCredentials: true // 💡 Permite que Axios envíe y reciba cookies
+                }
             );
 
             // Éxito (status 201 en tu controlador)
@@ -101,17 +107,20 @@ const RegistrationForm = () => {
         <div className='order-form'>
             <h2> {initialRole === 'cliente' ? '🔑 Registro para Clientes' : '🔑 Registro para Conductores'}</h2>
             <form onSubmit={handleSubmit}>
+                <div className="form-group">
                 {/* Mostrar mensaje de estado/error */}
                 {message && (
                     <p style={{ 
                         color: isError ? 'red' : 'green', 
                         fontWeight: 'bold', 
                         padding: '10px', 
-                        border: `1px solid ${isError ? 'red' : 'green'}` 
+                        border: `1px solid ${isError ? 'red' : 'green'}`,
+                        margin: '10 10 10 10'
                     }}>
                         {message}
                     </p>
                 )}
+                </div>
 
                 {/* Campos del formulario */}
                 <div className="form-group">

@@ -12,7 +12,38 @@ import { clearDatabase, initializeDatabase } from './db.js';
 const app = express ();
 
 app.use (morgan('dev'))
-app.use(cors());
+// app.use(cors());
+
+// app.use(cors({
+//   origin: process.env.PORT, // Reemplaza con el origen exacto de tu frontend
+//   credentials: true,               // 💡 DEBE SER TRUE EN EL BACKEND
+//   // ... otros headers permitidos
+// }));
+
+// app.use(cors({
+//   origin: '*', // PERMITE TODOS LOS ORÍGENES (NO USAR EN PRODUCCIÓN)
+//   credentials: true,
+// }));
+
+const allowedOrigins = [
+  process.env.FRONTEND_URL_DEV, // 💡 ¡AGREGA EL ORIGEN CORRECTO DE VITE!
+  process.env.FRONTEND_URL_PROD, // (Si quieres mantener el antiguo por si acaso)
+  // Agrega aquí tu URL de producción (ej: https://deliveryaplication-ioll.vercel.app)
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+      // Permitir solicitudes sin origen (para herramientas REST o CURL) o si está en la lista blanca
+      if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+      } else {
+          callback(new Error('Not allowed by CORS'));
+      }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE']
+}));
+
 app.use (express.json())
 app.use (express.urlencoded({extended: false}))
 
