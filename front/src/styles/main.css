@@ -103,7 +103,7 @@ button {
     
     /* 3. Alineación vertical (si los elementos tienen diferentes alturas) */
     align-items: center;
-    padding: var(--spacing-xl) 0;
+    padding: var(--spacing-lg) 0;
     background-color: var(--color-card-bg);
     border-radius: var(--radius-md);
     margin-bottom: var(--spacing-lg);

@@ -39,6 +39,7 @@ function Home() {
       <div className="hero-section">
       <Link to="/public/Login" className="mi-enlace" >Deliver</Link>  
       </div> */}
+
        <div className="hero-section">
         {/* Pasamos el role 'cliente' en el state del Link */}
         <Link to="/public/Login" state={{ role: 'cliente' }} className="mi-enlace">Cliente</Link>
@@ -46,6 +47,10 @@ function Home() {
       <div className="hero-section">
         {/* Pasamos el role 'delivery' en el state del Link */}
         <Link to="/public/Login" state={{ role: 'conductor' }} className="mi-enlace">Conductor</Link>
+      </div>
+      <div className="hero-section">
+        {/* Pasamos el role 'cliente' en el state del Link */}
+        <Link to="/Negocios" className="mi-enlace">Negocios Afiliados</Link>
       </div>
       
 
