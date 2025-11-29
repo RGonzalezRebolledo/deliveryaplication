@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../../hooks/AuthContext'; // 💡 Importar el Hook de Auth
+
+
+
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth(); // 💡 Obtener la función login del contexto
   const location = useLocation();
   const role = location.state?.role || 'conductor';
 
@@ -32,7 +37,10 @@ function Login() {
             withCredentials: true 
         }
     );
-
+          // 💡 USAR LA FUNCIÓN LOGIN DEL CONTEXTO
+            // response.data.user contiene { email, tipo, nombre } que recibimos del backend
+            login(response.data.user);
+            
       // Axios resuelve solo para status 2xx, así que esto se ejecuta en éxito
       alert('Inicio de sesión exitoso. Navegando al Dashboard.');
       if (role === 'cliente') {
