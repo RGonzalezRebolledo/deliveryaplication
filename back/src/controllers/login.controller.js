@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken'; // 💡 NECESARIO para generar el token
 
 export const validateUser = async (req, res) => {
-    const { email, password } = req.body; 
+    const { email, password, tipo } = req.body; 
 
     // Validación de entrada
     if (!email || !password) {
@@ -17,6 +17,8 @@ export const validateUser = async (req, res) => {
             [email]
         );
 
+        
+
         if (resultUser.rows.length === 0) {
             return res.status(401).json({ error: 'Email o clave incorrecta' }); // No revelar si es el usuario o la clave
         }
@@ -29,6 +31,14 @@ export const validateUser = async (req, res) => {
         if (!isPasswordValid) {
             return res.status(401).json({ error: 'Email o clave incorrecta' }); // No revelar si es el usuario o la clave
         }
+
+        // 💡 2.5 VALIDACIÓN DEL TIPO DE USUARIO
+        // Verificamos si se envió un tipo en el body y si coincide con el de la BD
+        if (tipo && user.tipo !== tipo) {
+          return res.status(403).json({ 
+              error: `No tienes permisos para acceder como ${tipo}. Tu cuenta es de tipo Conductor.` 
+          });
+      }
 
         // 3. Generar el JSON Web Token (JWT)
         const tokenPayload = {

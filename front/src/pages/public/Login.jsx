@@ -4,13 +4,13 @@ import axios from 'axios';
 import { useAuth } from '../../hooks/AuthContext'; // 💡 Importar el Hook de Auth
 
 
+const API_BASE_URL = window.GLOBAL_API_URL || 'http://localhost:4000';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
 function Login() {
   const navigate = useNavigate();
   const { login } = useAuth(); // 💡 Obtener la función login del contexto
   const location = useLocation();
-  const role = location.state?.role || 'conductor';
+  const role = location.state?.role || 'repartidor';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');  // Cambia a 'password' para consistencia
@@ -30,7 +30,8 @@ function Login() {
         `${API_BASE_URL}/login`, 
         {
             email,
-            password, 
+            password,
+            tipo: role
         },
         {
             // 💡 INTEGRACIÓN DE LAS CREDENCIALES
@@ -40,7 +41,7 @@ function Login() {
           // 💡 USAR LA FUNCIÓN LOGIN DEL CONTEXTO
             // response.data.user contiene { email, tipo, nombre } que recibimos del backend
             login(response.data.user);
-            
+
       // Axios resuelve solo para status 2xx, así que esto se ejecuta en éxito
       alert('Inicio de sesión exitoso. Navegando al Dashboard.');
       if (role === 'cliente') {

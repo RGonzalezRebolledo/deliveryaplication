@@ -1,4 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
+import axios from 'axios';
+
+const API_BASE_URL = window.GLOBAL_API_URL || 'http://localhost:4000';
 
 // 1. Inicializar el Contexto
 const AuthContext = createContext(null);
@@ -17,9 +20,18 @@ export const AuthProvider = ({ children }) => {
     };
 
     // Función para cerrar la sesión
-    const logout = () => {
-        setUser(null);
-        setIsAuthenticated(false);
+    const logout = async () => {
+        // 1. Llama al backend para eliminar la cookie
+    try {
+        await axios.post(`${API_BASE_URL}/logout`, {}, { withCredentials: true }); 
+    } catch (error) {
+        // Ignorar errores de red, solo queremos limpiar el frontend
+        console.warn("No se pudo contactar al servidor para eliminar la cookie.", error);
+    }
+    
+    // 2. Limpia el estado de React
+    setUser(null);
+    setIsAuthenticated(false);
         // Opcional: Eliminar cualquier cookie o item de localStorage
     };
 

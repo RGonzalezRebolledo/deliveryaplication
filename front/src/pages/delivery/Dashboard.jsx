@@ -30,7 +30,8 @@ function DeliveryDashboard() {
   };
 
   return (
-    <div className="delivery-dashboard">
+    // <div className="delivery-dashboard">
+    <div className="client-dashboard">
       <h2>🛵 Dashboard de Repartidor</h2>
       
       <div className={`availability-toggle status-${isAvailable ? 'online' : 'offline'}`}>

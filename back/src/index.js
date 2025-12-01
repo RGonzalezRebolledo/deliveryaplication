@@ -5,6 +5,7 @@ import morgan  from 'morgan'
 import cors from 'cors'
 import routerUsers from './routes/users.route.js'
 import routerLogin from './routes/login.route.js'
+import routerAuth from './routes/auth.route.js'
 import { clearDatabase, initializeDatabase } from './db.js';
 
 
@@ -59,10 +60,13 @@ app.use((err, req, res, next) => {
 
   app.use(routerUsers)
   app.use(routerLogin)
-app.listen (pgdb.PORT)
+  app.use(routerAuth)
+
+  app.listen (pgdb.PORT)
 app.delete('/clear-db', async (req, res) => {
   await clearDatabase();
   res.json({ message: 'Base de datos limpiada' });
 });
+
 console.log ('conectado en el puerto', pgdb.PORT)
 
