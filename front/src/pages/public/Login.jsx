@@ -31,7 +31,7 @@ function Login() {
         {
             email,
             password,
-            tipo: role
+            tipo: role,
         },
         {
             // 💡 INTEGRACIÓN DE LAS CREDENCIALES
@@ -41,9 +41,10 @@ function Login() {
           // 💡 USAR LA FUNCIÓN LOGIN DEL CONTEXTO
             // response.data.user contiene { email, tipo, nombre } que recibimos del backend
             login(response.data.user);
+            console.log (response.data)
 
       // Axios resuelve solo para status 2xx, así que esto se ejecuta en éxito
-      alert('Inicio de sesión exitoso. Navegando al Dashboard.');
+      // alert('Inicio de sesión exitoso. Navegando al Dashboard.');
       if (role === 'cliente') {
         navigate('/client/dashboard');
       } else {

@@ -128,35 +128,35 @@ GROUP BY p.id, u.nombre, p.fecha_pedido, p.estado, p.total, d.calle, d.ciudad;
 -- Asegúrate de que los IDs (1, 2, 3) funcionarán si las tablas se crearon justo antes.
 -- Si hay problemas de referencias, usa el bloque DO $$...$$ de la respuesta anterior.
 
-INSERT INTO usuarios (nombre, email, telefono, tipo, password_hash) VALUES
-('Juan Pérez', 'juan@email.com', '123456789', 'cliente', '$2b$10$dummyHashCliente1'),
-('Ana López', 'ana@email.com', '987654321', 'repartidor', '$2b$10$dummyHashRepartidor2'),
-('María García', 'maria@email.com', '555666777', 'cliente', '$2b$10$dummyHashCliente3');
+-- INSERT INTO usuarios (nombre, email, telefono, tipo, password_hash) VALUES
+-- ('Juan Pérez', 'juan@email.com', '123456789', 'cliente', '$2b$10$dummyHashCliente1'),
+-- ('Ana López', 'ana@email.com', '987654321', 'repartidor', '$2b$10$dummyHashRepartidor2'),
+-- ('María García', 'maria@email.com', '555666777', 'cliente', '$2b$10$dummyHashCliente3');
 
-INSERT INTO productos (nombre, descripcion, precio, categoria) VALUES
-('Pizza Margherita', 'Pizza clásica con queso', 12.50, 'comida'),
-('Refresco Cola', 'Bebida gaseosa', 2.00, 'bebida'),
-('Hamburguesa', 'Hamburguesa con queso', 8.75, 'comida');
+-- INSERT INTO productos (nombre, descripcion, precio, categoria) VALUES
+-- ('Pizza Margherita', 'Pizza clásica con queso', 12.50, 'comida'),
+-- ('Refresco Cola', 'Bebida gaseosa', 2.00, 'bebida'),
+-- ('Hamburguesa', 'Hamburguesa con queso', 8.75, 'comida');
 
-INSERT INTO direcciones (usuario_id, calle, ciudad, codigo_postal, latitud, longitud) VALUES
-(1, 'Calle Ficticia 123', 'Madrid', '28001', 40.416775, -3.703790),
-(3, 'Avenida Real 456', 'Barcelona', '08001', 41.385064, 2.173404);
+-- INSERT INTO direcciones (usuario_id, calle, ciudad, codigo_postal, latitud, longitud) VALUES
+-- (1, 'Calle Ficticia 123', 'Madrid', '28001', 40.416775, -3.703790),
+-- (3, 'Avenida Real 456', 'Barcelona', '08001', 41.385064, 2.173404);
 
-INSERT INTO pedidos (cliente_id, direccion_entrega_id, total) VALUES
-(1, 1, 14.50),
-(3, 2, 8.75);
+-- INSERT INTO pedidos (cliente_id, direccion_entrega_id, total) VALUES
+-- (1, 1, 14.50),
+-- (3, 2, 8.75);
 
-INSERT INTO pedido_detalles (pedido_id, producto_id, cantidad, precio_unitario) VALUES
-(1, 1, 1, 12.50),
-(1, 2, 1, 2.00),
-(2, 3, 1, 8.75);
+-- INSERT INTO pedido_detalles (pedido_id, producto_id, cantidad, precio_unitario) VALUES
+-- (1, 1, 1, 12.50),
+-- (1, 2, 1, 2.00),
+-- (2, 3, 1, 8.75);
 
-INSERT INTO repartidores_pedidos (repartidor_id, pedido_id) VALUES
-(2, 1),
-(2, 2);
+-- INSERT INTO repartidores_pedidos (repartidor_id, pedido_id) VALUES
+-- (2, 1),
+-- (2, 2);
 
-INSERT INTO repartidores (usuario_id, direccion_residencia, documento_identidad, tipo_documento, foto) VALUES
-(2, 'Calle de los Repartidores 789, Madrid, 28002', '12345678A', 'DNI', '/uploads/fotos/ana_lopez.jpg');
+-- INSERT INTO repartidores (usuario_id, direccion_residencia, documento_identidad, tipo_documento, foto) VALUES
+-- (2, 'Calle de los Repartidores 789, Madrid, 28002', '12345678A', 'DNI', '/uploads/fotos/ana_lopez.jpg');
 
 
 

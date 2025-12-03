@@ -6,7 +6,11 @@ import cors from 'cors'
 import routerUsers from './routes/users.route.js'
 import routerLogin from './routes/login.route.js'
 import routerAuth from './routes/auth.route.js'
+import routerClientOrders from './routes/client/clientdashboard.route.js'
+import routerCheckSesion from './routes/checkSesion.route.js'
+import routerClientNewOrder from './routes/client/clientNewOrder.route.js'
 import { clearDatabase, initializeDatabase } from './db.js';
+import cookieParser from 'cookie-parser';
 
 
 
@@ -58,9 +62,13 @@ app.use((err, req, res, next) => {
     });
   });
 
+  app.use(cookieParser()); // 👈 Usar antes de tus rutas
+  app.use(routerCheckSesion)
   app.use(routerUsers)
   app.use(routerLogin)
   app.use(routerAuth)
+  app.use(routerClientOrders)
+  app.use(routerClientNewOrder)
 
   app.listen (pgdb.PORT)
 app.delete('/clear-db', async (req, res) => {

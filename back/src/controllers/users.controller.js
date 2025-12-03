@@ -124,7 +124,8 @@ const hashedpassword = await bcrypt.hash(password_hash,salt)
       const token = jwt.sign ({
         email: newUser.rows[0].email, // Asegúrate de que apunte al email
         tipo: newUser.rows[0].tipo,     // Es útil incluir el tipo/rol
-        nombre: newUser.rows[0].nombre
+        nombre: newUser.rows[0].nombre,
+        id: newUser.rows[0].id
     },
     process.env.JWT_SECRET,
     {

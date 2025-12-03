@@ -34,9 +34,11 @@ export const validateUser = async (req, res) => {
 
         // 💡 2.5 VALIDACIÓN DEL TIPO DE USUARIO
         // Verificamos si se envió un tipo en el body y si coincide con el de la BD
+        let useConducto;
         if (tipo && user.tipo !== tipo) {
+          const useConducto = user.tipo === 'repartidor' ? 'conductor' : user.tipo;
           return res.status(403).json({ 
-              error: `No tienes permisos para acceder como ${tipo}. Tu cuenta es de tipo Conductor.` 
+              error: `No tienes permisos para acceder como ${tipo}. Tu cuenta es de tipo ${useConducto}.` 
           });
       }
 
@@ -68,7 +70,8 @@ export const validateUser = async (req, res) => {
             user: { 
                 email: user.email, 
                 tipo: user.tipo,
-                nombre: user.nombre
+                nombre: user.nombre,
+                id: user.id
             } 
         });
         

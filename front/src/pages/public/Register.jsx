@@ -76,9 +76,10 @@ const RegistrationForm = () => {
                 nombre: formData.nombre,
                 email: formData.email,
                 tipo: formData.rol,
+                id: response.data.id 
                 // id: response.data.id // Si el backend devuelve el ID, agrégalo aquí
             };
-
+            
             // 2. Actualizar el Contexto Global (Login)
             login(userForContext);
 

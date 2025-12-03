@@ -4,12 +4,22 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/x-icon" href="/icono3232.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gacela Express</title>
+    <title>Gazella Express</title>
     <meta
     name="description"
     content="Delivery"
   />
   </head>
+  <!-- Coloca este script dentro de la etiqueta <head> o justo antes de </body> -->
+<script async defer
+src="https://maps.googleapis.com/maps/api/js?key=TU_API_KEY_DE_GOOGLE&libraries=places&callback=initMap">
+</script>
+
+<script>
+// Esta función vacía es necesaria para cumplir con el requisito 'callback=initMap'
+// del script de Google Maps, aunque no la usaremos directamente.
+function initMap() {}
+</script>
   <body>
     <script>
       // El servidor (o tú) puedes cambiar este valor aquí fácilmente.
