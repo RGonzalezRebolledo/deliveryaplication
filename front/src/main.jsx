@@ -48,7 +48,7 @@ const router = createBrowserRouter([
           },
           // Register
           {
-            path: "public/register", 
+            path: "Register", 
             element: <Register />,
           },
         ]
