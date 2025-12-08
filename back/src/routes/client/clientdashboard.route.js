@@ -4,6 +4,6 @@ import { verifyToken } from '../middlewares/verifyToken.js'; // 👈 Importar el
 
 const routerClientOrders = Router();
 
-routerClientOrders.get('client/orders',verifyToken, getClientOrders);
+routerClientOrders.get('/client/orders',verifyToken, getClientOrders);
 
 export default routerClientOrders;

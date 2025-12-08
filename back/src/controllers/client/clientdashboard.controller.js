@@ -4,7 +4,7 @@ import { pool } from '../../db.js';
 export const getClientOrders = async (req, res) => {
     // El 'id' del usuario (cliente) se extrae del token JWT
     // Se asume que este ID ya fue validado por un middleware de autenticación
-    const clienteId = user.Id; 
+    const clienteId = req.userId; 
 
     if (!clienteId) {
         return res.status(401).json({ error: 'ID de cliente no proporcionado en el token.' });

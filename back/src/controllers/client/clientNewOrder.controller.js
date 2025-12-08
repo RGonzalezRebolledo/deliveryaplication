@@ -21,43 +21,45 @@ export const createOrder = async (req, res) => {
 
         // 2. Insertar Dirección de Recogida (Origen) en la tabla 'direcciones'
         const pickupQuery = `
-            INSERT INTO direcciones (calle, ciudad, pais) 
-            VALUES ($1, $2, $3) 
+            INSERT INTO direcciones (calle, ciudad) 
+            VALUES ($1, $2) 
             RETURNING id;
         `;
         // Usamos valores por defecto para ciudad/país
-        const pickupResult = await client.query(pickupQuery, [pickup, 'Desconocida', 'CR']); 
+        const pickupResult = await client.query(pickupQuery, [pickup, 'Desconocida']); 
         const direccionRecogidaId = pickupResult.rows[0].id;
 
         // 3. Insertar Dirección de Entrega (Destino) en la tabla 'direcciones'
+                    // INSERT INTO direcciones (calle, ciudad, pais) 
         const deliveryQuery = `
-            INSERT INTO direcciones (calle, ciudad, pais) 
-            VALUES ($1, $2, $3) 
+
+            INSERT INTO direcciones (calle, ciudad) 
+            VALUES ($1, $2) 
             RETURNING id;
         `;
-        const deliveryResult = await client.query(deliveryQuery, [delivery, 'Desconocida', 'CR']); 
+        const deliveryResult = await client.query(deliveryQuery, [delivery, 'Desconocida']); 
         const direccionEntregaId = deliveryResult.rows[0].id;
 
         // 4. Insertar el Nuevo Pedido en la tabla 'pedidos'
+        // direccion_recogida_id, 
+        // detalles, 
         const orderQuery = `
             INSERT INTO pedidos (
                 cliente_id, 
-                direccion_recogida_id, 
                 direccion_entrega_id, 
                 total, 
                 estado, 
-                detalles, 
                 fecha_pedido
             ) 
-            VALUES ($1, $2, $3, $4, 'pendiente', $5, NOW())
+             VALUES ($1, $2, $3, 'pendiente', NOW())
             RETURNING id;
         `;
         const orderResult = await client.query(orderQuery, [
             clienteId, 
-            direccionRecogidaId, 
+            // direccionRecogidaId, 
             direccionEntregaId, 
             price, 
-            details
+            // details
         ]);
 
         await client.query('COMMIT'); // Confirmar la transacción
