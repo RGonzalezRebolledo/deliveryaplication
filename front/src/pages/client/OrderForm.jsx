@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -11,53 +12,115 @@ function OrderForm() {
   const [pickup, setPickup] = useState('');
   const [delivery, setDelivery] = useState('');
   const [details, setDetails] = useState('');
-  const [price, setPrice] = useState(0);
+  const [priceUSD, setPriceUSD] = useState(0); // Precio en USD (calculado)
+  const [priceVES, setPriceVES] = useState(0); // Precio en VES (convertido)
   
-  // Nuevo estado para mensajes de la UI (reemplaza alert)
+  const [exchangeRate, setExchangeRate] = useState(0); // Tasa de cambio del BCV
+  const [rateLoading, setRateLoading] = useState(true);
+
+  // Estado para mensajes de la UI
   const [message, setMessage] = useState(null);
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
 
-  const calculatePrice = () => {
-    // Lógica simulada para calcular precio (basado en la longitud de las direcciones)
+  // 1. FUNCIÓN PARA OBTENER LA TASA DE CAMBIO del Backend
+  useEffect(() => {
+    const fetchExchangeRate = async () => {
+        setRateLoading(true);
+        try {
+            const response = await axios.get(`${API_BASE_URL}/api/exchange-rate`);
+            const fetchedRate = response.data.rate;
+            setExchangeRate(fetchedRate);
+            setMessage(`Tasa BCV del día: ${fetchedRate.toFixed(2)} VES/USD.`);
+            setIsError(false);
+        } catch (error) {
+            console.error("Error al cargar la tasa de cambio:", error);
+            // Usar una tasa de fallback si la llamada falla
+            setExchangeRate(36.00); 
+            setMessage('Advertencia: No se pudo obtener la tasa BCV. Usando tasa de fallback: 36.00 VES/USD.');
+            setIsError(true);
+        } finally {
+            setRateLoading(false);
+        }
+    };
+    fetchExchangeRate();
+  }, []); 
+
+  
+  // 2. FUNCIÓN PARA CALCULAR EL PRECIO EN USD Y VES
+  const calculatePrice = useCallback(() => {
     if (pickup && delivery) {
+        // Lógica simulada para calcular precio BASE en USD
         const distanceFactor = (pickup.length + delivery.length) / 5;
-        const newPrice = 5 + distanceFactor * 1.5; // Base + Factor de distancia
-        setPrice(parseFloat(newPrice.toFixed(2)));
+        const newPriceUSD = 5 + distanceFactor * 1.5; 
+        
+        setPriceUSD(parseFloat(newPriceUSD.toFixed(2)));
+        
+        // Conversión a VES usando la tasa obtenida
+        if (exchangeRate > 0) {
+            const newPriceVES = newPriceUSD * exchangeRate;
+            setPriceVES(parseFloat(newPriceVES.toFixed(2)));
+        } else {
+            setPriceVES(0);
+        }
     } else {
-        setPrice(0);
+        setPriceUSD(0);
+        setPriceVES(0);
     }
-  };
+  }, [pickup, delivery, exchangeRate]);
+
+  // Recalcular cuando cambian los inputs o la tasa
+  useEffect(() => {
+    if (!rateLoading) {
+      calculatePrice();
+    }
+  }, [calculatePrice, rateLoading]);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage(null);
     setIsError(false);
 
-    if (!pickup || !delivery || !details || price === 0) {
-      setMessage('Por favor, completa correctamente todos los campos y calcula el precio.');
+    // Validación
+    if (!pickup || !delivery || !details || priceUSD === 0) {
+      setMessage('Por favor, completa correctamente todos los campos y espera el cálculo del precio.');
       setIsError(true);
       return;
     }
     
     setIsLoading(true);
 
-    const orderData = { pickup, delivery, details, price };
+    // 3. Enviamos ambos precios y la tasa al backend
+    const orderData = { 
+        pickup, 
+        delivery, 
+        details, 
+        price_usd: priceUSD, 
+        price_ves: priceVES,
+        exchange_rate: exchangeRate
+    };
     
     try {
-        // Llama al endpoint POST /client/new-order
         const response = await axios.post(
             `${API_BASE_URL}/client/new-order`, 
             orderData, 
             { withCredentials: true }
         );
 
-        // Éxito:
-        setMessage(`¡Pedido #${response.data.orderId} creado! Precio: $${price}. Esperando un repartidor.`);
+        // Éxito
+        setMessage(`¡Pedido #${response.data.orderId} creado! Costo: $${priceUSD.toFixed(2)} (${priceVES.toFixed(2)} VES). Esperando un repartidor.`);
         setIsError(false);
+        
+        // Limpiar
+        setPickup('');
+        setDelivery('');
+        setDetails('');
+        setPriceUSD(0);
+        setPriceVES(0);
 
-        // Redirigir al dashboard o seguimiento después de 3 segundos
+        // Redirigir
         setTimeout(() => {
             navigate('/client/dashboard');
         }, 3000);
@@ -66,7 +129,6 @@ function OrderForm() {
         console.error("Error al enviar el pedido:", error);
         setIsError(true);
         
-        // Manejo de errores específicos
         if (error.response?.status === 401 || error.response?.status === 403) {
             setMessage('Sesión expirada. Por favor, inicia sesión de nuevo.');
             setTimeout(() => navigate('/login'), 2000);
@@ -79,14 +141,23 @@ function OrderForm() {
     }
   };
 
+  // if (rateLoading) {
+  //   return (
+  //       <div className="order-wrapper">
+  //           <div className="message-box">
+  //               Cargando tasa de cambio del BCV...
+  //           </div>
+  //       </div>
+  //   );
+  // }
+
   return (
-    <div className="order-wrapper"> {/* Contenedor general si lo necesitas */}
+    <div className="order-wrapper">
       <form onSubmit={handleSubmit} className="order-form">
         <h2 className="title-heading">📍 Nuevo Pedido de Entrega</h2>
 
-        {/* --- MENSAJE DE ESTADO (Reemplazo de alert) --- */}
+        {/* --- MENSAJE DE ESTADO --- */}
         {message && (
-            // Uso de clases condicionales simples para el mensaje
             <div className={`message-box ${isError ? 'message-error' : 'message-success'}`}>
                 {message}
             </div>
@@ -135,17 +206,23 @@ function OrderForm() {
 
         {/* --- RESUMEN DE PRECIO --- */}
         <div className="price-summary">
-          <p>Costo de la entrega: **${price}**</p>
+          <p>Costo (USD): <strong>${priceUSD.toFixed(2)}</strong></p>
+          <p>Costo (VES): <strong>{priceVES.toFixed(2)} Bs.</strong></p>
+          
           <button type="button" onClick={calculatePrice} className="btn-recalculate">
             Recalcular Precio
           </button>
         </div>
 
+        <p className="exchange-rate-info" style={{ fontSize: '0.8rem', color: '#666', textAlign: 'center', marginBottom: '1rem' }}>
+            Tasa BCV: 1 USD = {exchangeRate.toFixed(2)} Bs.
+        </p>
+
         {/* --- BOTÓN DE ENVÍO --- */}
         <button 
             type="submit" 
-            disabled={isLoading}
-            className="btn-success btn-submit"
+            disabled={isLoading || priceUSD === 0}
+            className="btn-success"
         >
             {isLoading ? 'Enviando...' : 'Confirmar y Solicitar Repartidor'}
         </button>
@@ -155,6 +232,168 @@ function OrderForm() {
 }
 
 export default OrderForm;
+
+
+
+
+// import React, { useState } from 'react';
+// import { useNavigate } from 'react-router-dom';
+// import axios from 'axios';
+
+// // La URL base global definida en tu entorno
+// const API_BASE_URL = window.GLOBAL_API_URL || 'http://localhost:4000';
+
+// function OrderForm() {
+//   const navigate = useNavigate();
+
+//   const [pickup, setPickup] = useState('');
+//   const [delivery, setDelivery] = useState('');
+//   const [details, setDetails] = useState('');
+//   const [price, setPrice] = useState(0);
+  
+//   // Nuevo estado para mensajes de la UI (reemplaza alert)
+//   const [message, setMessage] = useState(null);
+//   const [isError, setIsError] = useState(false);
+//   const [isLoading, setIsLoading] = useState(false);
+
+
+//   const calculatePrice = () => {
+//     // Lógica simulada para calcular precio (basado en la longitud de las direcciones)
+//     if (pickup && delivery) {
+//         const distanceFactor = (pickup.length + delivery.length) / 5;
+//         const newPrice = 5 + distanceFactor * 1.5; // Base + Factor de distancia
+//         setPrice(parseFloat(newPrice.toFixed(2)));
+//     } else {
+//         setPrice(0);
+//     }
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     setMessage(null);
+//     setIsError(false);
+
+//     if (!pickup || !delivery || !details || price === 0) {
+//       setMessage('Por favor, completa correctamente todos los campos y calcula el precio.');
+//       setIsError(true);
+//       return;
+//     }
+    
+//     setIsLoading(true);
+
+//     const orderData = { pickup, delivery, details, price };
+    
+//     try {
+//         // Llama al endpoint POST /client/new-order
+//         const response = await axios.post(
+//             `${API_BASE_URL}/client/new-order`, 
+//             orderData, 
+//             { withCredentials: true }
+//         );
+
+//         // Éxito:
+//         setMessage(`¡Pedido #${response.data.orderId} creado! Precio: $${price}. Esperando un repartidor.`);
+//         setIsError(false);
+
+//         // Redirigir al dashboard o seguimiento después de 3 segundos
+//         setTimeout(() => {
+//             navigate('/client/dashboard');
+//         }, 3000);
+        
+//     } catch (error) {
+//         console.error("Error al enviar el pedido:", error);
+//         setIsError(true);
+        
+//         // Manejo de errores específicos
+//         if (error.response?.status === 401 || error.response?.status === 403) {
+//             setMessage('Sesión expirada. Por favor, inicia sesión de nuevo.');
+//             setTimeout(() => navigate('/login'), 2000);
+//         } else {
+//             setMessage('Error al procesar tu pedido. Inténtalo de nuevo más tarde.');
+//         }
+
+//     } finally {
+//         setIsLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="order-wrapper"> {/* Contenedor general si lo necesitas */}
+//       <form onSubmit={handleSubmit} className="order-form">
+//         <h2 className="title-heading">📍 Nuevo Pedido de Entrega</h2>
+
+//         {/* --- MENSAJE DE ESTADO (Reemplazo de alert) --- */}
+//         {message && (
+//             // Uso de clases condicionales simples para el mensaje
+//             <div className={`message-box ${isError ? 'message-error' : 'message-success'}`}>
+//                 {message}
+//             </div>
+//         )}
+        
+//         {/* --- CAMPO PUNTO DE RECOGIDA --- */}
+//         <div className="form-group">
+//           <label htmlFor="pickup">Punto de Recogida (Origen)</label>
+//           <input 
+//             id="pickup" 
+//             type="text" 
+//             value={pickup} 
+//             onChange={(e) => setPickup(e.target.value)} 
+//             onBlur={calculatePrice} 
+//             placeholder="Ej: Calle 5, Local 12"
+//             required 
+//           />
+//         </div>
+
+//         {/* --- CAMPO PUNTO DE ENTREGA --- */}
+//         <div className="form-group">
+//           <label htmlFor="delivery">Punto de Entrega (Destino)</label>
+//           <input 
+//             id="delivery" 
+//             type="text" 
+//             value={delivery} 
+//             onChange={(e) => setDelivery(e.target.value)} 
+//             onBlur={calculatePrice} 
+//             placeholder="Ej: Avenida Principal, Casa 4"
+//             required 
+//           />
+//         </div>
+
+//         {/* --- CAMPO DETALLES --- */}
+//         <div className="form-group">
+//           <label htmlFor="details">Detalles del Encargo</label>
+//           <textarea 
+//             id="details" 
+//             value={details} 
+//             onChange={(e) => setDetails(e.target.value)} 
+//             placeholder="Ej: Recoger un paquete pequeño. Pagar con efectivo."
+//             required
+//             rows="3"
+//           />
+//         </div>
+
+//         {/* --- RESUMEN DE PRECIO --- */}
+//         <div className="price-summary">
+//           <p>Costo de la entrega: **${price}**</p>
+//           <button type="button" onClick={calculatePrice} className="btn-recalculate">
+//             Recalcular Precio
+//           </button>
+//         </div>
+
+//         {/* --- BOTÓN DE ENVÍO --- */}
+//         <button 
+//             type="submit" 
+//             disabled={isLoading}
+//             className="btn-success btn-submit"
+//         >
+//             {isLoading ? 'Enviando...' : 'Confirmar y Solicitar Repartidor'}
+//         </button>
+//       </form>
+//     </div>
+//   );
+// }
+
+// export default OrderForm;
+
 
 // import React, { useState } from 'react';
 

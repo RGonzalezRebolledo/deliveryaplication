@@ -21,23 +21,23 @@ export const createOrder = async (req, res) => {
 
         // 2. Insertar Dirección de Recogida (Origen) en la tabla 'direcciones'
         const pickupQuery = `
-            INSERT INTO direcciones (calle, ciudad) 
-            VALUES ($1, $2) 
+            INSERT INTO direcciones (usuario_id,calle, ciudad) 
+            VALUES ($1, $2, $3) 
             RETURNING id;
         `;
         // Usamos valores por defecto para ciudad/país
-        const pickupResult = await client.query(pickupQuery, [pickup, 'Desconocida']); 
+        const pickupResult = await client.query(pickupQuery, [clienteId,pickup, 'Desconocida']); 
         const direccionRecogidaId = pickupResult.rows[0].id;
 
         // 3. Insertar Dirección de Entrega (Destino) en la tabla 'direcciones'
                     // INSERT INTO direcciones (calle, ciudad, pais) 
         const deliveryQuery = `
 
-            INSERT INTO direcciones (calle, ciudad) 
-            VALUES ($1, $2) 
+            INSERT INTO direcciones (usuario_id,calle, ciudad) 
+            VALUES ($1, $2, $3) 
             RETURNING id;
         `;
-        const deliveryResult = await client.query(deliveryQuery, [delivery, 'Desconocida']); 
+        const deliveryResult = await client.query(deliveryQuery, [clienteId,delivery, 'Desconocida']); 
         const direccionEntregaId = deliveryResult.rows[0].id;
 
         // 4. Insertar el Nuevo Pedido en la tabla 'pedidos'
