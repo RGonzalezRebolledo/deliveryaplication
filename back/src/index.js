@@ -13,6 +13,7 @@ import routerExchangeRate from './routes/exchangeRate.route.js'
 import routerCalculateDeliveryCost from './routes/delivery.route.js'
 import { clearDatabase, initializeDatabase } from './db.js';
 import cookieParser from 'cookie-parser';
+import routerClientAddresses from './routes/client/clientaddresses.route.js'
 
 
 
@@ -73,6 +74,7 @@ app.use((err, req, res, next) => {
   app.use(routerClientNewOrder)
   app.use(routerExchangeRate) 
   app.use(routerCalculateDeliveryCost)  
+  app.use (routerClientAddresses)
 
   app.listen (pgdb.PORT)
 app.delete('/clear-db', async (req, res) => {

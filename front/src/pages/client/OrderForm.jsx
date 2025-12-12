@@ -19,6 +19,10 @@ function OrderForm() {
     // weightKg: '', // Peso en kilogramos
   });
 
+// --- 2. NUEVO ESTADO: ALMACENAR DIRECCIONES REGISTRADAS ---
+const [userAddresses, setUserAddresses] = useState([]);
+const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
+
   // --- 2. ESTADO DEL PRECIO Y TASA (Calculados por el Backend) ---
   const [price, setPrice] = useState({
     priceUSD: 0,
@@ -33,17 +37,33 @@ function OrderForm() {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
 
+  // -------------------------------------------------------------
+    // 🛑 ARREGLO DEL ERROR: useEffect debe estar aquí, en el nivel superior
+    // -------------------------------------------------------------
+    useEffect(() => {
+      const fetchAddresses = async () => {
+          try {
+              // Suponemos un endpoint GET /client/addresses
+              const response = await axios.get(`${API_BASE_URL}/client/addresses`, { 
+                  withCredentials: true 
+              });
+              
+              const addressStrings = response.data.map(addr => addr.calle);
+              setUserAddresses(addressStrings);
+
+          } catch (err) {
+              console.error('Error al cargar direcciones:', err);
+              // Aquí podrías manejar el error de carga de direcciones si fuera crítico
+          } finally {
+              setIsLoadingAddresses(false); // ⬅️ Esto habilita los inputs
+          }
+      };
+
+      fetchAddresses();
+  }, [API_BASE_URL]);
+  // -------------------------------------------------------------
+
   // Manejador genérico para la entrada de datos
-  // const handleChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setFormData(prevData => ({
-  //     ...prevData,
-  //     [name]: value
-  //   }));
-  //   // Limpiar mensajes y resetear cálculo al cambiar la dirección
-  //   setError(null);
-  //   setPrice({ priceUSD: 0, priceVES: 0, exchangeRate: 0, isCalculated: false });
-  // };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -51,6 +71,7 @@ function OrderForm() {
       ...prevData,
       [name]: value
     }));
+
     
     // **CORRECCIÓN APLICADA AQUÍ:** // Solo limpiar mensajes y resetear cálculo si el cambio afecta la lógica de precios
     if (name === 'pickup' || name === 'delivery') {
@@ -107,17 +128,18 @@ function OrderForm() {
     }
   }, [formData.pickup, formData.delivery, API_BASE_URL]);
 
-  // --- 5. EFECTO PARA DISPARAR EL CÁLCULO AL CAMBIAR LAS DIRECCIONES ---
-  useEffect(() => {
-    // Se ejecuta al cambiar direcciones o peso
-    const handler = setTimeout(() => {
-        calculateCost();
-    }, 500); // Debounce de 500ms
-
-    return () => {
-        clearTimeout(handler);
-    };
-  }, [formData.pickup, formData.delivery, calculateCost]);
+  
+  // // --- 5. EFECTO PARA DISPARAR EL CÁLCULO AL salir de los input de LAS DIRECCIONES ---
+    const handleBlur = (e) => {
+        const { name } = e.target;
+        // Solo proceder si el campo que perdió el foco es 'pickup' o 'delivery'
+        // y si AMBOS campos tienen contenido.
+        if ((name === 'pickup' || name === 'delivery') && formData.pickup && formData.delivery) {
+            // Se espera un pequeño retraso para asegurar que React actualice el estado
+            // antes de llamar a calculateCost, aunque en la práctica el estado ya está actualizado.
+            calculateCost();
+        }
+      };
 
 
   // --- 6. MANEJADOR DEL ENVÍO FINAL DEL FORMULARIO ---
@@ -138,8 +160,8 @@ function OrderForm() {
       // Datos completos a enviar al endpoint de creación de orden
       const orderPayload = { 
         ...formData, 
-        price: price.priceVES
-        // price_usd: price.priceUSD,
+        price: price.priceVES,
+         price_usd: price.priceUSD,
         // price_ves: price.priceVES,
         // exchange_rate: price.exchangeRate
       };
@@ -200,8 +222,11 @@ function OrderForm() {
               id="pickup"
               value={formData.pickup}
               onChange={handleChange}
-              placeholder="Ej: Calle Principal 101, Altamira"
+              onBlur={handleBlur} // dispara la funcion al dejar el focus
+              placeholder={isLoadingAddresses ? "Cargando direcciones..." : "Ej: Avenida Central 50, Petare"}
               required
+              list="user-addresses" // ⬅️ Agregado: Vincula el input al datalist
+              disabled={isLoadingAddresses}
             />
           </div>
 
@@ -214,10 +239,23 @@ function OrderForm() {
               id="delivery"
               value={formData.delivery}
               onChange={handleChange}
-              placeholder="Ej: Avenida Central 50, Petare"
+              onBlur={handleBlur} // dispara la funcion al dejar el focus
+              placeholder={isLoadingAddresses ? "Cargando direcciones..." : "Ej: Avenida Central 50, Petare"}
               required
+              list="user-addresses" // ⬅️ Agregado: Vincula el input al datalist
+              disabled={isLoadingAddresses}
             />
           </div>
+
+          {/* ------------------------------------------- */}
+                    {/* ⬇️ NUEVO: ELEMENTO DATALIST PARA SUGERENCIAS ⬇️ */}
+                    {/* ------------------------------------------- */}
+                    <datalist id="user-addresses">
+                        {userAddresses.map((address, index) => (
+                            <option key={index} value={address} />
+                        ))}
+                    </datalist>
+                    {/* ------------------------------------------- */}
 
           {/* Campo de Descripción y Peso */}
           <div className="form-group-flex">

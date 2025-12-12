@@ -1,28 +1,26 @@
-
 -- ------------------------------------------------------------------
--- SCRIPT COMPLETO PARA CONSOLA PSQL - ESQUEMA 'delivery'
+-- SCRIPT COMPLETO PARA CONSOLA PSQL - ESQUEMA 'delivery' (MODIFICADO)
 -- ------------------------------------------------------------------
 
 -- 1. CONFIGURACIÓN INICIAL (Opcional: solo si necesitas recrear la DB)
 -- CREATE DATABASE delivery;
--- \c delivery -- Descomentar y ejecutar solo si necesitas cambiar a la nueva DB
+-- \c delivery 
 
 -- 2. LIMPIEZA: Eliminar la vista y tablas existentes para una ejecución limpia
 DROP VIEW IF EXISTS vista_pedidos_resumen;
-
 DROP TABLE IF EXISTS repartidores_pedidos;
 DROP TABLE IF EXISTS pedido_detalles;
 DROP TABLE IF EXISTS pedidos;
 DROP TABLE IF EXISTS direcciones;
 DROP TABLE IF EXISTS productos;
-DROP TABLE IF EXISTS repartidores; -- Eliminar primero repartidores
-DROP TABLE IF EXISTS usuarios CASCADE; -- CASCADE asegura que se eliminen dependencias como índices
+DROP TABLE IF EXISTS repartidores; 
+DROP TABLE IF EXISTS usuarios CASCADE; 
 
 -- ------------------------------------------------------------------
 -- 3. CREACIÓN DE TABLAS (con password_hash)
 -- ------------------------------------------------------------------
 
--- Crear tabla: usuarios (¡password_hash incluido!)
+-- Crear tabla: usuarios
 CREATE TABLE usuarios (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
@@ -30,7 +28,7 @@ CREATE TABLE usuarios (
     telefono VARCHAR(20),
     tipo VARCHAR(20) NOT NULL CHECK (tipo IN ('cliente', 'repartidor')),
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    password_hash VARCHAR(255) NOT NULL -- Campo obligatorio para hashes de contraseña
+    password_hash VARCHAR(255) NOT NULL
 );
 
 -- Crear tabla: productos
@@ -54,15 +52,25 @@ CREATE TABLE direcciones (
     longitud DECIMAL(9, 6)
 );
 
--- Crear tabla: pedidos
+-- Crear tabla: pedidos (¡CAMPOS MODIFICADOS AQUÍ!)
 CREATE TABLE pedidos (
     id SERIAL PRIMARY KEY,
     cliente_id INT REFERENCES usuarios(id) ON DELETE CASCADE,
     direccion_entrega_id INT REFERENCES direcciones(id),
     fecha_pedido TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     estado VARCHAR(20) DEFAULT 'pendiente' CHECK (estado IN ('pendiente', 'en_preparacion', 'en_camino', 'entregado', 'cancelado')),
-    total DECIMAL(10, 2) NOT NULL
+    total DECIMAL(10, 2) NOT NULL,
+    
+    -- *** NUEVOS CAMPOS AGREGADOS ***
+    total_dolar DECIMAL(10, 2), -- Nuevo campo para el total en dólares (permite NULL temporalmente o 0 si no se calcula)
+    direccion_origen_id INT NOT NULL REFERENCES direcciones(id) -- Nuevo campo, la FK debe ser NOT NULL si es la dirección principal
+    -- *** FIN DE CAMPOS AGREGADOS ***
 );
+
+-- Nota: He renombrado 'direccion_entrega_id' por 'direccion_destino_id' en el nuevo campo
+-- y asumí que la clave original 'direccion_entrega_id' ya cumple un propósito.
+-- Si quieres reemplazar 'direccion_entrega_id' con 'direccion_destino_id', el campo original debería llamarse de otra forma (por ejemplo, direccion_origen_id) 
+-- o simplemente usa 'direccion_destino_id' como el único campo de dirección si son equivalentes.
 
 -- Crear tabla: pedido_detalles
 CREATE TABLE pedido_detalles (
@@ -81,7 +89,7 @@ CREATE TABLE repartidores_pedidos (
     fecha_asignacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Nueva tabla: repartidores (datos adicionales para repartidores)
+-- Nueva tabla: repartidores 
 CREATE TABLE repartidores (
     id SERIAL PRIMARY KEY,
     usuario_id INT REFERENCES usuarios(id) ON DELETE CASCADE UNIQUE, 
@@ -92,11 +100,12 @@ CREATE TABLE repartidores (
 );
 
 -- ------------------------------------------------------------------
--- 4. CREACIÓN DE ÍNDICES
+-- 4. CREACIÓN DE ÍNDICES (¡Índice adicional para el nuevo campo!)
 -- ------------------------------------------------------------------
 
 CREATE INDEX idx_pedidos_cliente ON pedidos(cliente_id);
 CREATE INDEX idx_pedidos_estado ON pedidos(estado);
+CREATE INDEX idx_pedidos_direccion_destino ON pedidos(direccion_destino_id); -- Nuevo índice
 CREATE INDEX idx_direcciones_usuario ON direcciones(usuario_id);
 CREATE INDEX idx_pedido_detalles_pedido ON pedido_detalles(pedido_id);
 CREATE INDEX idx_repartidores_pedidos_repartidor ON repartidores_pedidos(repartidor_id);
@@ -113,14 +122,20 @@ SELECT
     p.fecha_pedido,
     p.estado,
     p.total,
+    p.total_dolar, -- Campo agregado a la vista
     d.calle || ', ' || d.ciudad AS direccion_entrega,
     COUNT(pd.id) AS num_productos
 FROM pedidos p
 JOIN usuarios u ON p.cliente_id = u.id
-JOIN direcciones d ON p.direccion_entrega_id = d.id
+JOIN direcciones d ON p.direccion_destino_id = d.id -- CAMBIÉ a direccion_destino_id
 LEFT JOIN pedido_detalles pd ON p.id = pd.pedido_id
-GROUP BY p.id, u.nombre, p.fecha_pedido, p.estado, p.total, d.calle, d.ciudad;
+GROUP BY p.id, u.nombre, p.fecha_pedido, p.estado, p.total, p.total_dolar, d.calle, d.ciudad;
 
+-- ------------------------------------------------------------------
+-- 6. INSERCIÓN DE DATOS DE EJEMPLO (Solo como referencia, necesitarías modificar los datos para usar los nuevos campos)
+-- ------------------------------------------------------------------
+
+-- ... (Resto de las inserciones, deben ser adaptadas para incluir los nuevos campos)
 -- ------------------------------------------------------------------
 -- 6. INSERCIÓN DE DATOS DE EJEMPLO
 -- ------------------------------------------------------------------

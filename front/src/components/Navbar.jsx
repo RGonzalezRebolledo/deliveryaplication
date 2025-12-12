@@ -2,6 +2,8 @@
 import React from 'react';
 import { useAuth } from '../hooks/AuthContext'; // 💡 Importar el Hook de Auth
 import { useNavigate } from 'react-router-dom'; // 💡 Importar useNavigate
+import logogazella from '../assets/logo.png';
+import '../styles/navbar.css';
 
 const Navbar = () => {
     const { user, isAuthenticated, logout } = useAuth(); // Obtener el estado y la función
@@ -19,16 +21,23 @@ const Navbar = () => {
     return (
         
         // <div className="hero-visual-container" >
-<nav style={{ marginBottom: 15 }} > 
+<nav className="navbar" style={{ marginBottom: 15 }} > 
+
+        <img src={logogazella} alt="gazella" className="navbar-logo"/>
+  
     {isAuthenticated ? (
-        <div className="hero-visual-container">
+        // <div className="hero-visual-container">
+        <div className="user-info">
+        
             <span>{user.nombre} ({user.tipo})</span>
             <button onClick={handleLogout}>Cerrar Sesión</button>
         </div>
     ) : (
         // 💡 CAMBIO AQUÍ: Renderiza null si no está autenticado
-        <p>GACELA</p>
+        // <p>GACELA</p>
+        null
     )}
+  
 </nav>
 // </div>
     //     <nav>

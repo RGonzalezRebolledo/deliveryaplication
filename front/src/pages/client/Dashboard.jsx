@@ -22,7 +22,8 @@ function ClientDashboard() {
     
     // Si no está autenticado, no hacemos la petición
     if (!isAuthenticated) {
-      navigate('/login');
+      // navigate('/public/login'); 
+       navigate('/');
       return;
     }
 
@@ -47,7 +48,8 @@ function ClientDashboard() {
           
           setError('Tu sesión ha expirado o es inválida. Redirigiendo al inicio de sesión...');
           setTimeout(() => {
-            navigate('/login'); // Redirige al login para reautenticar
+            // navigate('/public/login'); // Redirige al login para reautenticar
+            navigate('/');
           }, 1500);
 
         } 
@@ -143,8 +145,6 @@ function ClientDashboard() {
 }
 
 export default ClientDashboard;
-
-
 
 
 

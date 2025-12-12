@@ -370,3 +370,13 @@ hr {
   .mi-enlace:active {
     color: darkblue; /* Color cuando se hace clic */
   }
+
+  /* ========================================================= */
+/* 7. ESTILOS DE navbar.JSX */
+/* ========================================================= */
+
+.contenedor-imagen {
+    width: 50px;
+    height: 50px;
+    overflow: hidden; /* Asegura que no se vea el recorte */
+  }

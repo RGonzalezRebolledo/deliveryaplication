@@ -1,0 +1,62 @@
+/* --------------------------------------
+   1. Contenedor Principal (Navbar)
+   -------------------------------------- */
+   .navbar {
+    /* Activa Flexbox para alinear los hijos (Logo y User-Info) */
+    display: flex;
+    
+    /* Mantiene el logo a la izquierda y la info a la derecha,
+       distanciando todo lo posible */
+    justify-content: space-between;
+    
+    /* Centra verticalmente los elementos (imagen, texto, botón) */
+    align-items: center;
+    
+    /* Estilo básico para el navbar */
+    background-color: white; /* Un fondo suave */
+    padding: 5px 5px; /* Espacio interior */
+    /*box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+}
+
+/* --------------------------------------
+   2. Imagen del Logo (Izquierda)
+   -------------------------------------- */
+.navbar-logo {
+    /* Define el ancho máximo para que sea responsive. 
+       Asegura que no ocupe más de, por ejemplo, 150px,
+       pero se encogerá si es necesario. */
+    max-width: 160px; 
+    
+    /* Mantiene la proporción automáticamente */
+    height: auto; 
+}
+
+
+/* --------------------------------------
+   3. Contenedor de Información del Usuario (Derecha)
+   -------------------------------------- */
+.user-info {
+    /* También usa Flexbox para alinear el nombre y el botón */
+    display: flex;
+    align-items: center; /* Centra verticalmente el texto y el botón */
+    gap: 15px; /* Espacio entre el nombre y el botón */
+}
+
+.user-info span {
+    /* Estilo del nombre del cliente */
+    font-weight: 600;
+    color: #333;
+}
+
+.user-info button {
+    /* Estilo del botón */
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.user-info button:hover {
+    background-color: #e0e0e0;
+}
