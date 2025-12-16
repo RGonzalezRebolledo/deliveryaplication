@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getBcvExchangeRate } from "../controllers/exchangeRate.controller.js";
+import { getBcvExchangeRate } from "../../controllers/apis/exchangeRate.controller.js";
 
 const routerExchangeRate = Router();
 

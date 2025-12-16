@@ -46,7 +46,8 @@ export const validateUser = async (req, res) => {
         const tokenPayload = {
             id: user.id,
             email: user.email,
-            tipo: user.tipo 
+            tipo: user.tipo,
+            nombre: user.nombre
         };
 
         const token = jwt.sign(

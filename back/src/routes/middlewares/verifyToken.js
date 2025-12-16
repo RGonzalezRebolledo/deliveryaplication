@@ -34,6 +34,7 @@ export const verifyToken = (req, res, next) => {
 
         // Opcional: Adjuntar el tipo de usuario (útil para validar permisos)
         req.userTipo = decoded.tipo;
+        req.userName = decoded.nombre;
         
         // 4. Continuar al controlador
         next();

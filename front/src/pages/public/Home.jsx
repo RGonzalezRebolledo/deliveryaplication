@@ -22,25 +22,19 @@ function Home() {
   return (
     <div className="home-page">
 
-      <div className="hero-section">
-        <h1 className="hero-visual-container">🚀</h1> {/* Corregí la clase (eliminé el punto inicial) */}
+      {/* <div className="hero-section"> */}
+        {/* <h1 className="hero-visual-container">🚀</h1> Corregí la clase (eliminé el punto inicial) */}
 
-        <Link to="/contact" className="mi-enlace" >Contacto</Link>
+        {/* <Link to="/contact" className="mi-enlace" >Contacto</Link> */}
         {/* <Link to="/public/Login" className="mi-enlace" >Acceder</Link>  */}
 
-        </div>
+        {/* </div> */}
                   {/* Inserta el componente del botón aquí */}
-        <div >
+      <div >
       <PWAInstallManager/>
       </div>
-      {/* <div className="hero-section">
-      <Link to="/public/Login" className="mi-enlace" >Cliente</Link>  
-      </div>
-      <div className="hero-section">
-      <Link to="/public/Login" className="mi-enlace" >Deliver</Link>  
-      </div> */}
-
        <div className="hero-section">
+
         {/* Pasamos el role 'cliente' en el state del Link */}
         <Link to="/public/Login" state={{ role: 'cliente' }} className="mi-enlace">Cliente</Link>
       </div>

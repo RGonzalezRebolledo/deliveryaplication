@@ -47,10 +47,10 @@ function ClientDashboard() {
           // if (logout) logout(); 
           
           setError('Tu sesión ha expirado o es inválida. Redirigiendo al inicio de sesión...');
-          setTimeout(() => {
-            // navigate('/public/login'); // Redirige al login para reautenticar
-            navigate('/');
-          }, 1500);
+          // setTimeout(() => {
+          //   // navigate('/public/login'); // Redirige al login para reautenticar
+          //   navigate('/');
+          // }, 1500);
 
         } 
         if (response.length === 0) {

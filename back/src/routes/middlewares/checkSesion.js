@@ -8,6 +8,7 @@ export const checkSesion = async (req, res) => {
         user: { 
             id: req.userId,
             tipo: req.userTipo,
+            nombre: req.userName
             // (Opcional) Puedes hacer una pequeña consulta a la BD para obtener el nombre completo si lo necesitas aquí.
         }
     });

@@ -50,11 +50,24 @@
 
 .user-info button {
     /* Estilo del botón */
-    padding: 8px 12px;
-    border: 1px solid #ccc;
+    /* padding: 8px 12px;
+    border: .5px solid #ccc;
     border-radius: 4px;
     background-color: #fff;
+    cursor: pointer; */
+
+    background-color: var(--color-primary);
+    color: var(--color-text-light);
+    margin-top: 10px;
     cursor: pointer;
+    padding: var(--spacing-sm) var(--spacing-sm);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: .9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* background-color: #e04b4f; */
 }
 
 .user-info button:hover {

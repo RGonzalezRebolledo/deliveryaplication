@@ -9,7 +9,7 @@ import routerAuth from './routes/auth.route.js'
 import routerClientOrders from './routes/client/clientdashboard.route.js'
 import routerCheckSesion from './routes/checkSesion.route.js'
 import routerClientNewOrder from './routes/client/clientNewOrder.route.js'
-import routerExchangeRate from './routes/exchangeRate.route.js' 
+import routerExchangeRate from './routes/apis/exchangeRate.route.js' 
 import routerCalculateDeliveryCost from './routes/delivery.route.js'
 import { clearDatabase, initializeDatabase } from './db.js';
 import cookieParser from 'cookie-parser';
