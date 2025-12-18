@@ -258,7 +258,22 @@ const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
                     </datalist>
                     {/* ------------------------------------------- */}
 
-          {/* Campo de Descripción y Peso */}
+          
+          {/* ttipo de pedido */}
+          <div className="form-group">
+            <label htmlFor="typedelivery"> Tipo de pedido</label>
+            <input
+              type="text"
+              name="typedelivery"
+              id="typedelivery"
+              value={formData.pay}
+              onChange={handleChange}
+              placeholder='Indique el tipo de delivery'
+              required
+            />
+          </div>
+
+          {/* Campo de Descripción*/}
           <div className="form-group-flex">
             
             {/* Descripción del Paquete */}
@@ -308,6 +323,19 @@ const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
             )}
           </div>
           
+          {/* Comprobante de pago */}
+          <div className="form-group">
+            <label htmlFor="receptpay"> Nro Comprobante de pago</label>
+            <input
+              type="text"
+              name="receptpay"
+              id="preceptpay"
+              value={formData.pay}
+              onChange={handleChange}
+              placeholder='Indique nro de comprobante de pago'
+              required
+            />
+          </div>
 
           {/* Botón de Envío */}
           <button
