@@ -17,6 +17,8 @@ function OrderForm() {
     pickup: '', // Dirección de recogida
     delivery: '', // Dirección de entrega
     details: '', // Descripción del paquete
+    typevehicle: "",
+    typeservice: ''
     // weightKg: '', // Peso en kilogramos
   });
 
@@ -152,7 +154,7 @@ const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
 
     // Validación final: El precio debe haber sido calculado exitosamente
     if (!price.isCalculated || price.priceUSD <= 0) {
-      setError('Por favor, espera a que el costo del delivery sea calculado y validado.');
+      setError('Por favor, espera a que el costo del servicio sea calculado y validado.');
       setIsSubmitting(false);
       return;
     }
@@ -197,7 +199,7 @@ const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
         {/* Reemplazado Tailwind: title-heading */}
         <h2 className="title-heading">🚚 Nueva Solicitud de Entrega</h2>
         <p className="text-muted">
-            Ingresa los detalles para que un repartidor pueda tomar tu pedido.
+            Ingresa los detalles para que un Conductor pueda tomar tu pedido.
         </p>
 
         {/* Mensajes de estado (Usando message-box) */}
@@ -258,19 +260,39 @@ const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
                     </datalist>
                     {/* ------------------------------------------- */}
 
+{/* tipo de Vehiculo */}
+<div className="form-group">
+  <label htmlFor="typevehicle">Tipo de Vehiculo</label>
+  <select
+    name="typevehicle"
+    id="typevehicle"
+    value={formData.typevehicle} // Nota: Cambié .pay por .typedelivery para que coincida con el name
+    onChange={handleChange}
+    required
+  >
+{/* Esta opción aparece por defecto y no es seleccionable después */}
+<option value="" disabled hidden>Seleccione un vehículo</option>
+    <option value="moto">Moto</option>
+    <option value="carro">Carro</option>
+  </select>
+</div>
           
-          {/* ttipo de pedido */}
+          {/* tipo de servicio */}
           <div className="form-group">
-            <label htmlFor="typedelivery"> Tipo de pedido</label>
-            <input
-              type="text"
-              name="typedelivery"
-              id="typedelivery"
-              value={formData.pay}
-              onChange={handleChange}
-              placeholder='Indique el tipo de delivery'
-              required
-            />
+          <label htmlFor="typeservice">Tipo de Servicio</label>
+  <select
+    name="typeservice"
+    id="typeservice"
+    value={formData.typeservice}
+    onChange={handleChange}
+    required
+  >
+{/* Esta opción aparece por defecto y no es seleccionable después */}
+<option value="" disabled hidden>Seleccione un Servicio</option>
+    <option value="entrega">entrega</option>
+    <option value="taxi">taxi</option>
+    <option value="compra">compras</option>
+  </select>
           </div>
 
           {/* Campo de Descripción*/}

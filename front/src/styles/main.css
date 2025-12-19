@@ -24,6 +24,7 @@
     --spacing-xl: 40px;
 
     /* Bordes y Sombras */
+    --radius-sm: 8px;
     --radius-md: 12px;
     --shadow-card: 0 4px 12px var(--color-shadow);
 }
@@ -243,17 +244,19 @@ hr {
 }
 
 .form-group input, 
-.form-group textarea {
+.form-group textarea,
+.form-group select{
     width: 100%;
     padding: var(--spacing-sm);
     border: 1px solid #ccc;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-sm);
     font-size: 1rem;
     transition: border-color 0.2s;
 }
 
 .form-group input:focus, 
-.form-group textarea:focus {
+.form-group textarea:focus
+ {
     border-color: var(--color-secondary);
     outline: none;
 }
