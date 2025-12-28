@@ -26,7 +26,7 @@ CREATE TABLE usuarios (
     nombre VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL, 
     telefono VARCHAR(20),
-    tipo VARCHAR(20) NOT NULL CHECK (tipo IN ('cliente', 'repartidor')),
+    tipo VARCHAR(20) NOT NULL CHECK (tipo IN ('cliente', 'repartidor', 'administrador', 'supervisor')),
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     password_hash VARCHAR(255) NOT NULL
 );
@@ -130,6 +130,19 @@ JOIN usuarios u ON p.cliente_id = u.id
 JOIN direcciones d ON p.direccion_destino_id = d.id -- CAMBIÉ a direccion_destino_id
 LEFT JOIN pedido_detalles pd ON p.id = pd.pedido_id
 GROUP BY p.id, u.nombre, p.fecha_pedido, p.estado, p.total, p.total_dolar, d.calle, d.ciudad;
+
+-- Habilitar extensión de seguridad
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- Insertar Administrador por defecto si no existe
+INSERT INTO usuarios (nombre, email, telefono, tipo, password_hash)
+SELECT 'Administrador Global', 'ramongonzalez101@gmail.com', '999999', 'administrador', crypt('admin1234', gen_salt('bf'))
+WHERE NOT EXISTS (
+    SELECT 1 FROM usuarios WHERE email = 'ramongonzalez101@gmail.com'
+);
+
+
+
 
 -- ------------------------------------------------------------------
 -- 6. INSERCIÓN DE DATOS DE EJEMPLO (Solo como referencia, necesitarías modificar los datos para usar los nuevos campos)

@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import express from 'express'
 import { pgdb } from './config.js'
-import morgan  from 'morgan'
+import morgan from 'morgan'
 import cors from 'cors'
 import routerUsers from './routes/users.route.js'
 import routerLogin from './routes/login.route.js'
@@ -11,76 +11,162 @@ import routerCheckSesion from './routes/checkSesion.route.js'
 import routerClientNewOrder from './routes/client/clientNewOrder.route.js'
 import routerExchangeRate from './routes/apis/exchangeRate.route.js' 
 import routerCalculateDeliveryCost from './routes/delivery.route.js'
-import { clearDatabase, initializeDatabase } from './db.js';
+import { clearDatabase } from './db.js';
 import cookieParser from 'cookie-parser';
 import routerClientAddresses from './routes/client/clientaddresses.route.js'
 
+const app = express();
 
+// --- CONFIGURACIÓN DE CORS ---
+// Dividimos el string del .env por comas y limpiamos espacios en blanco
+const allowedOrigins = process.env.FRONTEND_URL_DEV 
+    ? process.env.FRONTEND_URL_DEV.split(',').map(origin => origin.trim()) 
+    : [];
 
-const app = express ();
-
-app.use (morgan('dev'))
-// app.use(cors());
-
-// app.use(cors({
-//   origin: process.env.PORT, // Reemplaza con el origen exacto de tu frontend
-//   credentials: true,               // 💡 DEBE SER TRUE EN EL BACKEND
-//   // ... otros headers permitidos
-// }));
-
-// app.use(cors({
-//   origin: '*', // PERMITE TODOS LOS ORÍGENES (NO USAR EN PRODUCCIÓN)
-//   credentials: true,
-// }));
-
-const allowedOrigins = [
-  process.env.FRONTEND_URL_DEV, // 💡 ¡AGREGA EL ORIGEN CORRECTO DE VITE!
-  process.env.FRONTEND_URL_PROD, // (Si quieres mantener el antiguo por si acaso)
-  // Agrega aquí tu URL de producción (ej: https://deliveryaplication-ioll.vercel.app)
-];
+// Si tienes una URL de producción, la añadimos al array
+if (process.env.FRONTEND_URL_PROD) {
+    allowedOrigins.push(process.env.FRONTEND_URL_PROD.trim());
+}
 
 app.use(cors({
-  origin: (origin, callback) => {
-      // Permitir solicitudes sin origen (para herramientas REST o CURL) o si está en la lista blanca
-      if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);
-      } else {
-          callback(new Error('Not allowed by CORS'));
-      }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE']
+    origin: (origin, callback) => {
+        // Permitir solicitudes sin origen (como Postman) o si el origen está en la lista
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            console.error(`CORS Error: El origen ${origin} no está permitido`);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
+// -----------------------------
 
-app.use (express.json())
-app.use (express.urlencoded({extended: false}))
+app.use(morgan('dev'))
+app.use(express.json())
+app.use(express.urlencoded({ extended: false }))
+app.use(cookieParser());
 
+// Rutas
+app.use(routerCheckSesion)
+app.use(routerUsers)
+app.use(routerLogin)
+app.use(routerAuth)
+app.use(routerClientOrders)
+app.use(routerClientNewOrder)
+app.use(routerExchangeRate) 
+app.use(routerCalculateDeliveryCost)  
+app.use(routerClientAddresses)
 
-
-// handling errors
-app.use((err, req, res, next) => {
-    return res.status(500).json({
-      status: "error",
-      message: err.message,
-    });
-  });
-
-  app.use(cookieParser()); // 👈 Usar antes de tus rutas
-  app.use(routerCheckSesion)
-  app.use(routerUsers)
-  app.use(routerLogin)
-  app.use(routerAuth)
-  app.use(routerClientOrders)
-  app.use(routerClientNewOrder)
-  app.use(routerExchangeRate) 
-  app.use(routerCalculateDeliveryCost)  
-  app.use (routerClientAddresses)
-
-  app.listen (pgdb.PORT)
+// Endpoint de mantenimiento
 app.delete('/clear-db', async (req, res) => {
-  await clearDatabase();
-  res.json({ message: 'Base de datos limpiada' });
+    try {
+        await clearDatabase();
+        res.json({ message: 'Base de datos limpiada' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
-console.log ('conectado en el puerto', pgdb.PORT)
+// Manejo de errores global
+app.use((err, req, res, next) => {
+    return res.status(500).json({
+        status: "error",
+        message: err.message,
+    });
+});
+
+app.listen(pgdb.PORT, () => {
+    console.log('Conectado en el puerto', pgdb.PORT);
+    console.log('Orígenes permitidos:', allowedOrigins);
+});
+
+
+
+// import 'dotenv/config'
+// import express from 'express'
+// import { pgdb } from './config.js'
+// import morgan  from 'morgan'
+// import cors from 'cors'
+// import routerUsers from './routes/users.route.js'
+// import routerLogin from './routes/login.route.js'
+// import routerAuth from './routes/auth.route.js'
+// import routerClientOrders from './routes/client/clientdashboard.route.js'
+// import routerCheckSesion from './routes/checkSesion.route.js'
+// import routerClientNewOrder from './routes/client/clientNewOrder.route.js'
+// import routerExchangeRate from './routes/apis/exchangeRate.route.js' 
+// import routerCalculateDeliveryCost from './routes/delivery.route.js'
+// import { clearDatabase, initializeDatabase } from './db.js';
+// import cookieParser from 'cookie-parser';
+// import routerClientAddresses from './routes/client/clientaddresses.route.js'
+
+
+
+// const app = express ();
+
+// app.use (morgan('dev'))
+// // app.use(cors());
+
+// // app.use(cors({
+// //   origin: process.env.PORT, // Reemplaza con el origen exacto de tu frontend
+// //   credentials: true,               // 💡 DEBE SER TRUE EN EL BACKEND
+// //   // ... otros headers permitidos
+// // }));
+
+// // app.use(cors({
+// //   origin: '*', // PERMITE TODOS LOS ORÍGENES (NO USAR EN PRODUCCIÓN)
+// //   credentials: true,
+// // }));
+
+// const allowedOrigins = [
+//   process.env.FRONTEND_URL_DEV, // 💡 ¡AGREGA EL ORIGEN CORRECTO DE VITE!
+//   process.env.FRONTEND_URL_PROD, // (Si quieres mantener el antiguo por si acaso)
+//   // Agrega aquí tu URL de producción (ej: https://deliveryaplication-ioll.vercel.app)
+// ];
+
+// app.use(cors({
+//   origin: (origin, callback) => {
+//       // Permitir solicitudes sin origen (para herramientas REST o CURL) o si está en la lista blanca
+//       if (!origin || allowedOrigins.includes(origin)) {
+//           callback(null, true);
+//       } else {
+//           callback(new Error('Not allowed by CORS'));
+//       }
+//   },
+//   credentials: true,
+//   methods: ['GET', 'POST', 'PUT', 'DELETE']
+// }));
+
+// app.use (express.json())
+// app.use (express.urlencoded({extended: false}))
+
+
+
+// // handling errors
+// app.use((err, req, res, next) => {
+//     return res.status(500).json({
+//       status: "error",
+//       message: err.message,
+//     });
+//   });
+
+//   app.use(cookieParser()); // 👈 Usar antes de tus rutas
+//   app.use(routerCheckSesion)
+//   app.use(routerUsers)
+//   app.use(routerLogin)
+//   app.use(routerAuth)
+//   app.use(routerClientOrders)
+//   app.use(routerClientNewOrder)
+//   app.use(routerExchangeRate) 
+//   app.use(routerCalculateDeliveryCost)  
+//   app.use (routerClientAddresses)
+
+//   app.listen (pgdb.PORT)
+// app.delete('/clear-db', async (req, res) => {
+//   await clearDatabase();
+//   res.json({ message: 'Base de datos limpiada' });
+// });
+
+// console.log ('conectado en el puerto', pgdb.PORT)
 
