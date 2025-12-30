@@ -46,6 +46,7 @@
     /* Estilo del nombre del cliente */
     font-weight: 600;
     color: #333;
+    text-transform: uppercase;
 }
 
 .user-info button {

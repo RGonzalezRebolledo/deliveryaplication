@@ -1,10 +1,10 @@
 
-import { pool } from '../db.js';
+import { pool } from '../../db.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-export const validateUser = async (req, res) => {
-    const { email, password, tipo } = req.body; 
+export const validateUserAdmin = async (req, res) => {
+    const { email, password} = req.body; 
 
     // 1. Validación de entrada obligatoria
     if (!email || !password) {
@@ -31,18 +31,15 @@ export const validateUser = async (req, res) => {
             return res.status(401).json({ error: 'Email o clave incorrecta' });
         }
 
-        // 💡 4. VALIDACIÓN CONDICIONAL DEL TIPO DE USUARIO
-        // Solo se ejecuta si 'tipo' existe y no es un string vacío
-        if (tipo && tipo.trim() !== "") {
-            if (user.tipo !== tipo) {
-                // Pequeño ajuste para mostrar "conductor" si es "repartidor" en la base de datos
-                const tipoAmigable = user.tipo === 'repartidor' ? 'conductor' : user.tipo;
-                
+           // 4. Solo se ejecuta si 'tipo' es administrador o supervisor
+            if (user.tipo !== 'administrador' && user.tipo !== 'supervisor') {
                 return res.status(403).json({ 
-                    error: `El usuario ${tipo} no existe.` 
+                    error: `El usuario no existe.` 
                 });
             }
-        }
+      
+
+
 
         // 5. Generar el JWT
         const tokenPayload = {

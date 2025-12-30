@@ -14,6 +14,7 @@ import routerCalculateDeliveryCost from './routes/delivery.route.js'
 import { clearDatabase } from './db.js';
 import cookieParser from 'cookie-parser';
 import routerClientAddresses from './routes/client/clientaddresses.route.js'
+import routerLoginAdmin from './routes/administrator/loginAdmin.route.js'
 
 const app = express();
 
@@ -58,6 +59,7 @@ app.use(routerClientNewOrder)
 app.use(routerExchangeRate) 
 app.use(routerCalculateDeliveryCost)  
 app.use(routerClientAddresses)
+app.use (routerLoginAdmin)
 
 // Endpoint de mantenimiento
 app.delete('/clear-db', async (req, res) => {
