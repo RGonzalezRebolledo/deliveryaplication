@@ -15,7 +15,6 @@ function OrderForm() {
   const [formData, setFormData] = useState({
     pickup: '', // Dirección de recogida
     delivery: '', // Dirección de entrega
-    details: '', // Descripción del paquete
     typevehicle: "",
     typeservice: '',
     receptpay: ''
@@ -39,6 +38,7 @@ const [vehicleTypes, setVehicleTypes] = useState([]); // Lista de vehículos de 
   // --- 3. ESTADO DE LA UI Y ERRORES ---
   const [isSubmitting, setIsSubmitting] = useState(false); // Para el envío final del pedido
   const [isCalculating, setIsCalculating] = useState(false); // Para el cálculo de costo
+  const [isSumming, setIsSumming] = useState(false); // para el calculo cuando seleccione un vehiculo o un servicio
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
 
@@ -83,11 +83,13 @@ const totals = useMemo(() => {
   const selectedService = serviceTypes.find(s => s.descript === formData.typeservice);
   const serviceExtra = selectedService ? parseFloat(selectedService.amount_pay) : 0;
 
-  // 3. Sumar al precio base USD
-  const totalUSD = price.priceUSD + vehicleExtra + serviceExtra;
-  const totalVES = totalUSD * (price.exchangeRate || 0);
-  // const totalUSD =  vehicleExtra + serviceExtra;
-  // const totalVES = totalUSD * (price.exchangeRate || 0);
+  // 3. Sumar el precio base que viene del backend (price.priceUSD) + extras
+  const baseUSD = parseFloat(price.priceUSD || 0);
+  const totalUSD = baseUSD + vehicleExtra + serviceExtra;
+  
+  // 4. Calcular en VES usando la tasa del backend
+  const rate = parseFloat(price.exchangeRate || 0);
+  const totalVES = totalUSD * rate;
  
   return {totalUSD, totalVES};
 }, [formData.typevehicle, formData.typeservice, price, vehicleTypes, serviceTypes]);
@@ -101,19 +103,32 @@ const totals = useMemo(() => {
       [name]: value
     }));
 
-    // **CORRECCIÓN APLICADA AQUÍ:** // Solo limpiar mensajes y resetear cálculo si el cambio afecta la lógica de precios
-    if (name === 'pickup' || name === 'delivery') {
-      setError(null);
-      setPrice({ priceUSD: 0, priceVES: 0, exchangeRate: 0, isCalculated: false });
+    if (name === 'typevehicle' || name === 'typeservice') { 
+      setIsSumming(true);
+      setTimeout(() => setIsSumming(false), 300); // Spinner corto de 300ms para la seleccion de servicio y vehiculo
     }
-    // Si cambia 'details', solo se actualiza formData, el cálculo previo permanece.
+// Si cambia una dirección, invalidamos el cálculo para que handleBlur actúe
+if (name === 'pickup' || name === 'delivery') {
+  setError(null);
+  setPrice(prev => ({ ...prev, isCalculated: false, priceUSD: 0 }));
+}
+  //   // **CORRECCIÓN APLICADA AQUÍ:** // Solo limpiar mensajes y resetear cálculo si el cambio afecta la lógica de precios
+  //   if (name === 'pickup' || name === 'delivery') {
+  //     setError(null);
+  //     setPrice(prev => ({ ...prev, isCalculated: false }));
+  //     // setPrice({ priceUSD: 0, priceVES: 0, exchangeRate: 0, isCalculated: false });
+  //   // }
+  //   // Si cambia 'details', solo se actualiza formData, el cálculo previo permanece.
+  
+  // }
   };
 
 
   // --- 4. FUNCIÓN ASÍNCRONA PARA LLAMAR AL BACKEND Y CALCULAR EL COSTO ---
   const calculateCost = useCallback(async () => {
     // Solo calcular si ambas direcciones tienen texto
-    if (!formData.pickup || !formData.delivery) {
+    // if (!formData.pickup || !formData.delivery) {
+      if (!formData.pickup.trim() || !formData.delivery.trim()) {
         setPrice({ priceUSD: 0, priceVES: 0, exchangeRate: 0, isCalculated: false });
         return;
     }
@@ -157,18 +172,18 @@ const totals = useMemo(() => {
   }, [formData.pickup, formData.delivery, API_BASE_URL]);
 
   
-  // // --- 5. EFECTO PARA DISPARAR EL CÁLCULO AL salir de los input de LAS DIRECCIONES ---
-    const handleBlur = (e) => {
-        const { name } = e.target;
-        // Solo proceder si el campo que perdió el foco es 'pickup' o 'delivery'
-        // y si AMBOS campos tienen contenido.
-        if ((name === 'pickup' || name === 'delivery') && formData.pickup && formData.delivery) {
-            // Se espera un pequeño retraso para asegurar que React actualice el estado
-            // antes de llamar a calculateCost, aunque en la práctica el estado ya está actualizado.
-            calculateCost();
-        }
-      };
+  // // // --- 5. EFECTO PARA DISPARAR EL CÁLCULO AL salir de los input de LAS DIRECCIONES ---
+const handleBlur = (e) => {
+  const { name } = e.target;
+  const triggerFields = ['pickup', 'delivery', 'typevehicle', 'typeservice'];
 
+  if (triggerFields.includes(name)) {
+    // Si tenemos ambas direcciones y aún no se ha calculado (isCalculated: false)
+    if (formData.pickup.trim() && formData.delivery.trim() && !price.isCalculated) {
+      calculateCost();
+    }
+  }
+};
 
   // --- 6. MANEJADOR DEL ENVÍO FINAL DEL FORMULARIO ---
   const handleSubmit = async (e) => {
@@ -185,15 +200,26 @@ const totals = useMemo(() => {
     }
 
     try {
+
+      // Buscar los objetos originales para obtener sus IDs
+  const vehicleObj = vehicleTypes.find(v => v.descript === formData.typevehicle);
+  const serviceObj = serviceTypes.find(s => s.descript === formData.typeservice);
       // Datos completos a enviar al endpoint de creación de orden
       const orderPayload = { 
-        ...formData, 
-        price: totals.totalVES,
-         price_usd: totals.totalUSD,
-        // price_ves: price.priceVES,
-        // exchange_rate: price.exchangeRate
+        pickup: formData.pickup,
+      delivery: formData.delivery,
+      receptpay: formData.receptpay,
+      typevehicle: vehicleObj?.id, // ID numérico
+      typeservice: serviceObj?.id, // ID numérico
+      price: totals.totalVES,
+      price_usd: totals.totalUSD,
+        // ...formData,
+        // typevehicle: vehicleObj?.id, // Enviamos el ID
+        // typeservice: serviceObj?.id, // Enviamos el ID
+        // price: totals.totalVES,
+        //  price_usd: totals.totalUSD,
       };
-
+      console.log("Enviando este payload:", orderPayload); // Revisa esto en la consola del navegador
       // 💡 Conexión al controlador de creación de orden (POST /api/client/orders)
       const response = await axios.post(`${API_BASE_URL}/client/new-order`, orderPayload, { 
         withCredentials: true 
@@ -333,35 +359,19 @@ const totals = useMemo(() => {
   </select>
           </div>
 
-          {/* Campo de Descripción*/}
-          <div className="form-group-flex">
-            
-            {/* Descripción del Paquete */}
-            <div className="form-group">
-              <label htmlFor="itemDescription">Descripción del Paquete</label>
-              <textarea
-                name="details"
-                id="details"
-                value={formData.details}
-                onChange={handleChange}
-                placeholder="Ej: Documentos importantes, laptop, caja con ropa"
-                rows="3"
-                required
-              ></textarea>
-            </div>
-          </div>
           
           {/* --- RESUMEN DE COSTO CALCULADO --- */}
           <div className="price-summary">
             <h4 className="price-title">
-                {isCalculating && (
+                {(isCalculating || isSumming) && (
                      // Usamos spinner SVG con estilo básico, asumiendo CSS externo para la animación
                      <svg className="spinner" style={{ marginRight: '8px', height: '1.25em', width: '1.25em' }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
                 )}
-                {isCalculating ? 'Calculando Costo...' : 'Costo de Entrega'}
+                {/* {isCalculating ? 'Calculando Costo...' : 'Costo de Entrega'} */}
+                {isCalculating ? 'Calculando Distancia...' : isSumming ? 'Actualizando Totales...' : 'Costo de Entrega'}
             </h4>
             
             <div className="price-details">
@@ -374,7 +384,7 @@ const totals = useMemo(() => {
                 <p>Costo (VES):</p>
                 <p className="price-ves">
                     {/* {price.priceVES.toFixed(2)} Bs. */}
-                    ${totals.totalVES.toFixed(2)}
+                    {totals.totalVES.toFixed(2)} Bs.
                 </p>
             </div>
             
@@ -391,8 +401,8 @@ const totals = useMemo(() => {
             <input
               type="text"
               name="receptpay"
-              id="preceptpay"
-              value={formData.pay}
+              id="receptpay"
+              value={formData.receptpay}
               onChange={handleChange}
               placeholder='Indique nro de comprobante de pago'
               required
@@ -402,7 +412,7 @@ const totals = useMemo(() => {
           {/* Botón de Envío */}
           <button
             type="submit"
-            disabled={isSubmitting || isCalculating || !price.isCalculated || price.priceUSD <= 0}
+            disabled={isSubmitting || isCalculating || !price.isCalculated || !formData.typevehicle || !formData.typeservice || price.priceUSD <= 0}
             className={`btn-delivery ${
               (isSubmitting || !price.isCalculated || price.priceUSD <= 0) 
                 ? 'btn-disabled' 
@@ -430,7 +440,6 @@ const totals = useMemo(() => {
 
         </div>
       </form>
-
       
     </div>
   );

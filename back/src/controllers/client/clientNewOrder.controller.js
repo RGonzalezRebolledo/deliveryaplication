@@ -34,69 +34,139 @@ const getOrCreateAddressId = async (address, client, clienteId) => {
 };
 
 
-/**
- * Controlador para crear un nuevo pedido (Order).
- */
+//  Controlador para crear un nuevo pedido (Order).
+ 
 export const createOrder = async (req, res) => {
-    // 1. Extraer ID del cliente del token y datos del body
     const clienteId = req.userId; 
-    const { pickup, delivery, details, price, price_usd } = req.body;
+    const { pickup, delivery, price, price_usd, typevehicle, typeservice, receptpay } = req.body;
 
-    if (!clienteId || !pickup || !delivery || !details || price === undefined) {
+    if (!clienteId || !pickup || !delivery || !typevehicle || !typeservice || !receptpay || price === undefined) {
         return res.status(400).json({ error: 'Faltan campos obligatorios para crear el pedido.' });
     }
 
     const client = await pool.connect();
 
     try {
-        await client.query('BEGIN'); // Iniciar la transacción
+        await client.query('BEGIN');
 
-        // 2. PROCESAR Dirección de Recogida (Origen)
-        // Reutiliza la dirección si ya existe, sino, la crea.
+        // Procesar direcciones
         const direccionRecogidaId = await getOrCreateAddressId(pickup, client, clienteId);
-        
-        // 3. PROCESAR Dirección de Entrega (Destino)
-        // Reutiliza la dirección si ya existe, sino, la crea.
         const direccionEntregaId = await getOrCreateAddressId(delivery, client, clienteId);
 
-        // 4. Insertar el Nuevo Pedido en la tabla 'pedidos'
-        // NOTA: Usé 'total_dolar' y corregí la sintaxis del INSERT
+        // INSERT corregido con los nombres de tu tabla
         const orderQuery = `
             INSERT INTO pedidos (
-                cliente_id, 
-                direccion_entrega_id,       -- ID de la dirección de entrega (Destino)
-                total, 
-                estado, 
-                fecha_pedido,
-                total_dolar,                -- Usando el nombre correcto
-                direccion_origen_id         -- Asumiendo que esta es la ID de Recogida (Origen)
+                cliente_id,             -- $1
+                direccion_destino_id,   -- $2 (Corregido: era direccion_entrega_id)
+                total,                  -- $3
+                estado,                 
+                fecha_pedido,           
+                total_dolar,            -- $4
+                direccion_origen_id,    -- $5
+                tipo_servicio_id,       -- $6
+                tipo_vehiculo_id,       -- $7
+                nro_recibo              -- $8
             ) 
-            VALUES ($1, $2, $3, 'pendiente', NOW(), $4, $5)
+            VALUES ($1, $2, $3, 'pendiente', NOW(), $4, $5, $6, $7, $8)
             RETURNING id;
         `;
+
         const orderResult = await client.query(orderQuery, [
-            clienteId, 
-            direccionEntregaId,     // $2: ID de Destino (Delivery)
-            price,                  // $3: Total en moneda local
-            price_usd,              // $4: Total en Dólar (total_dolar)
-            direccionRecogidaId     // $5: ID de Origen (Pickup)
+            clienteId,           // $1
+            direccionEntregaId,  // $2
+            price,               // $3
+            price_usd,           // $4
+            direccionRecogidaId, // $5
+            typeservice,         // $6
+            typevehicle,         // $7
+            receptpay            // $8
         ]);
 
-        await client.query('COMMIT'); // Confirmar la transacción
+        await client.query('COMMIT');
 
         res.status(201).json({ 
-            message: 'Pedido creado exitosamente y en espera de Conductor.',
+            message: 'Pedido creado exitosamente.',
             orderId: orderResult.rows[0].id 
         });
 
     } catch (error) {
-        await client.query('ROLLBACK'); // Revertir si algo falla
-        console.error("Error en la transacción al crear el pedido:", error);
-        res.status(500).json({ error: 'Error interno del servidor al procesar el pedido.' });
+        await client.query('ROLLBACK');
+        console.error("Error REAL en la base de datos:", error.message); // Mira esto en tu terminal
+        res.status(500).json({ error: 'Error interno del servidor.', detalle: error.message });
     } finally {
         client.release();
     }
 };
+
+
+
+// export const createOrder = async (req, res) => {
+//     // 1. Extraer ID del cliente del token y datos del body
+    
+//     const clienteId = req.userId; 
+//     const { pickup, delivery, price, price_usd, typevehicle, typeservice, receptpay } = req.body;
+
+//     if (!clienteId || !pickup || !delivery || !typevehicle || !typeservice || !receptpay || price === undefined) {
+//         return res.status(400).json({ error: 'Faltan campos obligatorios para crear el pedido.' });
+//     }
+
+//     const client = await pool.connect();
+
+//     try {
+//         await client.query('BEGIN'); // Iniciar la transacción
+
+//         // 2. PROCESAR Dirección de Recogida (Origen)
+//         // Reutiliza la dirección si ya existe, sino, la crea.
+//         const direccionRecogidaId = await getOrCreateAddressId(pickup, client, clienteId);
+        
+//         // 3. PROCESAR Dirección de Entrega (Destino)
+//         // Reutiliza la dirección si ya existe, sino, la crea.
+//         const direccionEntregaId = await getOrCreateAddressId(delivery, client, clienteId);
+
+//         // 4. Insertar el Nuevo Pedido en la tabla 'pedidos'
+//         // NOTA: Usé 'total_dolar' y corregí la sintaxis del INSERT
+//         const orderQuery = `
+//             INSERT INTO pedidos (
+//                 cliente_id, 
+//                 direccion_destino_id,       -- ID de la dirección de entrega (Destino)
+//                 total, 
+//                 estado, 
+//                 fecha_pedido,
+//                 total_dolar,                -- Usando el nombre correcto
+//                 direccion_origen_id,         -- Asumiendo que esta es la ID de Recogida (Origen)
+//                 tipo_servicio_id,
+//                 tipo_vehiculo_id,
+//                 nro_recibo
+//             ) 
+//             VALUES ($1, $2, $3, 'pendiente', NOW(), $4, $5, $6, $7, $8)
+//             RETURNING id;
+//         `;
+//         const orderResult = await client.query(orderQuery, [
+//             clienteId, 
+//             direccionEntregaId,     // $2: ID de Destino (Delivery)
+//             price,                  // $3: Total en moneda local
+//             price_usd,              // $4: Total en Dólar (total_dolar)
+//             direccionRecogidaId,    // $5: ID de Origen (Pickup)
+//             typeservice,
+//             typevehicle,
+//             receptpay
+//         ]);
+
+//         await client.query('COMMIT'); // Confirmar la transacción
+
+//         res.status(201).json({ 
+//             message: 'Pedido creado exitosamente y en espera de Conductor.',
+//             orderId: orderResult.rows[0].id 
+//         });
+
+//     } catch (error) {
+//         await client.query('ROLLBACK'); // Revertir si algo falla
+//         console.error("Error en la transacción al crear el pedido:", error);
+//         res.status(500).json({ error: 'Error interno del servidor al procesar el pedido.' });
+//     } finally {
+//         client.release();
+//     }
+// };
 
 // import { pool } from '../../db.js';
 // /**
