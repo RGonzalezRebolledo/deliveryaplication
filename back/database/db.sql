@@ -115,8 +115,8 @@ SELECT
     p.fecha_pedido,
     p.estado,
     p.total,
-    ts.descripcion AS servicio,
-    COALESCE(tv.descripcion, 'Sin asignar') AS vehiculo_repartidor,
+    ts.descript AS servicio,
+    COALESCE(tv.descript, 'Sin asignar') AS vehiculo_repartidor,
     d.calle || ', ' || d.ciudad AS direccion_entrega
 FROM pedidos p
 JOIN usuarios u ON p.cliente_id = u.id
@@ -133,8 +133,8 @@ LEFT JOIN tipos_vehiculos tv ON r.tipo_vehiculo_id = tv.id;
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- Insertar Tipos Base
-INSERT INTO tipos_vehiculos (descripcion, amount_pay) VALUES ('Bicicleta', 0), ('Moto', 1.50), ('Auto', 3.00);
-INSERT INTO tipos_servicios (descripcion, amount_pay) VALUES ('Estándar', 2.00), ('Express', 5.00);
+-- INSERT INTO tipos_vehiculos (descripcion, amount_pay) VALUES ('Bicicleta', 0), ('Moto', 1.50), ('Auto', 3.00);
+-- INSERT INTO tipos_servicios (descripcion, amount_pay) VALUES ('Estándar', 2.00), ('Express', 5.00);
 
 -- Admin por defecto
 INSERT INTO usuarios (nombre, email, telefono, tipo, password_hash)
