@@ -4,8 +4,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "node --env-file .env --watch src/index.js"
+    "start": "node back/src/index.js",
+    "dev": "node --env-file .env --watch back/src/index.js"
   },
   "keywords": [],
   "author": "",
