@@ -4,7 +4,8 @@ import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom'; // 💡 Importar useNavigate
 import { useAuth } from '../../hooks/AuthContext'; // 💡 Importar el Hook de Auth (Ajusta la ruta si es necesario)
 
-const API_BASE_URL = window.GLOBAL_API_URL || 'http://localhost:4000';
+// const API_BASE_URL = window.GLOBAL_API_URL || 'http://localhost:4000';
+const API_BASE_URL = 'https://delivery-backend-production-c3cb.up.railway.app';
 
 const RegistrationForm = () => {
     // 💡 Hooks de navegación y autenticación

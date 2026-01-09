@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_BASE_URL = window.GLOBAL_API_URL || 'http://localhost:4000';
+// const API_BASE_URL = window.GLOBAL_API_URL || 'http://localhost:4000';
+const API_BASE_URL = 'https://delivery-backend-production-c3cb.up.railway.app';
 
 // 1. Inicializar el Contexto
 const AuthContext = createContext(null);

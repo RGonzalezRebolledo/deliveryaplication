@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../hooks/AuthContext'; 
 
-const API_BASE_URL = window.GLOBAL_API_URL || 'http://localhost:4000';
+// const API_BASE_URL = window.GLOBAL_API_URL || 'http://localhost:4000';
+const API_BASE_URL = 'https://delivery-backend-production-c3cb.up.railway.app';
 
 function ClientDashboard() {
   const navigate = useNavigate();
