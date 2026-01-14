@@ -119,7 +119,15 @@ function ClientDashboard() {
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', paddingLeft: '25px' }}>
                             <span style={{ fontSize: '0.8rem', color: '#999' }}>
-                                📅 {new Date(order.date).toLocaleDateString()}
+                                {/* 📅 {new Date(order.date).toLocaleDateString()} */}
+                                📅 {order.fecha_pedido ? new Date(order.fecha_pedido).toLocaleString('es-VE', {
+                             day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                            }) : 'Sin fecha'}
                             </span>
                             <span style={{ fontSize: '0.8rem', color: '#999', fontWeight: 'bold' }}>
                             🛵 🚗 {order.typevehicle?.toUpperCase()}
