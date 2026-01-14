@@ -1,0 +1,55 @@
+/* ========================================================= */
+/* 6. FOOTER/
+/* ========================================================= */
+
+
+.footer {
+    background-color: #fffcfc;
+    color: #1a1a1a;
+    padding: 10px 20px 10px 20px;
+    margin-top: auto;
+    border-radius: 20;
+  }
+  
+  .footer-content {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 10px;
+  }
+  
+  .footer-section {
+    flex: 1;
+    min-width: 250px;
+  }
+  
+  .footer-section h3, .footer-section h4 {
+    color: #ff4757; /* Color llamativo tipo delivery */
+    margin-bottom: auto;
+  }
+  
+  .social-icons {
+    display: flex;
+    gap: 50px;
+    font-size: 1.5rem;
+  }
+  
+  .social-icons a {
+    color: rgb(19, 18, 18);
+    transition: 0.3s;
+  }
+  
+  .social-icons a:hover {
+    color: #ff4757;
+  }
+  
+  .footer-bottom {
+    text-align: center;
+    margin-top: 5px;
+    padding-top: 5px;
+    border-top: 1px solid #333;
+    font-size: 0.9rem;
+    color: #0e0d0d;
+  }

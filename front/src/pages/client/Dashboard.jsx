@@ -117,7 +117,7 @@ function ClientDashboard() {
                             <span style={{ color: 'var(--color-primary)' }}>📍</span>
                             <div className="address-text">{order.address}</div>
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', paddingLeft: '25px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '15px', paddingLeft: '5px' }}>
                             <span style={{ fontSize: '0.8rem', color: '#999' }}>
                                 {/* 📅 {new Date(order.date).toLocaleDateString()} */}
                                 📅 {order.fecha_pedido ? new Date(order.fecha_pedido).toLocaleString('es-VE', {
@@ -126,7 +126,7 @@ function ClientDashboard() {
                             year: 'numeric',
                             hour: '2-digit',
                             minute: '2-digit',
-                            hour12: true
+                            // hour12: true
                             }) : 'Sin fecha'}
                             </span>
                             <span style={{ fontSize: '0.8rem', color: '#999', fontWeight: 'bold' }}>
