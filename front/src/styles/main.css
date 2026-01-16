@@ -165,6 +165,13 @@ button {
     margin-top: 10px;
 }
 
+.btn-delivery:disabled {
+    background-color: #ccc; /* Gris */
+    cursor: not-allowed;    /* Cursor de bloqueo */
+    opacity: 0.7;
+    transform: none !important; /* Evita efectos de escala al hacer clic */
+}
+
 hr {
     border: none;
     height: 1px;

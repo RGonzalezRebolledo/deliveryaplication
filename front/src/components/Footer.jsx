@@ -28,7 +28,7 @@ const Footer = () => {
       </div>
       
       <div className="footer-bottom">
-      <p>&copy; {new Date().getFullYear()} DeliveryApp - Día verison 1.0 - 15 enero </p>
+      <p>&copy; {new Date().getFullYear()} DeliveryApp - Día verison 1.1 - 16 enero </p>
       </div>
     </footer>
   );

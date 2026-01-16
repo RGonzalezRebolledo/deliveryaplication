@@ -230,9 +230,9 @@ const handleBlur = (e) => {
       console.log('Pedido creado:', response.data);
 
       // Redirigir al dashboard
-      setTimeout(() => {
+      // setTimeout(() => {
         navigate('/client/dashboard'); 
-      }, 2000);
+      // }, 500);
 
     } catch (err) {
       console.error('Error al crear el pedido:', err.response ? err.response.data : err.message);
