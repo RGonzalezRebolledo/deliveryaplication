@@ -72,7 +72,7 @@ function ClientDashboard() {
                 className="btn-primary"
                 style={{ width: '100%', marginTop: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}
             >
-                <span>🚀</span> Solicitar Nueva Entrega
+                <span>🚀</span> Solicitar Servicio De Transporte
             </button>
         </header>
 
