@@ -169,3 +169,32 @@
       transform: rotate(360deg);
     }
   }
+
+  /* Asegura que la lista de Mapbox sea visible y esté por encima de todo
+mapbox-address-autofill {
+  display: block;
+  width: 100%;
+  position: relative;
+  z-index: 9999;
+}
+
+/* Forzar que el dropdown se vea si el contenedor tiene overflow */
+/* .form-group {
+  position: relative;
+  overflow: visible !important; 
+}
+
+.order-form {
+  overflow: visible !important;
+}  */
+
+/* Oculta el logo de Mapbox y la atribución si el componente falla en quitarlos */
+.mapboxgl-ctrl-logo, 
+.mapboxgl-ctrl-attrib {
+    display: none !important;
+}
+
+/* Por si acaso quedan botones de +/- (zoom) flotando */
+.mapboxgl-ctrl-group {
+    display: none !important;
+}
