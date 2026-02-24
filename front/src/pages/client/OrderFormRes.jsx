@@ -10,7 +10,8 @@ function OrderForm() {
   
   // URL base, asumimos que está configurada globalmente
 //   const API_BASE_URL = window.GLOBAL_API_URL || 'http://localhost:4000';
-const API_BASE_URL = 'https://delivery-backend-production-c3cb.up.railway.app';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+// const API_BASE_URL = 'https://delivery-backend-production-c3cb.up.railway.app';
 
   // --- 1. ESTADO DEL FORMULARIO Y DATOS DE ENTRADA ---
   const [formData, setFormData] = useState({
