@@ -2,7 +2,7 @@
 import React from 'react';
 import { useAuth } from '../hooks/AuthContext'; // 💡 Importar el Hook de Auth
 import { useNavigate } from 'react-router-dom'; // 💡 Importar useNavigate
-import logogazella from '../assets/logo.png';
+import logogazella from '/logo.png';
 import '../styles/navbar.css';
 
 const Navbar = () => {
