@@ -15,12 +15,18 @@ function OrderForm() {
 
   // --- 1. ESTADO DEL FORMULARIO Y DATOS DE ENTRADA ---
   const [formData, setFormData] = useState({
+    pickupMunicipality: '', // Para el cálculo (Zona)
+    deliveryMunicipality: '', // Para el cálculo (Zona)
     pickup: '', // Dirección de recogida
     delivery: '', // Dirección de entrega
     typevehicle: "",
-    typeservice: '',
+    typeservice: '',  
     receptpay: ''
   });
+
+  const municipiosApure = [
+"San Fernando", "Biruaca", "Achaguas", "Pedro Camejo", "Muñoz", "Páez", "Rómulo Gallegos", 'av caracas', 'av carabobo'
+  ];
 
 // --- 2. NUEVO ESTADO: ALMACENAR DIRECCIONES REGISTRADAS ---
 const [userAddresses, setUserAddresses] = useState([]);
@@ -110,27 +116,20 @@ const totals = useMemo(() => {
       setTimeout(() => setIsSumming(false), 300); // Spinner corto de 300ms para la seleccion de servicio y vehiculo
     }
 // Si cambia una dirección, invalidamos el cálculo para que handleBlur actúe
-if (name === 'pickup' || name === 'delivery') {
+// if (name === 'pickup' || name === 'delivery') {
+  if (name === 'pickupMunicipality' || name === 'deliveryMunicipality') {
   setError(null);
   setPrice(prev => ({ ...prev, isCalculated: false, priceUSD: 0 }));
 }
-  //   // **CORRECCIÓN APLICADA AQUÍ:** // Solo limpiar mensajes y resetear cálculo si el cambio afecta la lógica de precios
-  //   if (name === 'pickup' || name === 'delivery') {
-  //     setError(null);
-  //     setPrice(prev => ({ ...prev, isCalculated: false }));
-  //     // setPrice({ priceUSD: 0, priceVES: 0, exchangeRate: 0, isCalculated: false });
-  //   // }
-  //   // Si cambia 'details', solo se actualiza formData, el cálculo previo permanece.
-  
-  // }
   };
 
 
   // --- 4. FUNCIÓN ASÍNCRONA PARA LLAMAR AL BACKEND Y CALCULAR EL COSTO ---
   const calculateCost = useCallback(async () => {
     // Solo calcular si ambas direcciones tienen texto
-    // if (!formData.pickup || !formData.delivery) {
-      if (!formData.pickup.trim() || !formData.delivery.trim()) {
+      // if (!formData.pickup.trim() || !formData.delivery.trim()) {
+        // El cálculo ahora depende de los municipios seleccionados
+    if (!formData.pickupMunicipality || !formData.deliveryMunicipality) {
         setPrice({ priceUSD: 0, priceVES: 0, exchangeRate: 0, isCalculated: false });
         return;
     }
@@ -139,9 +138,11 @@ if (name === 'pickup' || name === 'delivery') {
     setError(null);
 
     const calculationData = {
-        pickupAddress: formData.pickup,
-        deliveryAddress: formData.delivery,
-        // weightKg: parseFloat(formData.weightKg) || 0, // Se envía el peso (manteniendo esta opción)
+        // pickupAddress: formData.pickup,
+        // deliveryAddress: formData.delivery,
+        pickupAddress: formData.pickupMunicipality, // Enviamos el municipio para determinar zona
+        deliveryAddress: formData.deliveryMunicipality
+
     };
 
     try {
@@ -171,17 +172,19 @@ if (name === 'pickup' || name === 'delivery') {
     } finally {
         setIsCalculating(false);
     }
-  }, [formData.pickup, formData.delivery, API_BASE_URL]);
+  // }, [formData.pickup, formData.delivery, API_BASE_URL]);
+}, [formData.pickupMunicipality, formData.deliveryMunicipality, API_BASE_URL]);
 
   
   // // // --- 5. EFECTO PARA DISPARAR EL CÁLCULO AL salir de los input de LAS DIRECCIONES ---
 const handleBlur = (e) => {
   const { name } = e.target;
-  const triggerFields = ['pickup', 'delivery', 'typevehicle', 'typeservice'];
+  const triggerFields = ['pickupMunicipality', 'deliveryMunicipality', 'typevehicle', 'typeservice'];
 
   if (triggerFields.includes(name)) {
     // Si tenemos ambas direcciones y aún no se ha calculado (isCalculated: false)
-    if (formData.pickup.trim() && formData.delivery.trim() && !price.isCalculated) {
+    // if (formData.pickup.trim() && formData.delivery.trim() && !price.isCalculated) {
+      if (formData.pickupMunicipality.trim() && formData.deliveryMunicipality.trim() && !price.isCalculated) {
       calculateCost();
     }
   }
@@ -208,6 +211,8 @@ const handleBlur = (e) => {
   const serviceObj = serviceTypes.find(s => s.descript === formData.typeservice);
       // Datos completos a enviar al endpoint de creación de orden
       const orderPayload = { 
+        pickupMunicipality: formData.pickupMunicipality,
+        deliveryMunicipality: formData.deliveryMunicipality,
         pickup: formData.pickup,
       delivery: formData.delivery,
       receptpay: formData.receptpay,
@@ -269,6 +274,21 @@ const handleBlur = (e) => {
 
         <div className="form-content-area">
           
+          {/* SECCIÓN ORIGEN */}
+          <div className="form-group">
+            <label>Municipio de Recogida (Para el costo)</label>
+            <select 
+              name="pickupMunicipality" 
+              value={formData.pickupMunicipality} 
+              onChange={handleChange}
+              onBlur={handleBlur}
+              required
+            >
+              <option value="">Seleccione Municipio</option>
+              {municipiosApure.map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
+          </div>
+
           {/* Campo de Dirección de Recogida */}
           <div className="form-group">
             <label htmlFor="pickupAddress">Dirección de Recogida (Origen)</label>
@@ -284,6 +304,21 @@ const handleBlur = (e) => {
               list="user-addresses" // ⬅️ Agregado: Vincula el input al datalist   
               disabled={isLoadingData}
             />
+          </div>
+
+          {/* SECCIÓN DESTINO */}
+          <div className="form-group">
+            <label>Municipio de Entrega</label>
+            <select 
+              name="deliveryMunicipality" 
+              value={formData.deliveryMunicipality} 
+              onChange={handleChange}
+              onBlur={handleBlur}
+              required
+            >
+              <option value="">Seleccione Municipio</option>
+              {municipiosApure.map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
           </div>
 
           {/* Campo de Dirección de Entrega */}
