@@ -14,6 +14,9 @@ export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true); // Inicia en true
 
+    // 💡 NUEVO ESTADO PARA LA TASA
+    const [exchangeRate, setExchangeRate] = useState(null);
+    
     // Función para guardar los datos del usuario después del login/registro
     const login = (userData) => {
         setUser(userData);
@@ -34,6 +37,22 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
         setIsAuthenticated(false);
     };
+    
+    // 💡 NUEVO EFECTO PARA CARGAR LA TASA DEL BCV
+    useEffect(() => {
+        const fetchExchangeRate = async () => {
+            try {
+                // Usamos el endpoint que me pasaste en el controlador del back
+                const response = await axios.get(`${API_BASE_URL}/api/exchange-rate`, {
+                    withCredentials: true
+                });
+                setExchangeRate(response.data.rate);
+            } catch (error) {
+                console.error("Error al obtener la tasa BCV:", error);
+            }
+        };
+        fetchExchangeRate();
+    }, []);
 
     // 💡 PASO CRUCIAL: Verificar la sesión al cargar la aplicación
     useEffect(() => {
@@ -71,6 +90,7 @@ export const AuthProvider = ({ children }) => {
         user,
         isAuthenticated,
         loading, // 💡 Exportar el estado de carga
+        exchangeRate, // 💡 Exportamos la tasa
         login,
         logout,
     };

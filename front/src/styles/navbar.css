@@ -74,3 +74,131 @@
 .user-info button:hover {
     background-color: #e0e0e0;
 }
+
+/* ESTILOS PARA LA TASA DEL BCV */
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.bcv-container {
+    display: flex;
+    align-items: center;
+    background-color: #f0f2f5;
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 0.9rem;
+}
+
+.bcv-tag {
+    font-weight: bold;
+    color: #1e40af; /* Azul oscuro */
+    margin-right: 6px;
+    border-right: 1px solid #9ca3af;
+    padding-right: 6px;
+}
+
+.bcv-price {
+    color: #374151;
+    font-weight: 600;
+}
+
+.btn-logout {
+    margin-left: 10px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+
+
+/* OTROS ESTILOS  */
+
+/* Contenedor principal del Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between; /* Distribuye las 3 secciones */
+    align-items: center; /* Alinea verticalmente al centro */
+    padding: 10px 20px;
+    background-color: #ffffff; /* Ajusta según tu diseño */
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* Base para las tres secciones del navbar */
+.nav-section {
+    display: flex;
+    align-items: center;
+    flex: 1; /* Hace que las secciones laterales ocupen espacio igual */
+}
+
+/* Alineación específica para cada sección */
+.nav-left {
+    justify-content: flex-start; /* Logo a la izquierda */
+}
+
+.nav-center {
+    justify-content: center; /* Nombre EXACTAMENTE en el centro */
+    flex: 2; /* Le damos un poco más de peso al centro para textos largos */
+}
+
+.nav-right {
+    justify-content: flex-end; /* Botones a la derecha */
+}
+
+/* Estilos para el texto centrado */
+.user-name-centered {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1f2937;
+    text-align: center;
+    white-space: nowrap; /* Evita que el nombre salte de línea */
+}
+
+.user-type-badge {
+    font-size: 0.85rem;
+    color: #6b7280;
+    font-weight: 400;
+}
+
+/* --- Resto de estilos para el bloque derecho (BCV encima del botón) --- */
+
+.user-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch; /* El botón y la tasa miden lo mismo */
+    gap: 2px;
+}
+
+.bcv-container-mini {
+    font-size: 0.75rem;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.bcv-tag {
+    font-weight: bold;
+    color: #1e40af;
+}
+
+.bcv-price {
+    font-weight: 700;
+    color: #475569;
+}
+
+.btn-logout {
+    margin-top: 80px;
+    padding: 4px 12px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
