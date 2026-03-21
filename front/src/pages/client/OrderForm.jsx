@@ -3,10 +3,12 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../../styles/orderForm.css';
+import { useAuth } from '../../hooks/AuthContext'; // 💡 Importar el Hook
 // import { AddressAutofill } from '@mapbox/search-js-react';
 
 // Componente principal para crear una nueva orden de entrega
 function OrderForm() {
+  const { exchangeRate } = useAuth(); // 💡 Extraer la tasa global
   const navigate = useNavigate();
   
   // URL base, asumimos que está configurada globalmente
@@ -37,9 +39,10 @@ const [vehicleTypes, setVehicleTypes] = useState([]); // Lista de vehículos de 
 
   // --- 2. ESTADO DEL PRECIO Y TASA (Calculados por el Backend) ---
   const [price, setPrice] = useState({
+    
     priceUSD: 0,
-    priceVES: 0,
-    exchangeRate: 0,
+    // priceVES: 0,
+    // exchangeRate: 0,
     isCalculated: false, // Indica si el cálculo fue exitoso
   });
 
@@ -96,11 +99,11 @@ const totals = useMemo(() => {
   const totalUSD = baseUSD + vehicleExtra + serviceExtra;
   
   // 4. Calcular en VES usando la tasa del backend
-  const rate = parseFloat(price.exchangeRate || 0);
+  const rate = parseFloat(exchangeRate || 0);
   const totalVES = totalUSD * rate;
  
   return {totalUSD, totalVES};
-}, [formData.typevehicle, formData.typeservice, price, vehicleTypes, serviceTypes]);
+}, [formData.typevehicle, formData.typeservice, price, vehicleTypes, serviceTypes, exchangeRate]);
 
   // Manejador genérico para la entrada de datos
 
@@ -130,7 +133,8 @@ const totals = useMemo(() => {
       // if (!formData.pickup.trim() || !formData.delivery.trim()) {
         // El cálculo ahora depende de los municipios seleccionados
     if (!formData.pickupMunicipality || !formData.deliveryMunicipality) {
-        setPrice({ priceUSD: 0, priceVES: 0, exchangeRate: 0, isCalculated: false });
+        // setPrice({ priceUSD: 0, priceVES: 0, exchangeRate: 0, isCalculated: false });
+        setPrice({ priceUSD: 0, isCalculated: false });
         return;
     }
 
@@ -155,8 +159,8 @@ const totals = useMemo(() => {
         // Actualizar el estado con los precios y la tasa devueltos
         setPrice({
             priceUSD: response.data.priceUSD,
-            priceVES: response.data.priceVES,
-            exchangeRate: response.data.exchangeRate,
+            // priceVES: response.data.priceVES,
+            // exchangeRate: response.data.exchangeRate,
             isCalculated: true,
         });
 
@@ -427,7 +431,7 @@ const handleBlur = (e) => {
             
             {price.exchangeRate > 0 && (
                  <p className="exchange-rate-info">
-                    Tasa utilizada: 1 USD = {price.exchangeRate.toFixed(2)} Bs. (BCV)
+                    Tasa utilizada: 1 USD = {exchangeRate.toFixed(2)} Bs. (BCV)
                 </p>
             )}
           </div>

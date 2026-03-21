@@ -4,8 +4,12 @@
 
 :root {
     /* Paleta de colores inspirada en PedidosYa/Delivery Apps */
-    --color-primary: #FF5A5F; /* Naranja/Rojo vibrante (Main Brand Color) */
-    --color-secondary: #00BFFF; /* Azul vibrante (Accent/Delivery) */
+    /*  --color-primary: #FF5A5F; Naranja/Rojo vibrante (Main Brand Color) */
+    /* --color-secondary: #00BFFF;  Azul vibrante (Accent/Delivery) */
+
+    --color-primary: #00BFFF; /* Naranja/Rojo vibrante (Main Brand Color) */
+    --color-secondary: #FF5A5F;  /*Azul vibrante (Accent/Delivery) */
+
     
     /* --color-background: linear-gradient(to bottom, rgba(0, 123, 255, 0.5), rgba(0, 0, 139, 0.7)); /* Degradado azul semi-transparente 
   */
@@ -13,7 +17,7 @@
     --color-background: #f9fafc; /* Fondo general muy suave */
     --color-card-bg: #ffffff; /* Fondo de tarjetas */
     --color-text-dark: #333333;
-    --color-text-light: #ffffff;
+    --color-text-light: #fcfcfc;
     --color-success: #4CAF50; /* Verde para acciones positivas */
     --color-shadow: rgba(0, 0, 0, 0.08);
 
@@ -74,7 +78,7 @@ button {
 }
 
 .btn-primary:hover {
-    background-color: #e04b4f;
+    /* background-color: #e04b4f; */
     transform: translateY(-1px);
 }
 
@@ -152,14 +156,14 @@ button {
 }
 
 .btn-client {
-    background-color: var(--color-primary);
+    background-color: var(--color-secondary);
     color: var(--color-text-light);
     width: 100%; /* Botón de ancho completo en móvil */
     margin-top: 10px;
 }
 
 .btn-delivery {
-    background-color: var(--color-secondary);
+    background-color: var(--color-primary);
     color: var(--color-text-light);
     width: 100%;
     margin-top: 10px;

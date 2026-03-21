@@ -52,8 +52,8 @@ const Navbar = () => {
                     <div className="user-actions">
                         {exchangeRate && (
                             <div className="bcv-container-mini">
-                                <span className="bcv-tag">BCV:</span>
-                                <span className="bcv-price">{exchangeRate.toFixed(2)} Bs</span>
+                                {/* <span className="bcv-tag">BCV:</span> */}
+                                <span className="bcv-price">BCV:  {exchangeRate.toFixed(2)} Bs</span>
                             </div>
                         )}
                         

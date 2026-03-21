@@ -157,7 +157,7 @@
 
 .user-type-badge {
     font-size: 0.85rem;
-    color: #6b7280;
+    color: var(--color-primary);
     font-weight: 400;
 }
 
@@ -172,33 +172,34 @@
 
 .bcv-container-mini {
     font-size: 0.75rem;
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
+    background: #fdfeff;
+    /* border: 1px solid #e2e8f0; */
+    border: none;
     padding: 2px 8px;
     border-radius: 4px;
     display: flex;
     justify-content: space-between;
 }
 
-.bcv-tag {
+/* .bcv-tag {
     font-weight: bold;
     color: #1e40af;
-}
+} */
 
 .bcv-price {
     font-weight: 700;
-    color: #475569;
+    color: #050505;
 }
 
 .btn-logout {
     margin-top: 80px;
-    padding: 4px 12px;
+    padding: 6px 12px;
     font-size: 0.8rem;
     cursor: pointer;
-    background-color: var(--color-primary);
+    background-color: var(--color-secondary);
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     transition: background 0.2s;
 }
 
