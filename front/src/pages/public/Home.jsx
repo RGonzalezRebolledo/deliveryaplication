@@ -34,12 +34,9 @@ function Home() {
       <PWAInstallManager/>
       </div>
        <div className="hero-section">
-
         {/* Pasamos el role 'cliente' en el state del Link */}
-        <div>
+        <div className='contenedor-botones'>
         <Link to="/public/Login" state={{ role: 'cliente' }} className="mi-enlace">Cliente</Link>
-      </div>
-      <div>
         {/* Pasamos el role 'delivery' en el state del Link */}
         <Link to="/public/Login" state={{ role: 'repartidor' }} className="mi-enlace">Conductor</Link>
         </div>
