@@ -17,7 +17,7 @@
     --color-background: #f9fafc; /* Fondo general muy suave */
     --color-card-bg: #ffffff; /* Fondo de tarjetas */
     --color-text-dark: #333333;
-    --color-text-light: #fcfcfc;
+    --color-text-light: #050505;
     --color-success: #4CAF50; /* Verde para acciones positivas */
     --color-shadow: rgba(0, 0, 0, 0.08);
 
@@ -105,6 +105,9 @@ button {
     
     /* 2. Distribuye el espacio (opcional, pero ayuda a separar las secciones) */
     justify-content: space-around; 
+    flex-direction: row; /*Los pone en fila */
+    /* justify-content: center;  Los centra en la pantalla */
+    gap: 20px; /* Crea una separación de 15px entre los botones */
     
     /* 3. Alineación vertical (si los elementos tienen diferentes alturas) */
     align-items: center;
@@ -367,6 +370,7 @@ hr {
 
 
 .mi-enlace {
+
     color: black; /* Color del texto */
     text-decoration: none; /* Quita el subrayado por defecto */
     font-size: 16px;

@@ -197,7 +197,7 @@
     font-size: 0.8rem;
     cursor: pointer;
     background-color: var(--color-secondary);
-    color: white;
+    color: var(--color-text-light);
     border: none;
     border-radius: 6px;
     transition: background 0.2s;
