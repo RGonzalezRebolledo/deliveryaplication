@@ -12,6 +12,7 @@ import OrderTracking from './pages/client/OrderTracking.jsx';
 import Login from './pages/public/Login.jsx';
 import DeliveryDashboard from './pages/delivery/Dashboard.jsx';
 import Register from './pages/public/Register.jsx';
+import CheckoutPage from './pages/client/CheckoutPage.jsx';
 
 // 💡 IMPORTACIONES DE PROTECCIÓN
 import ProtectedRoute from './components/ProtectedRoute.jsx'; 
@@ -77,6 +78,10 @@ const router = createBrowserRouter([
           {
             path: "client/tracking/:orderId",
             element: <OrderTracking />,
+          },
+          {
+            path: "/client/checkout",
+            element: <CheckoutPage />,
           },
         ]
       },

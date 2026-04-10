@@ -195,61 +195,83 @@ const handleBlur = (e) => {
 };
 
   // --- 6. MANEJADOR DEL ENVÍO FINAL DEL FORMULARIO ---
-  const handleSubmit = async (e) => {
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setIsSubmitting(true);
+  //   setError(null);
+  //   setSuccessMessage(null);
+
+  //   // Validación final: El precio debe haber sido calculado exitosamente
+  //   if (!price.isCalculated || price.priceUSD <= 0) {
+  //     setError('Por favor, espera a que el costo del servicio sea calculado y validado.');
+  //     setIsSubmitting(false);
+  //     return;
+  //   }
+
+  //   try {
+
+  //     // Buscar los objetos originales para obtener sus IDs
+  // const vehicleObj = vehicleTypes.find(v => v.descript === formData.typevehicle);
+  // const serviceObj = serviceTypes.find(s => s.descript === formData.typeservice);
+  //     // Datos completos a enviar al endpoint de creación de orden
+  //     const orderPayload = { 
+  //       pickupMunicipality: formData.pickupMunicipality,
+  //       deliveryMunicipality: formData.deliveryMunicipality,
+  //       pickup: formData.pickup,
+  //     delivery: formData.delivery,
+  //     receptpay: formData.receptpay,
+  //     typevehicle: vehicleObj?.id, // ID numérico
+  //     typeservice: serviceObj?.id, // ID numérico
+  //     price: totals.totalVES,
+  //     price_usd: totals.totalUSD,
+  //       // ...formData,
+  //       // typevehicle: vehicleObj?.id, // Enviamos el ID
+  //       // typeservice: serviceObj?.id, // Enviamos el ID
+  //       // price: totals.totalVES,
+  //       //  price_usd: totals.totalUSD,
+  //     };
+  //     console.log("Enviando este payload:", orderPayload); // Revisa esto en la consola del navegador
+  //     // 💡 Conexión al controlador de creación de orden (POST /api/client/orders)
+  //     const response = await axios.post(`${API_BASE_URL}/client/new-order`, orderPayload, { 
+  //       withCredentials: true 
+  //     });
+
+  //     setSuccessMessage(`¡Tu pedido #${response.data.orderId} ha sido creado! Redirigiendo...`);
+  //     console.log('Pedido creado:', response.data);
+
+  //     // Redirigir al dashboard
+  //     // setTimeout(() => {
+  //       navigate('/client/dashboard'); 
+  //     // }, 500);
+
+  //   } catch (err) {
+  //     console.error('Error al crear el pedido:', err.response ? err.response.data : err.message);
+  //     setError('Error al procesar el pedido. Inténtalo de nuevo.');
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setError(null);
-    setSuccessMessage(null);
-
-    // Validación final: El precio debe haber sido calculado exitosamente
-    if (!price.isCalculated || price.priceUSD <= 0) {
-      setError('Por favor, espera a que el costo del servicio sea calculado y validado.');
-      setIsSubmitting(false);
-      return;
-    }
-
-    try {
-
-      // Buscar los objetos originales para obtener sus IDs
-  const vehicleObj = vehicleTypes.find(v => v.descript === formData.typevehicle);
-  const serviceObj = serviceTypes.find(s => s.descript === formData.typeservice);
-      // Datos completos a enviar al endpoint de creación de orden
-      const orderPayload = { 
-        pickupMunicipality: formData.pickupMunicipality,
-        deliveryMunicipality: formData.deliveryMunicipality,
-        pickup: formData.pickup,
+    
+    const vehicleObj = vehicleTypes.find(v => v.descript === formData.typevehicle);
+    const serviceObj = serviceTypes.find(s => s.descript === formData.typeservice);
+  
+    const orderPayload = { 
+      pickupMunicipality: formData.pickupMunicipality,
+      deliveryMunicipality: formData.deliveryMunicipality,
+      pickup: formData.pickup,
       delivery: formData.delivery,
-      receptpay: formData.receptpay,
-      typevehicle: vehicleObj?.id, // ID numérico
-      typeservice: serviceObj?.id, // ID numérico
+      typevehicle: vehicleObj?.id,
+      typeservice: serviceObj?.id,
       price: totals.totalVES,
       price_usd: totals.totalUSD,
-        // ...formData,
-        // typevehicle: vehicleObj?.id, // Enviamos el ID
-        // typeservice: serviceObj?.id, // Enviamos el ID
-        // price: totals.totalVES,
-        //  price_usd: totals.totalUSD,
-      };
-      console.log("Enviando este payload:", orderPayload); // Revisa esto en la consola del navegador
-      // 💡 Conexión al controlador de creación de orden (POST /api/client/orders)
-      const response = await axios.post(`${API_BASE_URL}/client/new-order`, orderPayload, { 
-        withCredentials: true 
-      });
-
-      setSuccessMessage(`¡Tu pedido #${response.data.orderId} ha sido creado! Redirigiendo...`);
-      console.log('Pedido creado:', response.data);
-
-      // Redirigir al dashboard
-      // setTimeout(() => {
-        navigate('/client/dashboard'); 
-      // }, 500);
-
-    } catch (err) {
-      console.error('Error al crear el pedido:', err.response ? err.response.data : err.message);
-      setError('Error al procesar el pedido. Inténtalo de nuevo.');
-    } finally {
-      setIsSubmitting(false);
-    }
+      exchangeRate: exchangeRate
+    };
+  
+    // En lugar de hacer el POST, navegamos a la pasarela
+    navigate('/client/checkout', { state: { orderData: orderPayload } });
   };
 
   return (
@@ -437,7 +459,7 @@ const handleBlur = (e) => {
           </div>
           
           {/* Comprobante de pago */}
-          <div className="form-group">
+          {/* <div className="form-group">
             <label htmlFor="receptpay"> Nro Comprobante de pago</label>
             <input
               type="text"
@@ -448,31 +470,7 @@ const handleBlur = (e) => {
               placeholder='Indique nro de comprobante de pago'
               required
             />
-          </div>
-
-          {/* Botón de Envío
-          <button
-            type="submit"
-            disabled={isSubmitting || isCalculating || !price.isCalculated || !formData.typevehicle || !formData.typeservice || price.priceUSD <= 0}
-            className={`btn-delivery ${
-              (isSubmitting || !price.isCalculated || price.priceUSD <= 0) 
-                ? 'btn-disabled' 
-                : ''
-            }`}
-          >
-            {isSubmitting ? (
-              <>
-                <svg className="spinner" style={{ marginRight: '8px', height: '1.25em', width: '1.25em' }} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Solicitando...
-              </>
-            ) : (
-              'Confirmar Pedido'
-            )}
-          </button> */}
-          {/* Botón de Envío con Validación de Tasa */}
+          </div> */}
 <button
     type="submit"
     disabled={
@@ -501,7 +499,7 @@ const handleBlur = (e) => {
     ) : !exchangeRate ? (
         'Esperando tasa BCV...' // 💡 Mensaje informativo si falla la carga del dólar
     ) : (
-        'Confirmar Pedido'
+        'Realizar Pago'
     )}
 </button>
           
