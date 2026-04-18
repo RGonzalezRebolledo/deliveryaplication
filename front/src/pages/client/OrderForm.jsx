@@ -27,7 +27,7 @@ function OrderForm() {
   });
 
   const municipiosApure = [
-"San Fernando", "Biruaca", "Achaguas", "Pedro Camejo", "Muñoz", "Páez", "Rómulo Gallegos", 'av caracas', 'av carabobo'
+ 'av caracas', 'av carabobo'
   ];
 
 // --- 2. NUEVO ESTADO: ALMACENAR DIRECCIONES REGISTRADAS ---
@@ -129,11 +129,8 @@ const totals = useMemo(() => {
 
   // --- 4. FUNCIÓN ASÍNCRONA PARA LLAMAR AL BACKEND Y CALCULAR EL COSTO ---
   const calculateCost = useCallback(async () => {
-    // Solo calcular si ambas direcciones tienen texto
-      // if (!formData.pickup.trim() || !formData.delivery.trim()) {
-        // El cálculo ahora depende de los municipios seleccionados
+
     if (!formData.pickupMunicipality || !formData.deliveryMunicipality) {
-        // setPrice({ priceUSD: 0, priceVES: 0, exchangeRate: 0, isCalculated: false });
         setPrice({ priceUSD: 0, isCalculated: false });
         return;
     }
@@ -142,8 +139,7 @@ const totals = useMemo(() => {
     setError(null);
 
     const calculationData = {
-        // pickupAddress: formData.pickup,
-        // deliveryAddress: formData.delivery,
+
         pickupAddress: formData.pickupMunicipality, // Enviamos el municipio para determinar zona
         deliveryAddress: formData.deliveryMunicipality
 

@@ -1,0 +1,117 @@
+/*-------------------
+CHECKOUT PAYMENT    ' 
+/*------------------'
+
+/* Contenedor de la tarjeta de pago */
+.checkout-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    padding: 2rem;
+    max-width: 500px;
+    margin: 20px auto;
+}
+
+/* Sección del monto total */
+.payment-total-container {
+    background: #f0f7ff;
+    border: 1px solid #cce3ff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.label-total {
+    color: #555;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.amount-ves {
+    display: block;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #0056b3;
+    margin: 5px 0;
+}
+
+/* Cuadro de instrucciones de Pago Móvil */
+.bank-instructions {
+    background: #fff9e6;
+    border-left: 4px solid #f1c40f;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.bank-instructions h4 {
+    margin-top: 0;
+    color: #856404;
+    font-size: 1rem;
+}
+
+.instruction-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    border-bottom: 1px dashed #e6e6e6;
+}
+
+.instruction-row span:last-child {
+    font-weight: bold;
+    color: #333;
+}
+
+/* Campos de entrada específicos para pago */
+.payment-field {
+    margin-bottom: 1.2rem;
+}
+
+.payment-field label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #444;
+}
+
+.payment-field input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.payment-field input:focus {
+    border-color: #0056b3;
+    outline: none;
+}
+
+/* Botón de confirmación */
+.btn-verify {
+    width: 100%;
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-verify:disabled {
+    background: #94d3a2;
+    cursor: not-allowed;
+}
+
+.btn-verify:hover:not(:disabled) {
+    background: #218838;
+}
