@@ -582,3 +582,114 @@ hr {
     pointer-events: none;
 }
 
+/* ========================================================= */
+/* 8. DASHBOARD REPARTIDOR - TARJETA DE ASIGNACIÓN VIVA */
+/* ========================================================= */
+
+.no-orders-container {
+    text-align: center;
+    padding: var(--spacing-xl);
+    background: #fff;
+    border-radius: var(--radius-md);
+    border: 2px dashed #cbd5e0;
+}
+
+/* Animación de pulso para atraer la atención del repartidor */
+@keyframes pulse-border {
+    0% { box-shadow: 0 0 0 0px rgba(0, 191, 255, 0.4); }
+    70% { box-shadow: 0 0 0 15px rgba(0, 191, 255, 0); }
+    100% { box-shadow: 0 0 0 0px rgba(0, 191, 255, 0); }
+}
+
+.order-card-delivery.highlight-order {
+    background-color: #ffffff;
+    border: 2px solid var(--color-primary);
+    animation: pulse-border 2s infinite;
+    position: relative;
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-md);
+    margin-top: var(--spacing-md);
+}
+
+.badge-new {
+    position: absolute;
+    top: -12px;
+    right: 20px;
+    background-color: var(--color-secondary);
+    color: white;
+    padding: 4px 15px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    box-shadow: 0 4px 8px rgba(255, 90, 95, 0.3);
+}
+
+.order-info-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.icon-circle {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #f0f9ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.order-details-container {
+    margin: var(--spacing-md) 0;
+    padding: var(--spacing-md);
+    background: #f8fafc;
+    border-radius: var(--radius-sm);
+}
+
+.price-main-display {
+    text-align: center;
+    padding: var(--spacing-md);
+    background: #e0f7ff;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.price-main-display h2 {
+    color: var(--color-primary) !important;
+    font-size: 2.2rem;
+    font-weight: 900;
+    margin: 0;
+}
+
+.price-main-display span {
+    font-size: 0.9rem;
+    color: #4a5568;
+    text-transform: uppercase;
+}
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.btn-accept {
+    background: var(--color-primary);
+    color: white;
+    font-size: 1.2rem;
+    padding: 18px;
+    box-shadow: 0 6px 15px rgba(0, 191, 255, 0.3);
+}
+
+.btn-reject {
+    background: transparent;
+    color: #a0aec0;
+    font-size: 0.9rem;
+    border: 1px solid #e2e8f0;
+}
+
+.status-online { color: var(--color-success); font-weight: bold; }
+.status-offline { color: #cbd5e0; font-weight: bold; }
