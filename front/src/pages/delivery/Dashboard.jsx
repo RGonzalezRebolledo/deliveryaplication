@@ -1,151 +1,187 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
+import axios from 'axios';
+import { useAuth } from '../../hooks/AuthContext'; 
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-// Configuración del socket (Ajusta la URL a tu backend en Railway)
+
 const socket = io(API_BASE_URL, {
     withCredentials: true,
-    autoConnect: true
+    transports: ['polling', 'websocket']
 });
 
-function DeliveryDashboard({ user }) {
-  const [isAvailable, setIsAvailable] = useState(true);
+function DeliveryDashboard() {
+  const navigate = useNavigate();
+  const { user, isAuthenticated, loading } = useAuth();
+  
+  const [isAvailable, setIsAvailable] = useState(false);
   const [activeOrder, setActiveOrder] = useState(null);
+  const [isLoadingStatus, setIsLoadingStatus] = useState(true);
+  const [driverStatus, setDriverStatus] = useState('activo'); 
+
+  const isSuspended = driverStatus === 'suspendido';
 
   useEffect(() => {
-    // Solicitar permiso para notificaciones al cargar
-    if (Notification.permission === "default") {
-      Notification.requestPermission();
-    }
+    if (loading) return; 
+    if (!isAuthenticated) { navigate('/'); return; }
 
-    if (user?.id) {
-      // 1. Unirse a la sala privada al conectar
-      socket.emit('join_driver_room', user.id);
-      console.log(`📡 Conectado al canal privado: user_${user.id}`);
-    }
+    socket.emit('join_driver_room', user.id);
 
-    // 2. Escuchar nuevos pedidos asignados por FIFO
-    socket.on('NUEVO_PEDIDO', (data) => {
-      console.log("🚀 ¡Pedido recibido por Socket!", data);
-      
-      playNotificationSound();
-      setActiveOrder(data);
-      
-      if (Notification.permission === "granted") {
-        new Notification("🚀 ¡Nuevo Pedido Gazzella!", {
-          body: `Cliente: ${data.cliente.nombre} - Ganancia: $${data.monto}`,
-          icon: '/logo.png' // Opcional: ruta a tu logo
+    const fetchInitialStatus = async () => {
+      setIsLoadingStatus(true);
+      try {
+        const response = await axios.get(`${API_BASE_URL}/driver/current-order`, { 
+            withCredentials: true 
         });
+        
+        const { active, order, isAvailableInDB, status } = response.data;
+
+        if (status) setDriverStatus(status);
+
+        // 🔥 PRIORIDAD: Si hay un pedido activo, lo mostramos sin importar el switch
+        if (active && order) {
+          setActiveOrder(order);
+          setIsAvailable(false); // Se marca como no disponible para nuevos pedidos
+        } else {
+          setActiveOrder(null);
+          setIsAvailable(status === 'suspendido' ? false : (isAvailableInDB || false));
+        }
+      } catch (err) {
+        console.error("Error al obtener estado inicial:", err);
+        if (err.response?.status === 404) {
+            setActiveOrder(null);
+            if (err.response.data?.status) setDriverStatus(err.response.data.status);
+        }
+      } finally {
+        setIsLoadingStatus(false);
+      }
+    };
+
+    fetchInitialStatus();
+
+    // Escuchar asignaciones en tiempo real
+    socket.on('NUEVO_PEDIDO', (data) => {
+      if (driverStatus !== 'suspendido') {
+          setActiveOrder(data);
+          setIsAvailable(false);
       }
     });
 
-    return () => {
-      socket.off('NUEVO_PEDIDO');
-    };
-  }, [user]);
+    return () => socket.off('NUEVO_PEDIDO');
+  }, [isAuthenticated, loading, navigate, user?.id, driverStatus]);
 
-  const playNotificationSound = () => {
-    const audio = new Audio('/sounds/alert.mp3'); 
-    audio.play().catch(e => console.log("Esperando interacción del usuario para sonido..."));
+  const toggleAvailability = async () => {
+    if (isSuspended || activeOrder) return;
+
+    try {
+      const res = await axios.patch(`${API_BASE_URL}/driver/availability`, 
+        { available: !isAvailable },
+        { withCredentials: true }
+      );
+      if (res.data.success) setIsAvailable(res.data.isAvailable);
+    } catch (err) {
+      alert("No se pudo cambiar el estado.");
+    }
   };
 
-  const handleAcceptOrder = (orderId) => {
-    console.log(`Repartidor aceptó el Pedido #${orderId}`);
-    // Aquí podrías emitir al servidor para que el cliente sepa que vas en camino
-    // socket.emit('driver_accepted', { orderId, driverId: user.id });
-    
-    alert(`¡Pedido #${orderId} aceptado! Generando ruta...`);
-    // Aquí podrías usar navigate(`/ruta/${orderId}`)
-  };
-  
-  const toggleAvailability = () => {
-    setIsAvailable(!isAvailable);
-    // Opcional: Avisar al servidor para que te saque de la cola FIFO
-    // socket.emit('change_availability', { userId: user.id, available: !isAvailable });
-  };
+  if (loading || isLoadingStatus) {
+    return <div style={{ textAlign: 'center', padding: '50px' }}>Sincronizando con Gazzella...</div>;
+  }
 
   return (
-    <div className="client-dashboard">
-      {/* Header con Estado */}
-      <div className="order-card-header" style={{ marginBottom: '20px' }}>
-        <h2 style={{ color: 'var(--color-primary)', margin: 0 }}>🛵 Panel Gazzella</h2>
-        <span className={isAvailable ? "status-online" : "status-offline"}>
-          {isAvailable ? "● En Línea" : "● Desconectado"}
-        </span>
-      </div>
-
-      {/* Selector de disponibilidad */}
-      <div className="availability-toggle" style={{ marginBottom: '25px' }}>
-        <button 
-          onClick={toggleAvailability} 
-          className={isAvailable ? 'btn-success' : 'btn-primary'}
-          style={{ width: '100%' }}
-        >
-          {isAvailable ? '🔴 Pausar Recepción' : '🟢 Ponerme Disponible'}
-        </button>
-      </div>
-
-      {/* Lógica de Tarjetas */}
-      {!activeOrder ? (
-        <div className="no-orders-container">
-          <div className="spinner-border text-primary" style={{ marginBottom: '15px' }}></div>
-          <p className="no-orders-msg">Buscando pedidos disponibles...</p>
-          <small style={{ color: '#718096' }}>Te avisaremos apenas caiga una carrera</small>
-        </div>
-      ) : (
-        <div className="order-card-delivery highlight-order">
-          <div className="badge-new">¡NUEVA CARRERA!</div>
-          
-          <div className="price-main-display">
-            <span>Ganancia Total</span>
-            <h2>${activeOrder.monto}</h2>
-          </div>
-
-          <div className="order-details-container">
-            <div className="order-info-row">
-              <div className="icon-circle">👤</div>
-              <div>
-                <small style={{ color: '#718096', display: 'block' }}>Cliente</small>
-                <p className="address-text">{activeOrder.cliente.nombre}</p>
-              </div>
+    <div className="app-container">
+      <div className="client-dashboard">
+        <header style={{ marginBottom: '20px', textAlign: 'center' }}>
+            <h2 style={{ fontSize: '1.8rem', fontWeight: '800' }}>
+                👋 Panel: <span style={{ color: 'var(--color-primary)' }}>{user?.nombre}</span>
+            </h2>
+            
+            <div className={`status-pill ${
+                isSuspended ? 'pill-cancelado' : 
+                activeOrder ? 'pill-en-ruta' : 
+                isAvailable ? 'pill-asignado' : 'pill-pendiente'
+            }`} style={{ marginTop: '10px', display: 'inline-block' }}>
+                {isSuspended ? "● CUENTA SUSPENDIDA" : 
+                 activeOrder ? "● EN SERVICIO ACTIVO" : 
+                 isAvailable ? "● EN LÍNEA" : "● DESCONECTADO"}
             </div>
+        </header>
 
-            <div className="order-info-row">
-              <div className="icon-circle">🏬</div>
-              <div>
-                <small style={{ color: '#718096', display: 'block' }}>Recogida (Origen)</small>
-                <p className="address-text">{activeOrder.cliente.recogida}</p>
-              </div>
-            </div>
-
-            <div className="order-info-row">
-              <div className="icon-circle">🏠</div>
-              <div>
-                <small style={{ color: '#718096', display: 'block' }}>Entrega (Destino)</small>
-                <p className="address-text">{activeOrder.cliente.entrega}</p>
-                <span className="status-pill pill-proceso" style={{ fontSize: '0.6rem' }}>
-                  {activeOrder.cliente.municipio}
-                </span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="action-buttons">
+        <div className="search-container" style={{ border: 'none', background: 'transparent' }}>
             <button 
-              onClick={() => handleAcceptOrder(activeOrder.pedido_id)}
-              className="btn-accept"
+                onClick={toggleAvailability} 
+                disabled={!!activeOrder || isSuspended}
+                className={isSuspended ? 'btn-disabled' : (isAvailable ? 'btn-danger' : 'btn-primary')}
+                style={{ 
+                    width: '100%', padding: '15px', borderRadius: '12px',
+                    opacity: (isSuspended || activeOrder) ? 0.6 : 1,
+                    cursor: (isSuspended || activeOrder) ? 'not-allowed' : 'pointer'
+                }}
             >
-              ACEPTAR Y EMPEZAR
+                {isSuspended ? 'Acceso Restringido' : 
+                 activeOrder ? 'Finaliza el pedido para cambiar estado' :
+                 isAvailable ? '🔴 Pausar Recepción' : '🟢 Ponerme Disponible'}
             </button>
-            <button 
-              onClick={() => setActiveOrder(null)}
-              className="btn-reject"
-            >
-              Rechazar esta vez
-            </button>
-          </div>
         </div>
-      )}
 
+        <div className="recent-orders">
+            {isSuspended ? (
+                <div style={{ textAlign: 'center', padding: '40px', background: '#fff1f2', borderRadius: '12px', border: '2px solid #fecdd3' }}>
+                    <div style={{ fontSize: '2.5rem' }}>🚫</div>
+                    <h3 style={{ color: '#be123c' }}>Servicio Inhabilitado</h3>
+                    <p style={{ color: '#9f1239' }}>Tu usuario se encuentra en estado <b>{driverStatus}</b>.</p>
+                </div>
+            ) : activeOrder ? (
+                /* --- TARJETA DE PEDIDO ACTIVO --- */
+                <div className="order-card-modern" style={{ border: '2px solid var(--color-primary)' }}>
+                    <div className="order-card-header">
+                        <span className="order-id-badge">PEDIDO #{activeOrder.pedido_id}</span>
+                        <span className="status-pill pill-en-ruta">EN PROGRESO</span>
+                    </div>
+
+                    <div className="order-body">
+                        <div className="address-info">
+                            <span style={{ color: 'var(--color-primary)' }}>📍</span>
+                            <div className="address-text">
+                                <strong>Punto de Recogida:</strong>
+                                <p style={{ margin: 0 }}>{activeOrder.recogida}</p>
+                            </div>
+                        </div>
+                        <div className="address-info" style={{ marginTop: '15px' }}>
+                            <span style={{ color: 'var(--color-primary)' }}>🏁</span>
+                            <div className="address-text">
+                                <strong>Punto de Entrega:</strong>
+                                <p style={{ margin: 0 }}>{activeOrder.entrega}</p>
+                            </div>
+                        </div>
+                        <div style={{ marginTop: '15px', padding: '10px', background: '#f8fafc', borderRadius: '8px' }}>
+                            <p style={{ margin: 0, fontSize: '0.9rem' }}><b>Cliente:</b> {activeOrder.cliente_nombre}</p>
+                        </div>
+                    </div>
+
+                    <div className="order-footer" style={{ marginTop: '20px' }}>
+                        <div className="price-tag">
+                            <span className="amount-usd" style={{ fontSize: '1.4rem' }}>${activeOrder.monto}</span>
+                        </div>
+                        <button 
+                            className="btn-primary" 
+                            style={{ padding: '10px 20px' }}
+                            onClick={() => navigate(`/driver/order/${activeOrder.pedido_id}`)}
+                        >
+                            Ver Detalles
+                        </button>
+                    </div>
+                </div>
+            ) : (
+                <div style={{ textAlign: 'center', padding: '40px', background: '#fff', borderRadius: '12px', border: '2px dashed #eee' }}>
+                    <p style={{ color: '#999' }}>
+                        {isAvailable ? '📡 Buscando solicitudes en tiempo real...' : 'Conéctate para empezar a recibir pedidos.'}
+                    </p>
+                </div>
+            )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -154,70 +190,164 @@ export default DeliveryDashboard;
 
 
 
-// import React, { useState } from 'react';
+// import React, { useState, useEffect } from 'react';
+// import { useNavigate } from 'react-router-dom'; // Agregado para consistencia
+// import { io } from 'socket.io-client';
+// import axios from 'axios';
+// import { useAuth } from '../../hooks/AuthContext'; 
 
-// // Datos simulados de pedidos pendientes (estado C5: En Espera)
-// const mockAvailableOrders = [
-//   { id: 201, pickup: 'Panadería La Esquina', delivery: 'Calle Falsa 123', distance: '3.5 km', earnings: 5.50 },
-//   { id: 202, pickup: 'Restaurante El Sabor', delivery: 'Av. Libertador 45', distance: '1.2 km', earnings: 3.20 },
-//   { id: 203, pickup: 'Farmacia Central', delivery: 'Torre Empresarial', distance: '6.0 km', earnings: 8.00 },
-// ];
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+// // Socket fuera para evitar múltiples conexiones
+// const socket = io(API_BASE_URL, {
+//     withCredentials: true,
+//     transports: ['polling', 'websocket']
+// });
 
 // function DeliveryDashboard() {
-//   const [isAvailable, setIsAvailable] = useState(true);
-//   const [availableOrders, setAvailableOrders] = useState(mockAvailableOrders);
-
-//   const handleAcceptOrder = (orderId) => {
-//     // Lógica para simular la aceptación del pedido
-//     console.log(`Repartidor aceptó el Pedido #${orderId}`);
-    
-//     // Aquí se llamaría a 'services/orderService.js' para notificar al servidor.
-//     // En una aplicación real, se navegaría a OrderDetails (ej: navigate(`/delivery/order/${orderId}`))
-    
-//     // Filtramos el pedido aceptado de la lista
-//     const updatedOrders = availableOrders.filter(order => order.id !== orderId);
-//     setAvailableOrders(updatedOrders);
-//     alert(`Pedido #${orderId} aceptado!`);
-//   };
+//   const navigate = useNavigate();
+//   // 1. Extraemos igual que en ClientDashboard
+//   const { user, isAuthenticated, loading } = useAuth();
   
-//   const toggleAvailability = () => {
-//     setIsAvailable(!isAvailable);
-//     console.log(`Estado de disponibilidad cambiado a: ${!isAvailable ? 'Disponible' : 'Desconectado'}`);
+//   const [isAvailable, setIsAvailable] = useState(false);
+//   const [activeOrder, setActiveOrder] = useState(null);
+//   const [isLoadingStatus, setIsLoadingStatus] = useState(true);
+//   const [error, setError] = useState(null);
+
+//   useEffect(() => {
+//     // 💡 IGUAL QUE EN CLIENTE: Si el context carga, no hagas nada
+//     if (loading) return; 
+
+//     // 💡 IGUAL QUE EN CLIENTE: Si no está autenticado, fuera
+//     if (!isAuthenticated) { 
+//         navigate('/'); 
+//         return; 
+//     }
+
+//     // Unirse al socket una vez autenticado
+//     socket.emit('join_driver_room', user.id);
+
+//     const fetchInitialStatus = async () => {
+//       setIsLoadingStatus(true);
+//       try {
+//         // 💡 USANDO AXIOS + withCredentials (Como en ClientDashboard)
+//         const response = await axios.get(`${API_BASE_URL}/driver/current-order`, { 
+//             withCredentials: true 
+//         });
+        
+//         const data = response.data;
+//         if (data.active && data.order) {
+//           setActiveOrder(data.order);
+//           setIsAvailable(false);
+//         } else {
+//           setActiveOrder(null);
+//           setIsAvailable(data.isAvailableInDB || false);
+//         }
+//       } catch (err) {
+//         // 404 significa que no hay órdenes, no es un error fatal
+//         if (err.response?.status === 404) {
+//             setActiveOrder(null);
+//         } else {
+//             setError('Error al sincronizar con el servidor.');
+//         }
+//       } finally {
+//         setIsLoadingStatus(false);
+//       }
+//     };
+
+//     fetchInitialStatus();
+
+//     socket.on('NUEVO_PEDIDO', (data) => {
+//       setActiveOrder(data);
+//       setIsAvailable(false);
+//       // Opcional: Sonido o notificación aquí
+//     });
+
+//     return () => {
+//       socket.off('NUEVO_PEDIDO');
+//     };
+//   }, [isAuthenticated, loading, navigate, user?.id]);
+
+//   // Acciones (Usando axios para evitar el 401)
+//   const toggleAvailability = async () => {
+//     try {
+//       const res = await axios.patch(`${API_BASE_URL}/driver/availability`, 
+//         { available: !isAvailable },
+//         { withCredentials: true }
+//       );
+//       if (res.data.success) setIsAvailable(res.data.isAvailable);
+//     } catch (err) {
+//       alert("No se pudo cambiar el estado.");
+//     }
 //   };
+
+//   // --- RENDER ---
+//   if (loading || isLoadingStatus) {
+//     return <div style={{ textAlign: 'center', padding: '50px' }}>Cargando panel de control...</div>;
+//   }
 
 //   return (
-//     // <div className="delivery-dashboard">
-//     <div className="client-dashboard">
-//       <h2>🛵 Dashboard de Repartidor</h2>
-      
-//       <div className={`availability-toggle status-${isAvailable ? 'online' : 'offline'}`}>
-//         <p>Tu Estado Actual:</p>
-//         <button onClick={toggleAvailability} className={isAvailable ? 'btn-success' : 'btn-primary'}>
-//           {isAvailable ? '🟢 Disponible' : '🔴 Desconectado'}
-//         </button>
-//       </div>
+//     <div className="app-container">
+//       <div className="client-dashboard"> {/* Usando tus mismas clases de CSS */}
+//         <header style={{ marginBottom: '20px', textAlign: 'center' }}>
+//             <h2 style={{ fontSize: '1.8rem', fontWeight: '800' }}>
+//                 🛵 Panel: <span style={{ color: 'var(--color-primary)' }}>{user?.nombre}</span>
+//             </h2>
+//             <div className={`status-pill ${isAvailable ? 'pill-asignado' : 'pill-pendiente'}`} style={{ marginTop: '10px', display: 'inline-block' }}>
+//                 {isAvailable ? "● Disponible para Carreras" : activeOrder ? "● En Servicio" : "● Desconectado"}
+//             </div>
+//         </header>
 
-//       <h3 className="list-header">Pedidos Cercanos ({availableOrders.length})</h3>
-      
-//       {availableOrders.length === 0 ? (
-//         <p className="no-orders-msg">No hay pedidos disponibles cerca. Espera un momento.</p>
-//       ) : (
-//         availableOrders.map(order => (
-//           <div key={order.id} className="order-card-delivery">
-//             <h4>Pedido #{order.id}</h4>
-//             <p>**Recogida:** {order.pickup}</p>
-//             <p>**Entrega:** {order.delivery}</p>
-//             <p>Distancia: {order.distance} | Ganancia: **${order.earnings.toFixed(2)}**</p>
-            
+//         <div className="search-container" style={{ border: 'none', background: 'transparent' }}>
 //             <button 
-//               onClick={() => handleAcceptOrder(order.id)}
-//               className="btn-primary"
+//                 onClick={toggleAvailability} 
+//                 disabled={!!activeOrder}
+//                 className={isAvailable ? 'btn-danger' : 'btn-primary'}
+//                 style={{ width: '100%', padding: '15px', borderRadius: '12px' }}
 //             >
-//               Aceptar y Empezar
+//                 {isAvailable ? '🔴 Pausar Recepción' : '🟢 Ponerme Disponible'}
 //             </button>
-//           </div>
-//         ))
-//       )}
+//         </div>
+
+//         <div className="recent-orders">
+//             {!activeOrder ? (
+//                 <div style={{ textAlign: 'center', padding: '40px', background: '#fff', borderRadius: '12px', border: '2px dashed #eee' }}>
+//                     <p style={{ color: '#999' }}>
+//                         {isAvailable ? '📡 Buscando pedidos cercanos...' : 'Activa tu disponibilidad para empezar.'}
+//                     </p>
+//                 </div>
+//             ) : (
+//                 <div className="order-card-modern">
+//                     <div className="order-card-header">
+//                         <span className="order-id-badge">CARRERA ACTIVA</span>
+//                         <span className="status-pill pill-en-ruta">ASIGNADO</span>
+//                     </div>
+//                     <div className="order-body">
+//                         <div className="address-info">
+//                             <span style={{ color: 'var(--color-primary)' }}>📍</span>
+//                             <div className="address-text">
+//                                 <strong>Recoger:</strong> {activeOrder.recogida || activeOrder.cliente?.recogida}
+//                             </div>
+//                         </div>
+//                         <div className="address-info" style={{ marginTop: '10px' }}>
+//                             <span style={{ color: 'var(--color-primary)' }}>🏁</span>
+//                             <div className="address-text">
+//                                 <strong>Entregar:</strong> {activeOrder.entrega || activeOrder.cliente?.entrega}
+//                             </div>
+//                         </div>
+//                     </div>
+//                     <div className="order-footer">
+//                         <div className="price-tag">
+//                             <span className="amount-usd" style={{ fontSize: '1.5rem' }}>${activeOrder.monto}</span>
+//                         </div>
+//                         <button className="btn-primary" style={{ padding: '8px 20px' }}>
+//                             CONFIRMAR LLEGADA
+//                         </button>
+//                     </div>
+//                 </div>
+//             )}
+//         </div>
+//       </div>
 //     </div>
 //   );
 // }
