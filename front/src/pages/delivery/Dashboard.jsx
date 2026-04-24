@@ -5,13 +5,16 @@ import axios from 'axios';
 import { useAuth } from '../../hooks/AuthContext'; 
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-// Archivo de sonido (puedes poner un .mp3 en tu carpeta public/sounds)
 const NOTIFICATION_SOUND_URL = '/sounds/new-order.mp3';
 
+// Socket único: Se mantiene fuera para persistir entre re-renders
 const socket = io(API_BASE_URL, {
-    withCredentials: true,
-    transports: ['polling', 'websocket']
+  withCredentials: true,
+  transports: ['websocket'], 
+  autoConnect: true,
+  reconnection: true,
+  reconnectionAttempts: 10,
+  reconnectionDelay: 2000
 });
 
 function DeliveryDashboard() {
@@ -23,200 +26,220 @@ function DeliveryDashboard() {
   const [isLoadingStatus, setIsLoadingStatus] = useState(true);
   const [driverStatus, setDriverStatus] = useState('not_registered'); 
 
-  // Referencia para el audio para que no se recargue en cada render
   const audioRef = useRef(new Audio(NOTIFICATION_SOUND_URL));
 
+  // Flags de estado
   const isSuspended = driverStatus === 'suspendido';
   const isNotRegistered = driverStatus === 'not_registered';
   const isRestricted = isSuspended || isNotRegistered;
 
+  // --- EFECTO 1: SINCRONIZACIÓN DE SOCKET ---
   useEffect(() => {
-    if (loading) return; 
-    if (!isAuthenticated) { navigate('/'); return; }
+    if (loading || !isAuthenticated || !user?.id) return;
 
-    socket.emit('join_driver_room', user.id);
+    const joinRoom = () => {
+      console.log(`📡 [SOCKET] Intentando unir a sala: driver_${user.id}`);
+      socket.emit('join_driver_room', user.id);
+    };
 
-    const fetchInitialStatus = async () => {
+    // Si ya está conectado al montar, nos unimos
+    if (socket.connected) joinRoom();
+
+    const onConnect = () => {
+      console.log("✅ [SOCKET] Conectado. ID:", socket.id);
+      joinRoom();
+    };
+
+    const handleNewOrder = (data) => {
+      console.log("🔥 LLEGÓ SOCKET:", data);
+
+      // NORMALIZACIÓN: No importa cómo lo envíe el back, 
+      // nosotros nos aseguramos de que el Front tenga lo que necesita.
+      const pedidoNormalizado = {
+          pedido_id: data.pedido_id || data.id, // Acepta ambos
+          monto: data.monto || data.total || 0,
+          cliente_nombre: data.cliente_nombre || 'Cliente Genérico',
+          recogida: data.recogida || 'Ver detalles',
+          entrega: data.entrega || 'Ver detalles'
+      };
+  
+      console.log("✅ PEDIDO NORMALIZADO PARA LA CARD:", pedidoNormalizado);
+  
+      setActiveOrder(pedidoNormalizado);
+      setIsAvailable(false);
+    };
+
+    socket.on('connect', onConnect);
+    socket.on('NUEVO_PEDIDO', handleNewOrder);
+    socket.on('reconnect', onConnect);
+
+    return () => {
+      socket.off('connect', onConnect);
+      socket.off('NUEVO_PEDIDO', handleNewOrder);
+      socket.off('reconnect', onConnect);
+      document.title = "Gazzella Express";
+    };
+  }, [loading, isAuthenticated, user?.id]);
+
+  // --- EFECTO 2: CARGA DE DATOS DESDE API ---
+  useEffect(() => {
+    if (loading || !isAuthenticated) return;
+
+    const fetchInitialData = async () => {
       setIsLoadingStatus(true);
       try {
+        // Obtenemos el estado actual del repartidor y si tiene pedidos activos
         const response = await axios.get(`${API_BASE_URL}/driver/current-order`, { 
             withCredentials: true 
         });
         
         const { active, order, isAvailableInDB, status } = response.data;
-        if (status) setDriverStatus(status);
+        setDriverStatus(status || 'not_registered');
 
         if (active && order) {
           setActiveOrder(order);
           setIsAvailable(false);
         } else {
           setActiveOrder(null);
-          setIsAvailable(status === 'suspendido' || status === 'not_registered' ? false : (isAvailableInDB || false));
+          setIsAvailable(isAvailableInDB || false);
         }
       } catch (err) {
-        if (err.response?.status === 404) {
-            setDriverStatus('not_registered');
-            setActiveOrder(null);
-        }
+        console.error("❌ Error al sincronizar dashboard:", err);
+        if (err.response?.status === 404) setDriverStatus('not_registered');
       } finally {
         setIsLoadingStatus(false);
       }
     };
 
-    fetchInitialStatus();
+    fetchInitialData();
+  }, [isAuthenticated, loading]);
 
-    // 🔔 ESCUCHAR NUEVO PEDIDO Y SONAR ALERTA
-    socket.on('NUEVO_PEDIDO', (data) => {
-      if (!isRestricted) {
-          // 1. Actualizar el estado (esto renderiza la card automáticamente)
-          setActiveOrder(data);
-          setIsAvailable(false);
-
-          // 2. Reproducir sonido de notificación
-          audioRef.current.play().catch(e => console.log("El navegador bloqueó el audio inicial:", e));
-          
-          // 3. Opcional: Vibración en móviles
-          if ("vibrate" in navigator) {
-            navigator.vibrate([200, 100, 200]);
-          }
-      }
-    });
-
-    return () => socket.off('NUEVO_PEDIDO');
-  }, [isAuthenticated, loading, navigate, user?.id, isRestricted]);
-
+  // --- ACCIÓN: TOGGLE DISPONIBILIDAD ---
   const toggleAvailability = async () => {
-    if ((isRestricted && !activeOrder) || activeOrder) return;
+    if (isRestricted || activeOrder) return;
+
+    // Aseguramos sala antes del cambio
+    if (socket.connected) {
+      socket.emit('join_driver_room', user.id);
+    }
 
     try {
       const res = await axios.patch(`${API_BASE_URL}/driver/availability`, 
         { available: !isAvailable },
         { withCredentials: true }
       );
+      
       if (res.data.success) {
           setIsAvailable(res.data.isAvailable);
-          // Intentamos un play silencioso para "desbloquear" el audio en el navegador
-          audioRef.current.play().then(() => {
+          
+          // "Cebamos" el audio para que el navegador permita el sonido más tarde
+          if (res.data.isAvailable && audioRef.current) {
+            audioRef.current.muted = true;
+            audioRef.current.play().then(() => {
               audioRef.current.pause();
-              audioRef.current.currentTime = 0;
-          }).catch(() => {});
+              audioRef.current.muted = false;
+            }).catch(() => {});
+          }
       }
     } catch (err) {
-      alert(err.response?.data?.message || "No se pudo cambiar el estado.");
+      console.error("Error al cambiar disponibilidad:", err);
+      alert("Error de conexión con el servidor.");
     }
   };
 
   if (loading || isLoadingStatus) {
-    return <div style={{ textAlign: 'center', padding: '50px' }}>Sincronizando con Gazzella...</div>;
+    return (
+      <div className="loading-screen" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <div className="spinner"></div>
+        <p style={{ marginLeft: '10px' }}>Sincronizando Gazzella...</p>
+      </div>
+    );
   }
 
   return (
     <div className="app-container">
       <div className="client-dashboard">
-        <header style={{ marginBottom: '20px', textAlign: 'center' }}>
-            <h2 style={{ fontSize: '1.8rem', fontWeight: '800' }}>
-                🛵 Panel: <span style={{ color: 'var(--color-primary)' }}>{user?.nombre}</span>
-            </h2>
-            
-            <div className={`status-pill ${
-                isSuspended ? 'pill-cancelado' : 
-                isNotRegistered ? 'pill-pendiente' :
-                activeOrder ? 'pill-en-ruta' : 
-                isAvailable ? 'pill-asignado' : 'pill-pendiente'
-            }`} style={{ marginTop: '10px', display: 'inline-block' }}>
-                {isSuspended ? "● CUENTA SUSPENDIDA" : 
-                 isNotRegistered ? "● REGISTRO INCOMPLETO" :
-                 activeOrder ? "● EN SERVICIO ACTIVO" : 
-                 isAvailable ? "● EN LÍNEA" : "● DESCONECTADO"}
+        <header style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <h2 style={{ fontWeight: '800', color: 'var(--color-text)' }}>🛵 Panel: {user?.nombre}</h2>
+            <div className={`status-pill ${activeOrder ? 'pill-en-ruta' : isAvailable ? 'pill-asignado' : 'pill-pendiente'}`}>
+                {isSuspended ? "CUENTA SUSPENDIDA" : 
+                 isNotRegistered ? "SIN REGISTRO" :
+                 activeOrder ? "EN SERVICIO" : 
+                 isAvailable ? "EN LÍNEA (ESPERANDO)" : "FUERA DE LÍNEA"}
             </div>
         </header>
 
-        <div className="search-container" style={{ border: 'none', background: 'transparent' }}>
+        <section className="search-container" style={{ background: 'transparent', border: 'none', padding: 0 }}>
             <button 
                 onClick={toggleAvailability} 
                 disabled={!!activeOrder || isRestricted}
                 className={isRestricted ? 'btn-disabled' : (isAvailable ? 'btn-danger' : 'btn-primary')}
-                style={{ 
-                    width: '100%', padding: '15px', borderRadius: '12px',
-                    opacity: (isRestricted || activeOrder) ? 0.6 : 1,
-                    cursor: (isRestricted || activeOrder) ? 'not-allowed' : 'pointer'
-                }}
+                style={{ width: '100%', padding: '18px', borderRadius: '15px', fontSize: '1.1rem', fontWeight: 'bold', transition: 'all 0.3s' }}
             >
                 {isSuspended ? 'Acceso Restringido' : 
-                 isNotRegistered ? 'No registrado como repartidor' :
-                 activeOrder ? 'Finaliza el pedido para cambiar estado' :
-                 isAvailable ? '🔴 Pausar Recepción' : '🟢 Ponerme Disponible'}
+                 isNotRegistered ? 'Perfil incompleto' :
+                 activeOrder ? 'Tienes un pedido activo' :
+                 isAvailable ? '🔴 Desconectarse' : '🟢 Ponerse Disponible'}
             </button>
-        </div>
+        </section>
 
-        <div className="recent-orders">
+        <main className="recent-orders" style={{ marginTop: '30px' }}>
             {activeOrder ? (
-                <div className="order-card-modern" style={{ border: '2px solid var(--color-primary)', animation: 'pulse-border 2s infinite' }}>
+                <div className="order-card-modern" style={{ border: '2px solid var(--color-primary)', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
                     <div className="order-card-header">
                         <span className="order-id-badge">PEDIDO #{activeOrder.pedido_id}</span>
-                        <span className="status-pill pill-en-ruta">¡NUEVA ASIGNACIÓN!</span>
+                        <span className="status-pill pill-en-ruta">ASIGNADO</span>
                     </div>
 
                     <div className="order-body">
                         <div className="address-info">
-                            <span style={{ color: 'var(--color-primary)' }}>📍</span>
+                            <span style={{ fontSize: '1.2rem' }}>📍</span>
                             <div className="address-text">
-                                <strong>Punto de Recogida:</strong>
-                                <p style={{ margin: 0 }}>{activeOrder.recogida}</p>
+                                <small>PUNTO DE RECOGIDA</small>
+                                <p>{activeOrder.recogida || 'Dirección de origen'}</p>
                             </div>
                         </div>
                         <div className="address-info" style={{ marginTop: '15px' }}>
-                            <span style={{ color: 'var(--color-primary)' }}>🏁</span>
+                            <span style={{ fontSize: '1.2rem' }}>🏁</span>
                             <div className="address-text">
-                                <strong>Punto de Entrega:</strong>
-                                <p style={{ margin: 0 }}>{activeOrder.entrega}</p>
+                                <small>DESTINO FINAL</small>
+                                <p>{activeOrder.entrega || 'Dirección de destino'}</p>
                             </div>
                         </div>
-                        <div style={{ marginTop: '15px', padding: '10px', background: '#f8fafc', borderRadius: '8px' }}>
+                        <div className="client-tag" style={{ marginTop: '20px', padding: '12px', background: '#f8fafc', borderRadius: '10px', display: 'flex', alignItems: 'center' }}>
+                            <span style={{ marginRight: '10px' }}>👤</span>
                             <p style={{ margin: 0, fontSize: '0.9rem' }}><b>Cliente:</b> {activeOrder.cliente_nombre}</p>
                         </div>
                     </div>
 
-                    <div className="order-footer" style={{ marginTop: '20px' }}>
+                    <div className="order-footer" style={{ marginTop: '25px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div className="price-tag">
-                            <span className="amount-usd" style={{ fontSize: '1.4rem' }}>${activeOrder.monto}</span>
+                            <span style={{ color: '#666', fontSize: '0.8rem' }}>GANANCIA</span>
+                            <p style={{ margin: 0, fontSize: '1.6rem', fontWeight: '900', color: 'var(--color-primary)' }}>${activeOrder.monto}</p>
                         </div>
                         <button 
                             className="btn-primary" 
-                            style={{ padding: '10px 20px' }}
+                            style={{ padding: '12px 25px' }}
                             onClick={() => navigate(`/driver/order/${activeOrder.pedido_id}`)}
                         >
-                            Ver Detalles
+                            Gestionar Pedido
                         </button>
                     </div>
-
-                    {isSuspended && (
-                        <p style={{ color: '#be123c', fontSize: '0.85rem', marginTop: '12px', textAlign: 'center', fontWeight: 'bold' }}>
-                            ⚠️ Podrás finalizar este servicio, pero tu cuenta está suspendida.
-                        </p>
-                    )}
                 </div>
-            ) 
-            : isNotRegistered ? (
-                <div style={{ textAlign: 'center', padding: '40px', background: '#f0f9ff', borderRadius: '12px', border: '2px solid #bae6fd' }}>
-                    <div style={{ fontSize: '2.5rem' }}>📋</div>
-                    <h3 style={{ color: '#0369a1' }}>Registro Pendiente</h3>
-                    <p style={{ color: '#075985' }}>Debes <b>contactar al administrador</b> para ser registrado.</p>
-                </div>
-            ) 
-            : isSuspended ? (
-                <div style={{ textAlign: 'center', padding: '40px', background: '#fff1f2', borderRadius: '12px', border: '2px solid #fecdd3' }}>
-                    <div style={{ fontSize: '2.5rem' }}>🚫</div>
-                    <h3 style={{ color: '#be123c' }}>Cuenta Suspendida</h3>
-                    <p style={{ color: '#9f1239' }}>No puedes recibir más pedidos por decisión administrativa.</p>
-                </div>
-            )
-            : (
-                <div style={{ textAlign: 'center', padding: '40px', background: '#fff', borderRadius: '12px', border: '2px dashed #eee' }}>
-                    <p style={{ color: '#999' }}>{isAvailable ? '📡 Esperando solicitudes...' : 'Activa tu disponibilidad.'}</p>
+            ) : (
+                <div className="empty-state-card" style={{ textAlign: 'center', padding: '60px 20px', border: '2px dashed #e2e8f0', borderRadius: '20px' }}>
+                    <div style={{ fontSize: '4rem', marginBottom: '15px' }}>{isAvailable ? '📡' : '💤'}</div>
+                    <h3 style={{ margin: 0, color: '#475569' }}>
+                        {isAvailable ? 'Buscando pedidos...' : 'Estás desconectado'}
+                    </h3>
+                    <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
+                        {isAvailable 
+                          ? 'Mantén esta ventana abierta para recibir notificaciones.' 
+                          : 'Activa tu disponibilidad para empezar a recibir pedidos.'}
+                    </p>
                 </div>
             )}
-        </div>
+        </main>
       </div>
     </div>
   );
@@ -224,203 +247,222 @@ function DeliveryDashboard() {
 
 export default DeliveryDashboard;
 
-
-// import React, { useState, useEffect } from 'react';
+// import React, { useState, useEffect, useRef } from 'react';
 // import { useNavigate } from 'react-router-dom';
 // import { io } from 'socket.io-client';
 // import axios from 'axios';
-// import { useAuth } from '../../hooks/AuthContext';
+// import { useAuth } from '../../hooks/AuthContext'; 
 
 // const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+// const NOTIFICATION_SOUND_URL = '/sounds/new-order.mp3';
 
+// // Socket único para toda la sesión del componente
 // const socket = io(API_BASE_URL, {
-//     withCredentials: true,
-//     transports: ['polling', 'websocket']
+//   withCredentials: true,
+//   transports: ['websocket'], 
+//   autoConnect: true,
+//   reconnection: true,
+//   reconnectionAttempts: 10
 // });
 
 // function DeliveryDashboard() {
 //   const navigate = useNavigate();
 //   const { user, isAuthenticated, loading } = useAuth();
-
+  
 //   const [isAvailable, setIsAvailable] = useState(false);
 //   const [activeOrder, setActiveOrder] = useState(null);
 //   const [isLoadingStatus, setIsLoadingStatus] = useState(true);
-//   const [driverStatus, setDriverStatus] = useState('not_registered');
+//   const [driverStatus, setDriverStatus] = useState('not_registered'); 
+
+//   const audioRef = useRef(new Audio(NOTIFICATION_SOUND_URL));
 
 //   const isSuspended = driverStatus === 'suspendido';
 //   const isNotRegistered = driverStatus === 'not_registered';
 //   const isRestricted = isSuspended || isNotRegistered;
 
+//   // --- EFECTO 1: GESTIÓN DE SOCKETS (RECEPCIÓN) ---
 //   useEffect(() => {
-//     if (loading) return;
-//     if (!isAuthenticated) { navigate('/'); return; }
+//     if (loading || !isAuthenticated || !user?.id) return;
 
-//     socket.emit('join_driver_room', user.id);
+//     const emitJoin = () => {
+//       console.log(`📡 [SOCKET] Sincronizando sala: driver_${user.id}`);
+//       socket.emit('join_driver_room', user.id);
+//     };
 
-//     const fetchInitialStatus = async () => {
+//     // Unirse al conectar o si ya está conectado
+//     if (socket.connected) emitJoin();
+//     socket.on('connect', onConnect);
+//     socket.on('reconnect', onReconnect);
+//     socket.on('NUEVO_PEDIDO', handleNewOrder);
+
+//     function onConnect() {
+//       console.log("✅ [SOCKET] Conexión establecida con el servidor");
+//       emitJoin();
+//     }
+
+//     function onReconnect() {
+//       console.log("🔄 [SOCKET] Reconexión exitosa");
+//       emitJoin();
+//     }
+
+//     function handleNewOrder(data) {
+//       console.log("🔥 [EVENTO] ¡NUEVO PEDIDO RECIBIDO!", data);
+//       setActiveOrder(data);
+//       setIsAvailable(false);
+      
+//       // Feedback al usuario
+//       document.title = "🔴 (1) Nuevo Pedido";
+//       if (audioRef.current) {
+//         audioRef.current.currentTime = 0;
+//         audioRef.current.play().catch(() => console.warn("🔊 Audio bloqueado"));
+//       }
+//     }
+
+//     return () => {
+//       socket.off('connect', onConnect);
+//       socket.off('reconnect', onReconnect);
+//       socket.off('NUEVO_PEDIDO', handleNewOrder);
+//       document.title = "Gazzella Express";
+//     };
+//   }, [loading, isAuthenticated, user?.id]);
+
+//   // --- EFECTO 2: CARGA INICIAL DE ESTADO ---
+//   useEffect(() => {
+//     if (loading || !isAuthenticated) return;
+
+//     const fetchInitialData = async () => {
 //       setIsLoadingStatus(true);
 //       try {
-//         const response = await axios.get(`${API_BASE_URL}/driver/current-order`, {
-//             withCredentials: true
+//         const response = await axios.get(`${API_BASE_URL}/driver/current-order`, { 
+//             withCredentials: true 
 //         });
-
+        
 //         const { active, order, isAvailableInDB, status } = response.data;
-//         if (status) setDriverStatus(status);
+//         setDriverStatus(status || 'not_registered');
 
 //         if (active && order) {
 //           setActiveOrder(order);
 //           setIsAvailable(false);
 //         } else {
 //           setActiveOrder(null);
-//           setIsAvailable(status === 'suspendido' || status === 'not_registered' ? false : (isAvailableInDB || false));
+//           setIsAvailable(isAvailableInDB || false);
 //         }
 //       } catch (err) {
-//         if (err.response?.status === 404) {
-//             setDriverStatus('not_registered');
-//             setActiveOrder(null);
-//         }
+//         console.error("Error al cargar estado:", err);
+//         if (err.response?.status === 404) setDriverStatus('not_registered');
 //       } finally {
 //         setIsLoadingStatus(false);
 //       }
 //     };
 
-//     fetchInitialStatus();
+//     fetchInitialData();
+//   }, [isAuthenticated, loading]);
 
-//     socket.on('NUEVO_PEDIDO', (data) => {
-//       if (!isRestricted) {
-//           setActiveOrder(data);
-//           setIsAvailable(false);
-//       }
-//     });
-
-//     return () => socket.off('NUEVO_PEDIDO');
-//   }, [isAuthenticated, loading, navigate, user?.id, isRestricted]);
-
+//   // --- ACCIÓN: CAMBIAR DISPONIBILIDAD ---
 //   const toggleAvailability = async () => {
-//     if ((isRestricted && !activeOrder) || activeOrder) return;
+//     if (isRestricted || activeOrder) return;
+
+//     // REFUERZO: Asegurar que el socket esté en la sala antes de pedir pedidos
+//     if (socket.connected) {
+//       socket.emit('join_driver_room', user.id);
+//     }
 
 //     try {
-//       const res = await axios.patch(`${API_BASE_URL}/driver/availability`,
+//       const res = await axios.patch(`${API_BASE_URL}/driver/availability`, 
 //         { available: !isAvailable },
 //         { withCredentials: true }
 //       );
-//       if (res.data.success) setIsAvailable(res.data.isAvailable);
+      
+//       if (res.data.success) {
+//           setIsAvailable(res.data.isAvailable);
+//           // Desbloquear audio para la notificación futura
+//           if (res.data.isAvailable) {
+//             audioRef.current.play().then(() => {
+//               audioRef.current.pause();
+//               audioRef.current.currentTime = 0;
+//             }).catch(() => {});
+//           }
+//       }
 //     } catch (err) {
-//       alert(err.response?.data?.message || "No se pudo cambiar el estado.");
+//       alert("No se pudo cambiar el estado. Revisa tu conexión.");
 //     }
 //   };
 
 //   if (loading || isLoadingStatus) {
-//     return <div style={{ textAlign: 'center', padding: '50px' }}>Sincronizando con Gazzella...</div>;
+//     return <div className="loading-screen">Sincronizando con Gazzella...</div>;
 //   }
 
 //   return (
 //     <div className="app-container">
 //       <div className="client-dashboard">
-//         <header style={{ marginBottom: '20px', textAlign: 'center' }}>
-//             <h2 style={{ fontSize: '1.8rem', fontWeight: '800' }}>
-//                 🛵 Panel: <span style={{ color: 'var(--color-primary)' }}>{user?.nombre}</span>
-//             </h2>
-
-//             <div className={`status-pill ${
-//                 isSuspended ? 'pill-cancelado' :
-//                 isNotRegistered ? 'pill-pendiente' :
-//                 activeOrder ? 'pill-en-ruta' :
-//                 isAvailable ? 'pill-asignado' : 'pill-pendiente'
-//             }`} style={{ marginTop: '10px', display: 'inline-block' }}>
-//                 {isSuspended ? "● CUENTA SUSPENDIDA" :
-//                  isNotRegistered ? "● REGISTRO INCOMPLETO" :
-//                  activeOrder ? "● EN SERVICIO ACTIVO" :
-//                  isAvailable ? "● EN LÍNEA" : "● DESCONECTADO"}
+//         <header style={{ textAlign: 'center', marginBottom: '20px' }}>
+//             <h2 style={{ fontWeight: '800' }}>🛵 Panel: {user?.nombre}</h2>
+//             <div className={`status-pill ${activeOrder ? 'pill-en-ruta' : isAvailable ? 'pill-asignado' : 'pill-pendiente'}`}>
+//                 {isSuspended ? "CUENTA SUSPENDIDA" : 
+//                  isNotRegistered ? "REGISTRO INCOMPLETO" :
+//                  activeOrder ? "EN SERVICIO" : 
+//                  isAvailable ? "EN LÍNEA" : "DESCONECTADO"}
 //             </div>
 //         </header>
 
-//         <div className="search-container" style={{ border: 'none', background: 'transparent' }}>
-//             <button
-//                 onClick={toggleAvailability}
+//         <div className="search-container" style={{ background: 'transparent', border: 'none' }}>
+//             <button 
+//                 onClick={toggleAvailability} 
 //                 disabled={!!activeOrder || isRestricted}
 //                 className={isRestricted ? 'btn-disabled' : (isAvailable ? 'btn-danger' : 'btn-primary')}
-//                 style={{
-//                     width: '100%', padding: '15px', borderRadius: '12px',
-//                     opacity: (isRestricted || activeOrder) ? 0.6 : 1,
-//                     cursor: (isRestricted || activeOrder) ? 'not-allowed' : 'pointer'
-//                 }}
+//                 style={{ width: '100%', padding: '16px', borderRadius: '12px', fontSize: '1rem' }}
 //             >
-//                 {isSuspended ? 'Acceso Restringido' :
-//                  isNotRegistered ? 'No registrado como repartidor' :
-//                  activeOrder ? 'Finaliza el pedido para cambiar estado' :
-//                  isAvailable ? '🔴 Pausar Recepción' : '🟢 Ponerme Disponible'}
+//                 {isSuspended ? 'Acceso Restringido' : 
+//                  isNotRegistered ? 'No registrado' :
+//                  activeOrder ? 'Pedido en curso' :
+//                  isAvailable ? '🔴 Salir de servicio' : '🟢 Entrar de servicio'}
 //             </button>
 //         </div>
 
-//         <div className="recent-orders">
-//             {/* 1. PRIORIDAD ABSOLUTA: PEDIDO ACTIVO (Incluso si está suspendido) */}
+//         <div className="recent-orders" style={{ marginTop: '25px' }}>
 //             {activeOrder ? (
 //                 <div className="order-card-modern" style={{ border: '2px solid var(--color-primary)' }}>
 //                     <div className="order-card-header">
 //                         <span className="order-id-badge">PEDIDO #{activeOrder.pedido_id}</span>
-//                         <span className="status-pill pill-en-ruta">EN PROGRESO</span>
+//                         <span className="status-pill pill-en-ruta">ACTIVO</span>
 //                     </div>
 
 //                     <div className="order-body">
 //                         <div className="address-info">
-//                             <span style={{ color: 'var(--color-primary)' }}>📍</span>
+//                             <span>📍</span>
 //                             <div className="address-text">
-//                                 <strong>Punto de Recogida:</strong>
-//                                 <p style={{ margin: 0 }}>{activeOrder.recogida}</p>
+//                                 <strong>Recogida:</strong>
+//                                 <p>{activeOrder.recogida}</p>
 //                             </div>
 //                         </div>
-//                         <div className="address-info" style={{ marginTop: '15px' }}>
-//                             <span style={{ color: 'var(--color-primary)' }}>🏁</span>
+//                         <div className="address-info" style={{ marginTop: '12px' }}>
+//                             <span>🏁</span>
 //                             <div className="address-text">
-//                                 <strong>Punto de Entrega:</strong>
-//                                 <p style={{ margin: 0 }}>{activeOrder.entrega}</p>
+//                                 <strong>Entrega:</strong>
+//                                 <p>{activeOrder.entrega}</p>
 //                             </div>
 //                         </div>
-//                         <div style={{ marginTop: '15px', padding: '10px', background: '#f8fafc', borderRadius: '8px' }}>
-//                             <p style={{ margin: 0, fontSize: '0.9rem' }}><b>Cliente:</b> {activeOrder.cliente_nombre}</p>
+//                         <div style={{ marginTop: '15px', padding: '10px', background: '#f0f4f8', borderRadius: '8px' }}>
+//                             <p style={{ margin: 0 }}>👤 <b>Cliente:</b> {activeOrder.cliente_nombre}</p>
 //                         </div>
 //                     </div>
 
 //                     <div className="order-footer" style={{ marginTop: '20px' }}>
-//                         <div className="price-tag">
-//                             <span className="amount-usd" style={{ fontSize: '1.4rem' }}>${activeOrder.monto}</span>
-//                         </div>
-//                         <button
-//                             className="btn-primary"
-//                             style={{ padding: '10px 20px' }}
+//                         <span className="amount-usd" style={{ fontSize: '1.5rem' }}>${activeOrder.monto}</span>
+//                         <button 
+//                             className="btn-primary" 
 //                             onClick={() => navigate(`/driver/order/${activeOrder.pedido_id}`)}
 //                         >
 //                             Ver Detalles
 //                         </button>
 //                     </div>
-
-//                     {isSuspended && (
-//                         <p style={{ color: '#be123c', fontSize: '0.85rem', marginTop: '12px', textAlign: 'center', fontWeight: 'bold' }}>
-//                             ⚠️ Podrás finalizar este servicio, pero tu cuenta está suspendida.
-//                         </p>
-//                     )}
 //                 </div>
-//             )
-//             /* 2. SI NO HAY PEDIDO: REGISTRO INCOMPLETO */
-//             : isNotRegistered ? (
-//                 <div style={{ textAlign: 'center', padding: '40px', background: '#f0f9ff', borderRadius: '12px', border: '2px solid #bae6fd' }}>
-//                     <div style={{ fontSize: '2.5rem' }}>📋</div>
-//                     <h3 style={{ color: '#0369a1' }}>Registro Pendiente</h3>
-//                     <p style={{ color: '#075985' }}>Debes <b>contactar al administrador</b> para ser registrado y empezar a trabajar.</p>
-//                 </div>
-//             )
-//             /* 3. SI NO HAY PEDIDO: SUSPENDIDO */
-//             : isSuspended ? (
-//                 <div style={{ textAlign: 'center', padding: '40px', background: '#fff1f2', borderRadius: '12px', border: '2px solid #fecdd3' }}>
-//                     <div style={{ fontSize: '2.5rem' }}>🚫</div>
-//                     <h3 style={{ color: '#be123c' }}>Cuenta Suspendida</h3>
-//                     <p style={{ color: '#9f1239' }}>Has terminado tu último servicio. No puedes recibir más pedidos por decisión administrativa.</p>
-//                 </div>
-//             )
-//             : (
-//                 <div style={{ textAlign: 'center', padding: '40px', background: '#fff', borderRadius: '12px', border: '2px dashed #eee' }}>
-//                     <p style={{ color: '#999' }}>{isAvailable ? '📡 Esperando solicitudes...' : 'Activa tu disponibilidad.'}</p>
+//             ) : (
+//                 <div className="empty-state-card" style={{ textAlign: 'center', padding: '40px', border: '2px dashed #ccc', borderRadius: '15px' }}>
+//                     <div style={{ fontSize: '3rem' }}>{isAvailable ? '📡' : '😴'}</div>
+//                     <p style={{ color: '#666', marginTop: '10px' }}>
+//                         {isAvailable ? 'Esperando pedidos en tu zona...' : 'Ponte disponible para recibir trabajo.'}
+//                     </p>
 //                 </div>
 //             )}
 //         </div>
@@ -430,3 +472,4 @@ export default DeliveryDashboard;
 // }
 
 // export default DeliveryDashboard;
+
