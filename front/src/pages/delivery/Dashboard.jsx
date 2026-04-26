@@ -6,12 +6,12 @@ import { useAuth } from "../../hooks/AuthContext";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const NOTIFICATION_SOUND_URL = "/sounds/new-order.mp3";
 
+// Mantenemos el socket fuera para que no se re-instancie innecesariamente
 const socket = io(API_BASE_URL, {
   withCredentials: true,
   transports: ["websocket", "polling"],
-  autoConnect: true,
   reconnection: true,
-  reconnectionAttempts: 5,
+  reconnectionAttempts: 5
 });
 
 function DeliveryDashboard() {
@@ -20,49 +20,44 @@ function DeliveryDashboard() {
   const [activeOrder, setActiveOrder] = useState(null);
   const [isLoadingStatus, setIsLoadingStatus] = useState(true);
   const [driverStatus, setDriverStatus] = useState("not_registered");
-  const [timeLeft, setTimeLeft] = useState(null);
-
   const audioRef = useRef(null);
 
   useEffect(() => {
     audioRef.current = new Audio(NOTIFICATION_SOUND_URL);
   }, []);
 
-  // 1. PERSISTENCIA (F5): Sincronización inteligente de estados
+  // 1. CARGA Y PERSISTENCIA (Sincronización con la Realidad de la DB)
   useEffect(() => {
     if (loading || !isAuthenticated) return;
 
     const fetchInitialData = async () => {
       setIsLoadingStatus(true);
       try {
-        const response = await axios.get(
-          `${API_BASE_URL}/driver/current-order`,
-          { withCredentials: true }
-        );
-        const { active, order, isAvailableInDB, status } = response.data;
-
+        const response = await axios.get(`${API_BASE_URL}/driver/current-order`, { withCredentials: true });
+        const { active, order, isAvailableInDB, tiene_pedido, status } = response.data;
+        
         setDriverStatus(status || "not_registered");
 
+        // SI LA DB DICE QUE TIENE PEDIDO, NO IMPORTA NADA MÁS
         if (active && order) {
-          const normalizedOrder = {
-            ...order,
-            pedido_id: order.pedido_id || order.id 
+          const normalizedOrder = { 
+            ...order, 
+            pedido_id: order.pedido_id || order.id,
+            estado: order.estado 
           };
           setActiveOrder(normalizedOrder);
-
-          if (normalizedOrder.estado === "asignado") {
-            setIsAvailable(true); 
-            setTimeLeft(120); 
-          } else {
-            setIsAvailable(false); 
-          }
+          setIsAvailable(true); 
+        } else if (tiene_pedido === true) {
+          // Si tiene_pedido es true pero no hay objeto 'order', es un error de sincronización
+          // Forzamos al front a no limpiar la pantalla y re-intentar en 2 segundos
+          console.warn("⚠️ Repartidor con tiene_pedido=true pero sin objeto order. Reintentando...");
+          setTimeout(fetchInitialData, 2000);
         } else {
           setActiveOrder(null);
           setIsAvailable(!!isAvailableInDB);
         }
       } catch (err) {
-        if (err.response?.status === 404) setDriverStatus("not_registered");
-        console.error("Error cargando estado inicial:", err);
+        console.error("❌ Error de persistencia:", err);
       } finally {
         setIsLoadingStatus(false);
       }
@@ -71,36 +66,38 @@ function DeliveryDashboard() {
     fetchInitialData();
   }, [isAuthenticated, loading]);
 
-  // 2. SOCKETS: Join dinámico
+  // 2. SOCKETS: UNIÓN Y RE-CONEXIÓN
   useEffect(() => {
     if (loading || !isAuthenticated || !user?.id) return;
 
     const onConnect = () => {
-      socket.emit("join_driver_room", user.id);
+      // Al conectar o re-conectar después de un F5
+      socket.emit("join_driver_room", user.id); 
+      console.log("✅ Socket conectado a sala driver_" + user.id);
     };
 
     const handleNewOrder = (data) => {
-      const pedido = {
-        pedido_id: data.pedido_id || data.id,
-        monto: data.monto || data.total || 0,
-        cliente_nombre: data.cliente_nombre || "Cliente",
-        recogida: data.recogida || "Ver mapa",
-        entrega: data.entrega || "Ver mapa",
-        estado: "asignado",
-      };
-      setActiveOrder(pedido);
+      setActiveOrder((current) => {
+        if (current) return current; // Si ya tenemos uno, ignoramos
+        return {
+          pedido_id: data.pedido_id,
+          monto: data.monto,
+          cliente_nombre: data.cliente_nombre,
+          recogida: data.recogida,
+          entrega: data.entrega,
+          estado: "asignado",
+        };
+      });
       setIsAvailable(true);
-      setTimeLeft(120);
-      
-      if (audioRef.current) {
-        audioRef.current.play().catch(() => {});
-      }
+      audioRef.current?.play().catch(() => {});
       document.title = "🔴 NUEVO PEDIDO";
     };
 
-    if (socket.connected) onConnect();
     socket.on("connect", onConnect);
     socket.on("NUEVO_PEDIDO", handleNewOrder);
+    
+    // Si ya estaba conectado al montar el componente
+    if (socket.connected) onConnect();
 
     return () => {
       socket.off("connect", onConnect);
@@ -108,146 +105,120 @@ function DeliveryDashboard() {
     };
   }, [loading, isAuthenticated, user?.id]);
 
-  // 3. TIMER: Rechazo automático por tiempo
-  useEffect(() => {
-    let interval = null;
-    if (activeOrder?.estado === "asignado" && timeLeft !== null) {
-      if (timeLeft <= 0) {
-        handleUpdateStatus("pendiente");
-        return;
-      }
-      interval = setInterval(() => {
-        setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [timeLeft, activeOrder]);
-
-  // 4. HANDLERS
+  // 3. ACTUALIZACIÓN DE ESTADOS
   const handleUpdateStatus = async (newStatus) => {
-    const pedidoId = activeOrder?.pedido_id || activeOrder?.id;
-
-    if (!pedidoId) {
-      console.error("❌ No se encontró ID de pedido", activeOrder);
-      return;
-    }
+    const pedidoId = activeOrder?.pedido_id;
+    if (!pedidoId) return;
 
     try {
-      const res = await axios.patch(
-        `${API_BASE_URL}/driver/order-status`,
-        { pedido_id: pedidoId, status: newStatus },
+      const res = await axios.patch(`${API_BASE_URL}/driver/order-status`, 
+        { pedido_id: pedidoId, status: newStatus }, 
         { withCredentials: true }
       );
 
       if (res.data.success) {
-        if (newStatus === "entregado" || newStatus === "pendiente") {
+        if (newStatus === "entregado") {
           setActiveOrder(null);
-          setTimeLeft(null);
           setIsAvailable(true); 
           document.title = "Gazzella Express";
         } else {
-          setActiveOrder((prev) => ({ ...prev, estado: newStatus }));
-          if (newStatus === "en_camino") {
-            setIsAvailable(false);
-            setTimeLeft(null);
-          }
+          setActiveOrder(prev => ({ ...prev, estado: newStatus }));
         }
       }
-    } catch (err) {
-      console.error("Error al actualizar estado:", err);
+    } catch (err) { 
+      console.error("❌ Error al actualizar estado:", err);
+      alert("Error al actualizar. Por favor revisa tu conexión.");
     }
   };
 
-  // 5. DISPONIBILIDAD
+  // 4. TOGGLE DISPONIBILIDAD
   const toggleAvailability = async () => {
-    if (activeOrder?.estado === "en_camino" || isRestricted) return;
+    if (activeOrder || driverStatus !== "activo") return;
     try {
-      const res = await axios.patch(
-        `${API_BASE_URL}/driver/availability`,
-        { available: !isAvailable },
+      const res = await axios.patch(`${API_BASE_URL}/driver/availability`, 
+        { available: !isAvailable }, 
         { withCredentials: true }
       );
       if (res.data.success) {
         setIsAvailable(res.data.isAvailable);
         if (res.data.isAvailable) socket.emit("join_driver_room", user.id);
       }
-    } catch (err) {
-      console.error("Error al cambiar disponibilidad:", err);
-    }
+    } catch (err) { console.error("Error disponibilidad:", err); }
   };
 
-  const isSuspended = driverStatus === "suspendido";
-  const isNotRegistered = driverStatus === "not_registered";
-  const isRestricted = isSuspended || isNotRegistered;
-
-  if (loading || isLoadingStatus) return <div className="loading-screen"><div className="spinner"></div></div>;
+  if (loading || isLoadingStatus) {
+    return (
+      <div className="loading-container" style={{display:'flex', justifyContent:'center', alignItems:'center', height:'100vh'}}>
+        <div className="spinner"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="app-container">
       <div className="client-dashboard">
         <header style={{ textAlign: "center", marginBottom: "20px" }}>
           <h2 style={{ fontWeight: "800" }}>🛵 Panel: {user?.nombre}</h2>
-          <div className={`status-pill ${isRestricted ? "pill-pendiente" : activeOrder ? (activeOrder.estado === 'asignado' ? "pill-asignado" : "pill-en-ruta") : isAvailable ? "pill-asignado" : "pill-pendiente"}`}>
-            {isNotRegistered ? "NO REGISTRADO" : isSuspended ? "CUENTA SUSPENDIDA" : activeOrder ? (activeOrder.estado === 'asignado' ? "PEDIDO RECIBIDO" : `EN SERVICIO (${activeOrder.estado.toUpperCase()})`) : isAvailable ? "ESPERANDO PEDIDO" : "FUERA DE LÍNEA"}
+          <div className={`status-pill ${activeOrder ? "pill-en-ruta" : isAvailable ? "pill-asignado" : "pill-pendiente"}`}>
+             {activeOrder ? (activeOrder.estado === "asignado" ? "PEDIDO ASIGNADO" : "EN RUTA") : isAvailable ? "ESPERANDO PEDIDO" : "FUERA DE LÍNEA"}
           </div>
         </header>
 
-        <button
-          onClick={toggleAvailability}
-          disabled={(activeOrder && activeOrder.estado !== "asignado") || isRestricted}
+        <button 
+          onClick={toggleAvailability} 
+          disabled={!!activeOrder || driverStatus !== "activo"} 
           className={isAvailable ? "btn-danger" : "btn-primary"}
           style={{ width: "100%", padding: "18px", borderRadius: "15px", fontWeight: "bold", marginBottom: "20px" }}
         >
-          {isRestricted ? "Bloqueado" : (activeOrder && activeOrder.estado !== "asignado") ? "En Servicio" : isAvailable ? "🔴 Desconectarse" : "🟢 Ponerse Disponible"}
+          {activeOrder ? "Orden en Proceso" : isAvailable ? "🔴 Desconectarse" : "🟢 Ponerse Disponible"}
         </button>
 
         <main className="recent-orders">
           {activeOrder ? (
-            <div className="order-card-modern" style={{ border: "2px solid var(--color-primary)", background: "#fff" }}>
-              <div className="order-card-header">
-                <span className="order-id-badge">PEDIDO #{activeOrder.pedido_id || activeOrder.id}</span>
-                {activeOrder.estado === "asignado" && timeLeft !== null && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <span style={{ color: timeLeft < 30 ? "red" : "#ff9800", fontWeight: "800", fontSize: "1.3rem" }}>
-                      ⏳ {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, "0")}
-                    </span>
-                  </div>
-                )}
+            <div className="order-card-modern" style={{ border: "2px solid #e67e22", background: "#fff", padding: "15px", borderRadius: "15px" }}>
+              <div className="order-card-header" style={{ marginBottom: "15px" }}>
+                <span className="order-id-badge" style={{ background: "#eee", padding: "5px 10px", borderRadius: "5px" }}>
+                  PEDIDO #{activeOrder.pedido_id}
+                </span>
+                <span style={{ float: "right", color: "#e67e22", fontWeight: "bold" }}>
+                  {activeOrder.estado === "asignado" ? "Por recoger" : "En camino"}
+                </span>
               </div>
-              <div className="order-body">
+              <div className="order-body" style={{ lineHeight: "1.6" }}>
                 <p>📍 <b>Origen:</b> {activeOrder.recogida}</p>
                 <p>🏁 <b>Destino:</b> {activeOrder.entrega}</p>
                 <p>👤 <b>Cliente:</b> {activeOrder.cliente_nombre}</p>
               </div>
-              <div className="order-footer" style={{ flexDirection: "column" }}>
-                <div className="price-tag" style={{ width: "100%", textAlign: "center", marginBottom: "10px" }}>
-                  <p style={{ fontSize: "1.8rem", color: "#2ecc71" }}>${activeOrder.monto}</p>
+              <hr style={{ margin: "15px 0", opacity: "0.2" }} />
+              <div className="order-footer" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <div style={{ textAlign: "center" }}>
+                  <p style={{ fontSize: "1.8rem", color: "#2ecc71", margin: 0, fontWeight: "bold" }}>${activeOrder.monto}</p>
                 </div>
-                <div style={{ width: "100%" }}>
-                  {activeOrder.estado === "asignado" ? (
-                    <button 
-                      onClick={() => handleUpdateStatus("en_camino")} 
-                      className="btn-primary" 
-                      style={{ width: "100%", background: "#28a745", padding: "20px", fontSize: "1.2rem" }}
-                    >
-                      Aceptar Pedido
-                    </button>
-                  ) : (
-                    <button 
-                      onClick={() => handleUpdateStatus("entregado")} 
-                      className="btn-primary" 
-                      style={{ width: "100%", padding: "20px" }}
-                    >
-                      🏁 Marcar Entregado
-                    </button>
-                  )}
-                </div>
+                
+                {activeOrder.estado === "asignado" ? (
+                  <button 
+                    onClick={() => handleUpdateStatus("en_camino")} 
+                    className="btn-primary" 
+                    style={{ background: "#28a745", padding: "15px", fontSize: "1.1rem" }}
+                  >
+                    Confirmar: Recogí el pedido
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => handleUpdateStatus("entregado")} 
+                    className="btn-primary" 
+                    style={{ padding: "15px", background: "#007bff", fontSize: "1.1rem" }}
+                  >
+                    🏁 Marcar como Entregado
+                  </button>
+                )}
               </div>
             </div>
           ) : (
-            <div className="empty-state-card">
-              <p style={{ fontSize: "3rem" }}>{isAvailable ? "📡" : "💤"}</p>
-              <h3>{isAvailable ? "Buscando pedidos..." : "Desconectado"}</h3>
+            <div className="empty-state-card" style={{ textAlign: "center", padding: "40px" }}>
+              <p style={{ fontSize: "3rem", margin: 0 }}>{isAvailable ? "📡" : "💤"}</p>
+              <h3>{isAvailable ? "Buscando pedidos..." : "Estás desconectado"}</h3>
+              <p style={{ color: "#888" }}>{isAvailable ? "Mantén la pantalla encendida" : "Ponte disponible para recibir entregas"}</p>
             </div>
           )}
         </main>
@@ -257,7 +228,6 @@ function DeliveryDashboard() {
 }
 
 export default DeliveryDashboard;
-
 // import React, { useState, useEffect, useRef } from 'react';
 // import { useNavigate } from 'react-router-dom';
 // import { io } from 'socket.io-client';
