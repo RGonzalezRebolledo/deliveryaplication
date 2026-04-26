@@ -8,7 +8,7 @@ const NOTIFICATION_SOUND_URL = "/sounds/new-order.mp3";
 
 const socket = io(API_BASE_URL, {
   withCredentials: true,
-  transports: ["websocket", "polling"], // Añadido polling para mayor estabilidad
+  transports: ["websocket", "polling"],
   autoConnect: true,
   reconnection: true,
   reconnectionAttempts: 5,
@@ -28,7 +28,7 @@ function DeliveryDashboard() {
     audioRef.current = new Audio(NOTIFICATION_SOUND_URL);
   }, []);
 
-  // 1. PERSISTENCIA (F5): Normalización de datos
+  // 1. PERSISTENCIA (F5): Sincronización inteligente de estados
   useEffect(() => {
     if (loading || !isAuthenticated) return;
 
@@ -44,14 +44,18 @@ function DeliveryDashboard() {
         setDriverStatus(status || "not_registered");
 
         if (active && order) {
-          // NORMALIZACIÓN: Aseguramos que siempre exista pedido_id
           const normalizedOrder = {
             ...order,
             pedido_id: order.pedido_id || order.id 
           };
           setActiveOrder(normalizedOrder);
-          setIsAvailable(false);
-          if (normalizedOrder.estado === "asignado") setTimeLeft(120);
+
+          if (normalizedOrder.estado === "asignado") {
+            setIsAvailable(true); 
+            setTimeLeft(120); 
+          } else {
+            setIsAvailable(false); 
+          }
         } else {
           setActiveOrder(null);
           setIsAvailable(!!isAvailableInDB);
@@ -85,7 +89,7 @@ function DeliveryDashboard() {
         estado: "asignado",
       };
       setActiveOrder(pedido);
-      setIsAvailable(false);
+      setIsAvailable(true);
       setTimeLeft(120);
       
       if (audioRef.current) {
@@ -104,7 +108,7 @@ function DeliveryDashboard() {
     };
   }, [loading, isAuthenticated, user?.id]);
 
-  // 3. TIMER
+  // 3. TIMER: Rechazo automático por tiempo
   useEffect(() => {
     let interval = null;
     if (activeOrder?.estado === "asignado" && timeLeft !== null) {
@@ -119,7 +123,7 @@ function DeliveryDashboard() {
     return () => clearInterval(interval);
   }, [timeLeft, activeOrder]);
 
-  // 4. HANDLERS: Corregido para usar cualquier ID disponible
+  // 4. HANDLERS
   const handleUpdateStatus = async (newStatus) => {
     const pedidoId = activeOrder?.pedido_id || activeOrder?.id;
 
@@ -143,7 +147,10 @@ function DeliveryDashboard() {
           document.title = "Gazzella Express";
         } else {
           setActiveOrder((prev) => ({ ...prev, estado: newStatus }));
-          if (newStatus === "en_camino") setTimeLeft(null);
+          if (newStatus === "en_camino") {
+            setIsAvailable(false);
+            setTimeLeft(null);
+          }
         }
       }
     } catch (err) {
@@ -153,7 +160,7 @@ function DeliveryDashboard() {
 
   // 5. DISPONIBILIDAD
   const toggleAvailability = async () => {
-    if (activeOrder || isRestricted) return;
+    if (activeOrder?.estado === "en_camino" || isRestricted) return;
     try {
       const res = await axios.patch(
         `${API_BASE_URL}/driver/availability`,
@@ -180,18 +187,18 @@ function DeliveryDashboard() {
       <div className="client-dashboard">
         <header style={{ textAlign: "center", marginBottom: "20px" }}>
           <h2 style={{ fontWeight: "800" }}>🛵 Panel: {user?.nombre}</h2>
-          <div className={`status-pill ${isRestricted ? "pill-pendiente" : activeOrder ? "pill-en-ruta" : isAvailable ? "pill-asignado" : "pill-pendiente"}`}>
-            {isNotRegistered ? "NO REGISTRADO" : isSuspended ? "CUENTA SUSPENDIDA" : activeOrder ? `EN SERVICIO (${activeOrder.estado.toUpperCase()})` : isAvailable ? "ESPERANDO PEDIDO" : "FUERA DE LÍNEA"}
+          <div className={`status-pill ${isRestricted ? "pill-pendiente" : activeOrder ? (activeOrder.estado === 'asignado' ? "pill-asignado" : "pill-en-ruta") : isAvailable ? "pill-asignado" : "pill-pendiente"}`}>
+            {isNotRegistered ? "NO REGISTRADO" : isSuspended ? "CUENTA SUSPENDIDA" : activeOrder ? (activeOrder.estado === 'asignado' ? "PEDIDO RECIBIDO" : `EN SERVICIO (${activeOrder.estado.toUpperCase()})`) : isAvailable ? "ESPERANDO PEDIDO" : "FUERA DE LÍNEA"}
           </div>
         </header>
 
         <button
           onClick={toggleAvailability}
-          disabled={!!activeOrder || isRestricted}
+          disabled={(activeOrder && activeOrder.estado !== "asignado") || isRestricted}
           className={isAvailable ? "btn-danger" : "btn-primary"}
           style={{ width: "100%", padding: "18px", borderRadius: "15px", fontWeight: "bold", marginBottom: "20px" }}
         >
-          {isRestricted ? "Bloqueado" : activeOrder ? "En Servicio" : isAvailable ? "🔴 Desconectarse" : "🟢 Ponerse Disponible"}
+          {isRestricted ? "Bloqueado" : (activeOrder && activeOrder.estado !== "asignado") ? "En Servicio" : isAvailable ? "🔴 Desconectarse" : "🟢 Ponerse Disponible"}
         </button>
 
         <main className="recent-orders">
@@ -200,9 +207,11 @@ function DeliveryDashboard() {
               <div className="order-card-header">
                 <span className="order-id-badge">PEDIDO #{activeOrder.pedido_id || activeOrder.id}</span>
                 {activeOrder.estado === "asignado" && timeLeft !== null && (
-                  <span style={{ color: timeLeft < 30 ? "red" : "#ff9800", fontWeight: "bold", fontSize: "1.2rem" }}>
-                    ⏳ {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, "0")}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span style={{ color: timeLeft < 30 ? "red" : "#ff9800", fontWeight: "800", fontSize: "1.3rem" }}>
+                      ⏳ {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, "0")}
+                    </span>
+                  </div>
                 )}
               </div>
               <div className="order-body">
@@ -214,14 +223,23 @@ function DeliveryDashboard() {
                 <div className="price-tag" style={{ width: "100%", textAlign: "center", marginBottom: "10px" }}>
                   <p style={{ fontSize: "1.8rem", color: "#2ecc71" }}>${activeOrder.monto}</p>
                 </div>
-                <div style={{ display: "flex", gap: "10px", width: "100%" }}>
+                <div style={{ width: "100%" }}>
                   {activeOrder.estado === "asignado" ? (
-                    <>
-                      <button onClick={() => handleUpdateStatus("en_camino")} className="btn-primary" style={{ flex: 2, background: "#28a745" }}>Aceptar</button>
-                      <button onClick={() => handleUpdateStatus("pendiente")} className="btn-danger" style={{ flex: 1 }}>Rechazar</button>
-                    </>
+                    <button 
+                      onClick={() => handleUpdateStatus("en_camino")} 
+                      className="btn-primary" 
+                      style={{ width: "100%", background: "#28a745", padding: "20px", fontSize: "1.2rem" }}
+                    >
+                      Aceptar Pedido
+                    </button>
                   ) : (
-                    <button onClick={() => handleUpdateStatus("entregado")} className="btn-primary" style={{ width: "100%" }}>🏁 Marcar Entregado</button>
+                    <button 
+                      onClick={() => handleUpdateStatus("entregado")} 
+                      className="btn-primary" 
+                      style={{ width: "100%", padding: "20px" }}
+                    >
+                      🏁 Marcar Entregado
+                    </button>
                   )}
                 </div>
               </div>
