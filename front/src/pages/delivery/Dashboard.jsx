@@ -1,6 +1,4 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import axios from 'axios';
 import { useAuth } from '../../hooks/AuthContext'; 
@@ -8,10 +6,13 @@ import { useAuth } from '../../hooks/AuthContext';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const NOTIFICATION_SOUND_URL = '/sounds/new-order.mp3';
 
+// Configuración de Socket optimizada para reconexión
 const socket = io(API_BASE_URL, {
   withCredentials: true,
   transports: ['websocket'], 
-  autoConnect: true
+  autoConnect: true, // Cambiado a true para manejar reconexión automática
+  reconnection: true,
+  reconnectionAttempts: 5
 });
 
 function DeliveryDashboard() {
@@ -23,24 +24,15 @@ function DeliveryDashboard() {
   const [timeLeft, setTimeLeft] = useState(null);
 
   const audioRef = useRef(null);
-  const timerRef = useRef(null);
-
-  const isSuspended = driverStatus === 'suspendido';
-  const isNotRegistered = driverStatus === 'not_registered';
-  const isRestricted = isSuspended || isNotRegistered;
 
   useEffect(() => {
     audioRef.current = new Audio(NOTIFICATION_SOUND_URL);
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, []);
 
-  const playNotification = () => {
-    if (audioRef.current) audioRef.current.play().catch(() => {});
-  };
-
-  // Carga inicial y persistencia al refrescar
+  // 1. Carga inicial de datos (Persistencia de F5)
   useEffect(() => {
     if (loading || !isAuthenticated) return;
+
     const fetchInitialData = async () => {
       setIsLoadingStatus(true);
       try {
@@ -48,13 +40,15 @@ function DeliveryDashboard() {
         const { active, order, isAvailableInDB, status } = response.data;
         
         setDriverStatus(status || 'not_registered');
+        
         if (active && order) {
           setActiveOrder(order);
           setIsAvailable(false);
           if (order.estado === 'asignado') setTimeLeft(120);
         } else {
           setActiveOrder(null);
-          setIsAvailable(isAvailableInDB || false);
+          // Sincronizamos con el estado real de la base de datos
+          setIsAvailable(!!isAvailableInDB);
         }
       } catch (err) {
         if (err.response?.status === 404) setDriverStatus('not_registered');
@@ -62,14 +56,22 @@ function DeliveryDashboard() {
         setIsLoadingStatus(false);
       }
     };
+
     fetchInitialData();
   }, [isAuthenticated, loading]);
 
-  // Sockets
+  // 2. Gestión de Sockets y Reconexión
   useEffect(() => {
     if (loading || !isAuthenticated || !user?.id) return;
-    
-    socket.emit('join_driver_room', user.id);
+
+    const joinRoom = () => {
+      console.log("Emitiendo join_driver_room para:", user.id);
+      socket.emit('join_driver_room', user.id);
+    };
+
+    if (socket.connected) {
+      joinRoom();
+    }
 
     const handleNewOrder = (data) => {
       const pedido = {
@@ -83,22 +85,33 @@ function DeliveryDashboard() {
       setActiveOrder(pedido);
       setIsAvailable(false);
       setTimeLeft(120);
-      playNotification();
-      document.title = "🔴 NUEVO PEDIDO RECIBIDO";
+      if (audioRef.current) audioRef.current.play().catch(() => {});
+      document.title = "🔴 NUEVO PEDIDO";
     };
 
+    socket.on('connect', joinRoom);
     socket.on('NUEVO_PEDIDO', handleNewOrder);
-    return () => { socket.off('NUEVO_PEDIDO'); document.title = "Gazzella Express"; };
+
+    return () => {
+      socket.off('connect', joinRoom);
+      socket.off('NUEVO_PEDIDO', handleNewOrder);
+      document.title = "Gazzella Express";
+    };
   }, [loading, isAuthenticated, user?.id]);
 
-  // Timer del pedido asignado
+  // Timer y Handlers (Se mantienen igual pero con lógica de limpieza)
   useEffect(() => {
-    if (activeOrder?.estado === 'asignado' && timeLeft > 0) {
-      timerRef.current = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
-    } else if (timeLeft === 0) {
-      handleUpdateStatus('pendiente'); // Rechazo automático por tiempo
+    let interval = null;
+    if (activeOrder?.estado === 'asignado' && timeLeft !== null) {
+      if (timeLeft <= 0) {
+        handleUpdateStatus('pendiente'); 
+        return;
+      }
+      interval = setInterval(() => {
+        setTimeLeft(prev => prev - 1);
+      }, 1000);
     }
-    return () => clearInterval(timerRef.current);
+    return () => { if (interval) clearInterval(interval); };
   }, [timeLeft, activeOrder]);
 
   const handleUpdateStatus = async (newStatus) => {
@@ -111,7 +124,9 @@ function DeliveryDashboard() {
       if (res.data.success) {
         if (newStatus === 'entregado' || newStatus === 'pendiente') {
           setActiveOrder(null);
-          setIsAvailable(true);
+          setTimeLeft(null);
+          // Si entrega, se pone disponible. Si rechaza, sigue disponible (según nueva lógica)
+          setIsAvailable(true); 
           document.title = "Gazzella Express";
         } else {
           setActiveOrder(prev => ({ ...prev, estado: newStatus }));
@@ -127,9 +142,16 @@ function DeliveryDashboard() {
       const res = await axios.patch(`${API_BASE_URL}/driver/availability`, 
         { available: !isAvailable }, { withCredentials: true }
       );
-      if (res.data.success) setIsAvailable(res.data.isAvailable);
+      if (res.data.success) {
+        setIsAvailable(res.data.isAvailable);
+        if (res.data.isAvailable) socket.emit('join_driver_room', user.id);
+      }
     } catch (err) { console.error(err); }
   };
+
+  const isSuspended = driverStatus === 'suspendido';
+  const isNotRegistered = driverStatus === 'not_registered';
+  const isRestricted = isSuspended || isNotRegistered;
 
   if (loading || isLoadingStatus) return <div className="loading-screen"><div className="spinner"></div></div>;
 
@@ -142,12 +164,6 @@ function DeliveryDashboard() {
                 {isNotRegistered ? "NO REGISTRADO" : isSuspended ? "CUENTA SUSPENDIDA" : activeOrder ? `EN SERVICIO (${activeOrder.estado.toUpperCase()})` : isAvailable ? "ESPERANDO PEDIDO" : "FUERA DE LÍNEA"}
             </div>
         </header>
-
-        {isRestricted && (
-          <div style={{ background: '#fff3cd', color: '#856404', padding: '15px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #ffeeba', textAlign: 'center' }}>
-             {isNotRegistered ? "⚠️ Perfil incompleto." : "🚫 Cuenta suspendida."}
-          </div>
-        )}
 
         <button 
           onClick={toggleAvailability} 
@@ -203,6 +219,9 @@ function DeliveryDashboard() {
 }
 
 export default DeliveryDashboard;
+
+
+
 // import React, { useState, useEffect, useRef } from 'react';
 // import { useNavigate } from 'react-router-dom';
 // import { io } from 'socket.io-client';
