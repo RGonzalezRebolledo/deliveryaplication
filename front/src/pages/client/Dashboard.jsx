@@ -74,7 +74,6 @@ function ClientDashboard() {
     setLoadingDriver(true);
     setShowModal(true);
     try {
-      // Uso de params como acordamos
       const res = await axios.get(`${API_BASE_URL}/client/order-driver/${pedidoId}`, {
         withCredentials: true,
       });
@@ -253,8 +252,15 @@ function ClientDashboard() {
                 >
                   Detalles
                 </button>
-                <div className="price-tag">
-                  <span className="amount-usd">${order.total_usd}</span>
+                <div className="price-tag" style={{ textAlign: 'right' }}>
+                  {/* MONTO EN DÓLARES */}
+                  <span className="amount-usd" style={{ display: 'block', color: '#000000', fontWeight: 'bold' }}>
+                    ${order.total_usd}
+                  </span>
+                  {/* MONTO EN BOLÍVARES (AÑADIDO) */}
+                  <span className="amount-bs" style={{ fontSize: '0.85rem', color: '#000000', fontWeight: '500', display: 'block' }}>
+                    Bs {order.total}
+                  </span>
                 </div>
               </div>
             </div>
@@ -316,8 +322,6 @@ function ClientDashboard() {
 
 export default ClientDashboard;
 
-
-
 // import React, { useState, useEffect, useMemo } from "react";
 // import { useNavigate } from "react-router-dom";
 // import { io } from "socket.io-client";
@@ -338,6 +342,11 @@ export default ClientDashboard;
 //   const [orders, setOrders] = useState([]);
 //   const [searchTerm, setSearchTerm] = useState("");
 //   const [isLoadingOrders, setIsLoadingOrders] = useState(true);
+
+//   // Estados para el Modal del Conductor
+//   const [showModal, setShowModal] = useState(false);
+//   const [driverInfo, setDriverInfo] = useState(null);
+//   const [loadingDriver, setLoadingDriver] = useState(false);
 
 //   useEffect(() => {
 //     if (loading || !isAuthenticated || !user?.id) return;
@@ -378,6 +387,29 @@ export default ClientDashboard;
 //     };
 //     fetchOrders();
 //   }, [isAuthenticated, loading, navigate]);
+
+//   // Función para abrir modal y cargar datos del conductor
+//   const handleOpenDetails = async (pedidoId, status) => {
+//     if (status === 'pendiente') {
+//       alert("Aún estamos buscando un repartidor para tu pedido.");
+//       return;
+//     }
+
+//     setLoadingDriver(true);
+//     setShowModal(true);
+//     try {
+//       // Uso de params como acordamos
+//       const res = await axios.get(`${API_BASE_URL}/client/order-driver/${pedidoId}`, {
+//         withCredentials: true,
+//       });
+//       setDriverInfo(res.data);
+//     } catch (err) {
+//       console.error("Error al obtener conductor:", err);
+//       setDriverInfo(null);
+//     } finally {
+//       setLoadingDriver(false);
+//     }
+//   };
 
 //   const filteredOrders = useMemo(() => {
 //     return orders.filter((order) => {
@@ -437,7 +469,6 @@ export default ClientDashboard;
 //               >
 //                 <span className="order-id-badge">PEDIDO #{order.id}</span>
 
-//                 {/* ESTATUS CON ESTILO NARANJA CLARO (SOLO PARA "EN CAMINO") */}
 //                 <span
 //                   className={`status-pill pill-${order.status?.replace(
 //                     "_",
@@ -461,7 +492,6 @@ export default ClientDashboard;
 //                 </span>
 //               </div>
 
-//               {/* --- LÍNEA DE TIEMPO CON COLOR AZUL ORIGINAL --- */}
 //               <div style={{ padding: "20px 10px 10px 10px" }}>
 //                 <div
 //                   style={{
@@ -478,7 +508,6 @@ export default ClientDashboard;
 //                         width: "14px",
 //                         height: "14px",
 //                         borderRadius: "50%",
-//                         // Regresamos al color azul para los pasos completados
 //                         background:
 //                           getStepLevel(order.status) >= step
 //                             ? "#007bff"
@@ -488,7 +517,6 @@ export default ClientDashboard;
 //                       }}
 //                     />
 //                   ))}
-//                   {/* Línea de fondo azul clara */}
 //                   <div
 //                     style={{
 //                       position: "absolute",
@@ -544,7 +572,7 @@ export default ClientDashboard;
 
 //               <div className="order-footer">
 //                 <button
-//                   onClick={() => navigate(`/client/order/${order.id}`)}
+//                   onClick={() => handleOpenDetails(order.id, order.status)}
 //                   className="btn-outline"
 //                 >
 //                   Detalles
@@ -556,9 +584,61 @@ export default ClientDashboard;
 //             </div>
 //           ))}
 //         </div>
+
+//         {/* --- MODAL DE INFORMACIÓN DEL CONDUCTOR --- */}
+//         {showModal && (
+//           <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '15px' }}>
+//             <div style={{ background: '#fff', borderRadius: '20px', width: '100%', maxWidth: '400px', padding: '25px', position: 'relative', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
+//               <button 
+//                 onClick={() => setShowModal(false)} 
+//                 style={{ position: 'absolute', top: '15px', right: '15px', border: 'none', background: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#94a3b8' }}
+//               >
+//                 &times;
+//               </button>
+
+//               <h3 style={{ textAlign: 'center', marginBottom: '20px', fontWeight: '800' }}>Datos del Repartidor</h3>
+
+//               {loadingDriver ? (
+//                 <p style={{ textAlign: 'center' }}>Cargando información...</p>
+//               ) : driverInfo ? (
+//                 <div style={{ textAlign: 'center' }}>
+//                   <img 
+//                     src={driverInfo.foto || 'https://via.placeholder.com/100'} 
+//                     alt="Conductor" 
+//                     style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #007bff', marginBottom: '10px' }} 
+//                   />
+//                   <h4 style={{ margin: '5px 0', fontSize: '1.2rem' }}>{driverInfo.nombre}</h4>
+//                   <p style={{ color: '#00acc1', fontWeight: 'bold', marginBottom: '20px' }}>📞 {driverInfo.telefono}</p>
+
+//                   <div style={{ background: '#f8f9fa', borderRadius: '15px', padding: '15px', textAlign: 'left' }}>
+//                     <p style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '8px', textAlign: 'center' }}>Vehículo Identificado</p>
+//                     <img 
+//                       src={driverInfo.foto_vehiculo || 'https://via.placeholder.com/300x150'} 
+//                       alt="Vehículo" 
+//                       style={{ width: '100%', borderRadius: '10px', height: '150px', objectFit: 'cover' }} 
+//                     />
+//                   </div>
+
+//                   <a 
+//                     href={`tel:${driverInfo.telefono}`} 
+//                     className="btn-primary" 
+//                     style={{ display: 'block', marginTop: '20px', textDecoration: 'none', textAlign: 'center', padding: '12px' }}
+//                   >
+//                     Contactar Conductor
+//                   </a>
+//                 </div>
+//               ) : (
+//                 <p style={{ textAlign: 'center', color: '#ef4444' }}>No se pudo cargar la información del conductor.</p>
+//               )}
+//             </div>
+//           </div>
+//         )}
 //       </div>
 //     </div>
 //   );
 // }
 
 // export default ClientDashboard;
+
+
+

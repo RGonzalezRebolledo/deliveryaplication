@@ -248,6 +248,7 @@ function DeliveryDashboard() {
 
 export default DeliveryDashboard;
 
+
 // import React, { useState, useEffect, useRef } from "react";
 // import { io } from "socket.io-client";
 // import axios from "axios";
@@ -298,8 +299,6 @@ export default DeliveryDashboard;
 //           setActiveOrder(normalizedOrder);
 //           setIsAvailable(true); 
 //         } else if (tiene_pedido === true) {
-//           // Si tiene_pedido es true pero no hay objeto 'order', es un error de sincronización
-//           // Forzamos al front a no limpiar la pantalla y re-intentar en 2 segundos
 //           console.warn("⚠️ Repartidor con tiene_pedido=true pero sin objeto order. Reintentando...");
 //           setTimeout(fetchInitialData, 2000);
 //         } else {
@@ -321,14 +320,13 @@ export default DeliveryDashboard;
 //     if (loading || !isAuthenticated || !user?.id) return;
 
 //     const onConnect = () => {
-//       // Al conectar o re-conectar después de un F5
 //       socket.emit("join_driver_room", user.id); 
 //       console.log("✅ Socket conectado a sala driver_" + user.id);
 //     };
 
 //     const handleNewOrder = (data) => {
 //       setActiveOrder((current) => {
-//         if (current) return current; // Si ya tenemos uno, ignoramos
+//         if (current) return current;
 //         return {
 //           pedido_id: data.pedido_id,
 //           monto: data.monto,
@@ -346,7 +344,6 @@ export default DeliveryDashboard;
 //     socket.on("connect", onConnect);
 //     socket.on("NUEVO_PEDIDO", handleNewOrder);
     
-//     // Si ya estaba conectado al montar el componente
 //     if (socket.connected) onConnect();
 
 //     return () => {
@@ -400,6 +397,29 @@ export default DeliveryDashboard;
 //     return (
 //       <div className="loading-container" style={{display:'flex', justifyContent:'center', alignItems:'center', height:'100vh'}}>
 //         <div className="spinner"></div>
+//       </div>
+//     );
+//   }
+
+//   // --- VISTA PARA CONDUCTOR NO REGISTRADO O PENDIENTE ---
+//   if (driverStatus === "not_registered") {
+//     return (
+//       <div className="app-container">
+//         <div className="client-dashboard" style={{ textAlign: "center", padding: "50px 20px" }}>
+//           <header style={{ marginBottom: "30px" }}>
+//             <h2 style={{ fontWeight: "800" }}>🛵 Panel: {user?.nombre}</h2>
+//             <div className="status-pill pill-pendiente">ESTADO: PENDIENTE</div>
+//           </header>
+//           <div className="order-card-modern" style={{ padding: "30px", borderRadius: "20px" }}>
+//             <p style={{ fontSize: "4rem", margin: "0" }}>🕒</p>
+//             <h3 style={{ color: "#333", marginTop: "10px" }}>Perfil en Revisión</h3>
+//             <p style={{ color: "#666", lineHeight: "1.5" }}>
+//               Tu registro como repartidor aún no ha sido aprobado por el administrador de <b>Gazzella Express</b>.
+//               <br /><br />
+//               Te avisaremos una vez que puedas empezar a recibir pedidos.
+//             </p>
+//           </div>
+//         </div>
 //       </div>
 //     );
 //   }
