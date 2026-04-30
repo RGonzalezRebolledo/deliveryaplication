@@ -253,11 +253,9 @@ function ClientDashboard() {
                   Detalles
                 </button>
                 <div className="price-tag" style={{ textAlign: 'right' }}>
-                  {/* MONTO EN DÓLARES */}
                   <span className="amount-usd" style={{ display: 'block', color: '#000000', fontWeight: 'bold' }}>
                     ${order.total_usd}
                   </span>
-                  {/* MONTO EN BOLÍVARES (AÑADIDO) */}
                   <span className="amount-bs" style={{ fontSize: '0.85rem', color: '#000000', fontWeight: '500', display: 'block' }}>
                     Bs {order.total}
                   </span>
@@ -267,51 +265,116 @@ function ClientDashboard() {
           ))}
         </div>
 
-        {/* --- MODAL DE INFORMACIÓN DEL CONDUCTOR --- */}
+        {/* --- MODAL DE INFORMACIÓN DEL CONDUCTOR (ESTILO RECTANGULAR) --- */}
         {showModal && (
-          <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '15px' }}>
-            <div style={{ background: '#fff', borderRadius: '20px', width: '100%', maxWidth: '400px', padding: '25px', position: 'relative', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
+          <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '15px' }}>
+            <div style={{ 
+              background: '#fff', 
+              borderRadius: '30px', 
+              width: '100%', 
+              maxWidth: '360px', 
+              padding: '45px 25px 30px 25px', 
+              position: 'relative', 
+              boxShadow: '0 20px 40px rgba(0,0,0,0.4)' 
+            }}>
+              
               <button 
                 onClick={() => setShowModal(false)} 
-                style={{ position: 'absolute', top: '15px', right: '15px', border: 'none', background: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#94a3b8' }}
+                style={{ 
+                  position: 'absolute', 
+                  top: '15px', 
+                  right: '15px', 
+                  border: 'none', 
+                  background: '#f1f5f9', 
+                  width: '32px', 
+                  height: '32px', 
+                  borderRadius: '8px', 
+                  cursor: 'pointer', 
+                  color: '#64748b', 
+                  fontSize: '1.2rem', 
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  lineHeight: 0,
+                  padding: 0,
+                  zIndex: 10
+                }}
               >
                 &times;
               </button>
 
-              <h3 style={{ textAlign: 'center', marginBottom: '20px', fontWeight: '800' }}>Datos del Repartidor</h3>
-
-              {loadingDriver ? (
-                <p style={{ textAlign: 'center' }}>Cargando información...</p>
-              ) : driverInfo ? (
-                <div style={{ textAlign: 'center' }}>
-                  <img 
-                    src={driverInfo.foto || 'https://via.placeholder.com/100'} 
-                    alt="Conductor" 
-                    style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #007bff', marginBottom: '10px' }} 
-                  />
-                  <h4 style={{ margin: '5px 0', fontSize: '1.2rem' }}>{driverInfo.nombre}</h4>
-                  <p style={{ color: '#00acc1', fontWeight: 'bold', marginBottom: '20px' }}>📞 {driverInfo.telefono}</p>
-
-                  <div style={{ background: '#f8f9fa', borderRadius: '15px', padding: '15px', textAlign: 'left' }}>
-                    <p style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '8px', textAlign: 'center' }}>Vehículo Identificado</p>
-                    <img 
-                      src={driverInfo.foto_vehiculo || 'https://via.placeholder.com/300x150'} 
-                      alt="Vehículo" 
-                      style={{ width: '100%', borderRadius: '10px', height: '150px', objectFit: 'cover' }} 
-                    />
+              <div style={{ textAlign: 'center' }}>
+                {/* ID del Repartidor arriba de la foto */}
+                {!loadingDriver && driverInfo && (
+                  <div style={{ 
+                    display: 'inline-block', 
+                    background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)', 
+                    color: '#fff', 
+                    padding: '6px 20px', 
+                    borderRadius: '50px', 
+                    fontSize: '0.8rem', 
+                    fontWeight: '700',
+                    boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+                    marginBottom: '20px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px'
+                  }}>
+                    conductor nro: #{driverInfo.usuario_id}
                   </div>
+                )}
 
-                  <a 
-                    href={`tel:${driverInfo.telefono}`} 
-                    className="btn-primary" 
-                    style={{ display: 'block', marginTop: '20px', textDecoration: 'none', textAlign: 'center', padding: '12px' }}
-                  >
-                    Contactar Conductor
-                  </a>
-                </div>
-              ) : (
-                <p style={{ textAlign: 'center', color: '#ef4444' }}>No se pudo cargar la información del conductor.</p>
-              )}
+                {loadingDriver ? (
+                  <div style={{ padding: '40px 0' }}>
+                    <div className="spinner" style={{ margin: '0 auto' }}></div>
+                    <p style={{ marginTop: '15px' }}>Cargando información...</p>
+                  </div>
+                ) : driverInfo ? (
+                  <>
+                    <div style={{ marginBottom: '15px' }}>
+                      <img 
+                        src={driverInfo.foto || 'https://via.placeholder.com/120'} 
+                        alt="Conductor" 
+                        style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover', border: '5px solid #f8fafc', boxShadow: '0 8px 15px rgba(0,0,0,0.1)' }} 
+                      />
+                    </div>
+
+                    <h4 style={{ margin: '0', fontSize: '1.5rem', color: '#0f172a', fontWeight: '800' }}>{driverInfo.nombre}</h4>
+                    <p style={{ color: '#0ea5e9', fontWeight: '700', fontSize: '1.1rem', margin: '8px 0 25px 0' }}>
+                      📞 {driverInfo.telefono}
+                    </p>
+
+                    <div style={{ background: '#f8fafc', borderRadius: '20px', padding: '15px', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
+                      <p style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '10px' }}>
+                        Vehículo Autorizado
+                      </p>
+                      <img 
+                        src={driverInfo.foto_vehiculo || 'https://via.placeholder.com/300x150'} 
+                        alt="Vehículo" 
+                        style={{ width: '100%', borderRadius: '15px', height: '160px', objectFit: 'cover' }} 
+                      />
+                    </div>
+
+                    <a 
+                      href={`tel:${driverInfo.telefono}`} 
+                      style={{ 
+                        display: 'block', 
+                        backgroundColor: '#007bff', 
+                        color: '#fff', 
+                        textDecoration: 'none', 
+                        padding: '16px', 
+                        borderRadius: '18px', 
+                        fontWeight: '800',
+                        fontSize: '1rem',
+                        boxShadow: '0 10px 20px rgba(0, 123, 255, 0.2)'
+                      }}
+                    >
+                      Llamar ahora
+                    </a>
+                  </>
+                ) : (
+                  <p style={{ padding: '20px', color: '#ef4444', fontWeight: '600' }}>No se pudo cargar la información.</p>
+                )}
+              </div>
             </div>
           </div>
         )}

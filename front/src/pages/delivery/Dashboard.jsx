@@ -6,7 +6,6 @@ import { useAuth } from "../../hooks/AuthContext";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const NOTIFICATION_SOUND_URL = "/sounds/new-order.mp3";
 
-// Mantenemos el socket fuera para que no se re-instancie innecesariamente
 const socket = io(API_BASE_URL, {
   withCredentials: true,
   transports: ["websocket", "polling"],
@@ -26,7 +25,6 @@ function DeliveryDashboard() {
     audioRef.current = new Audio(NOTIFICATION_SOUND_URL);
   }, []);
 
-  // 1. CARGA Y PERSISTENCIA (Sincronización con la Realidad de la DB)
   useEffect(() => {
     if (loading || !isAuthenticated) return;
 
@@ -38,7 +36,6 @@ function DeliveryDashboard() {
         
         setDriverStatus(status || "not_registered");
 
-        // SI LA DB DICE QUE TIENE PEDIDO, NO IMPORTA NADA MÁS
         if (active && order) {
           const normalizedOrder = { 
             ...order, 
@@ -48,7 +45,6 @@ function DeliveryDashboard() {
           setActiveOrder(normalizedOrder);
           setIsAvailable(true); 
         } else if (tiene_pedido === true) {
-          console.warn("⚠️ Repartidor con tiene_pedido=true pero sin objeto order. Reintentando...");
           setTimeout(fetchInitialData, 2000);
         } else {
           setActiveOrder(null);
@@ -64,16 +60,17 @@ function DeliveryDashboard() {
     fetchInitialData();
   }, [isAuthenticated, loading]);
 
-  // 2. SOCKETS: UNIÓN Y RE-CONEXIÓN
   useEffect(() => {
     if (loading || !isAuthenticated || !user?.id) return;
 
     const onConnect = () => {
       socket.emit("join_driver_room", user.id); 
-      console.log("✅ Socket conectado a sala driver_" + user.id);
     };
 
     const handleNewOrder = (data) => {
+      // Bloquear nuevos pedidos si el estatus no es activo
+      if (driverStatus !== "activo") return;
+
       setActiveOrder((current) => {
         if (current) return current;
         return {
@@ -99,9 +96,8 @@ function DeliveryDashboard() {
       socket.off("connect", onConnect);
       socket.off("NUEVO_PEDIDO", handleNewOrder);
     };
-  }, [loading, isAuthenticated, user?.id]);
+  }, [loading, isAuthenticated, user?.id, driverStatus]);
 
-  // 3. ACTUALIZACIÓN DE ESTADOS
   const handleUpdateStatus = async (newStatus) => {
     const pedidoId = activeOrder?.pedido_id;
     if (!pedidoId) return;
@@ -115,7 +111,7 @@ function DeliveryDashboard() {
       if (res.data.success) {
         if (newStatus === "entregado") {
           setActiveOrder(null);
-          setIsAvailable(true); 
+          setIsAvailable(driverStatus === "activo"); // Si está suspendido, ya no queda disponible
           document.title = "Gazzella Express";
         } else {
           setActiveOrder(prev => ({ ...prev, estado: newStatus }));
@@ -123,11 +119,9 @@ function DeliveryDashboard() {
       }
     } catch (err) { 
       console.error("❌ Error al actualizar estado:", err);
-      alert("Error al actualizar. Por favor revisa tu conexión.");
     }
   };
 
-  // 4. TOGGLE DISPONIBILIDAD
   const toggleAvailability = async () => {
     if (activeOrder || driverStatus !== "activo") return;
     try {
@@ -150,7 +144,7 @@ function DeliveryDashboard() {
     );
   }
 
-  // --- VISTA PARA CONDUCTOR NO REGISTRADO O PENDIENTE ---
+  // VISTA PARA CONDUCTOR NO REGISTRADO O PENDIENTE
   if (driverStatus === "not_registered") {
     return (
       <div className="app-container">
@@ -173,11 +167,42 @@ function DeliveryDashboard() {
     );
   }
 
+  // --- LÓGICA DE SUSPENSIÓN (is_active = false) ---
+  if (driverStatus === "suspendido" && !activeOrder) {
+    return (
+      <div className="app-container">
+        <div className="client-dashboard" style={{ textAlign: "center", padding: "50px 20px" }}>
+          <header style={{ marginBottom: "30px" }}>
+            <h2 style={{ fontWeight: "800" }}>🛵 Panel: {user?.nombre}</h2>
+            <div className="status-pill pill-pendiente" style={{backgroundColor: "#ff4d4d", color: "white"}}>ESTADO: SUSPENDIDO</div>
+          </header>
+          <div className="order-card-modern" style={{ padding: "30px", borderRadius: "20px", border: "2px solid #ff4d4d" }}>
+            <p style={{ fontSize: "4rem", margin: "0" }}>🚫</p>
+            <h3 style={{ color: "#333", marginTop: "10px" }}>Cuenta Suspendida</h3>
+            <p style={{ color: "#666", lineHeight: "1.5" }}>
+              Lo sentimos, tu cuenta de repartidor ha sido suspendida. 
+              <br /><br />
+              <b>No estás habilitado</b> en la plataforma para realizar nuevos servicios en este momento. Por favor, contacta a soporte para más información.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="app-container">
       <div className="client-dashboard">
         <header style={{ textAlign: "center", marginBottom: "20px" }}>
           <h2 style={{ fontWeight: "800" }}>🛵 Panel: {user?.nombre}</h2>
+          
+          {/* Alerta si está culminando pedido pero ya está suspendido */}
+          {driverStatus === "suspendido" && activeOrder && (
+            <div style={{ backgroundColor: "#fff3cd", color: "#856404", padding: "10px", borderRadius: "10px", marginBottom: "15px", fontSize: "0.85rem", border: "1px solid #ffeeba" }}>
+              ⚠️ Tu cuenta ha sido suspendida. Debes <b>culminar este servicio</b> antes de que el acceso sea restringido.
+            </div>
+          )}
+
           <div className={`status-pill ${activeOrder ? "pill-en-ruta" : isAvailable ? "pill-asignado" : "pill-pendiente"}`}>
              {activeOrder ? (activeOrder.estado === "asignado" ? "PEDIDO ASIGNADO" : "EN RUTA") : isAvailable ? "ESPERANDO PEDIDO" : "FUERA DE LÍNEA"}
           </div>
@@ -189,7 +214,7 @@ function DeliveryDashboard() {
           className={isAvailable ? "btn-danger" : "btn-primary"}
           style={{ width: "100%", padding: "18px", borderRadius: "15px", fontWeight: "bold", marginBottom: "20px" }}
         >
-          {activeOrder ? "Orden en Proceso" : isAvailable ? "🔴 Desconectarse" : "🟢 Ponerse Disponible"}
+          {driverStatus === "suspendido" ? "Cuenta Suspendida" : activeOrder ? "Orden en Proceso" : isAvailable ? "🔴 Desconectarse" : "🟢 Ponerse Disponible"}
         </button>
 
         <main className="recent-orders">
@@ -247,7 +272,6 @@ function DeliveryDashboard() {
 }
 
 export default DeliveryDashboard;
-
 
 // import React, { useState, useEffect, useRef } from "react";
 // import { io } from "socket.io-client";
@@ -498,3 +522,5 @@ export default DeliveryDashboard;
 // }
 
 // export default DeliveryDashboard;
+
+
