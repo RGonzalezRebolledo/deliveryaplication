@@ -250,7 +250,7 @@ function ClientDashboard() {
                   onClick={() => handleOpenDetails(order.id, order.status)}
                   className="btn-outline"
                 >
-                  Detalles
+                  Ver Conductor
                 </button>
                 <div className="price-tag" style={{ textAlign: 'right' }}>
                   <span className="amount-usd" style={{ display: 'block', color: '#000000', fontWeight: 'bold' }}>
