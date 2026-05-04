@@ -55,7 +55,7 @@ function CheckoutPage() {
                 <div className="price-summary" style={{ marginBottom: '20px' }}>
                     <p>Total a pagar en Bolívares:</p>
                     <h3 className="price-ves">{orderData.price.toFixed(2)} Bs.</h3>
-                    <p className="text-muted small">Tasa: {orderData.exchangeRate} Bs/USD</p>
+                    <p className="text-muted small">Tasa: {orderData.exchangeRate.toFixed(2)} Bs/USD</p>
                 </div>
 
                 <div className="payment-instructions" style={{ padding: '15px', background: '#f8f9fa', borderRadius: '8px' }}>
