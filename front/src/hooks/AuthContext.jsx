@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
             setIsAuthenticated(false);
             
             // Redirección forzada para limpiar cualquier estado de rutas
-            window.location.href = "/login";
+            // window.location.href = "/login";
         }
     };
 
