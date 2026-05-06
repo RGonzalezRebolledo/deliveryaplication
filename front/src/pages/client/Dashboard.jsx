@@ -239,19 +239,60 @@ function ClientDashboard() {
         {/* ... (Modal de información del conductor igual) ... */}
         {showModal && (
           <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '15px' }}>
-            {/* Contenido del modal que ya tenías */}
-            <div style={{ background: '#fff', borderRadius: '30px', width: '100%', maxWidth: '360px', padding: '45px 25px 30px 25px', position: 'relative' }}>
-               <button onClick={() => setShowModal(false)} style={{ position: 'absolute', top: '15px', right: '15px', border: 'none', background: '#f1f5f9', cursor: 'pointer' }}>&times;</button>
-               {/* Resto de la info del conductor... */}
-               <div style={{textAlign: 'center'}}>
-                 {loadingDriver ? <p>Cargando...</p> : (
-                   <>
-                    <img src={driverInfo?.foto || 'https://via.placeholder.com/120'} alt="Conductor" style={{ width: '120px', borderRadius: '50%' }} />
-                    <h4>{driverInfo?.nombre}</h4>
-                    <p>📞 {driverInfo?.telefono}</p>
-                   </>
-                 )}
-               </div>
+            <div style={{ background: '#fff', borderRadius: '30px', width: '100%', maxWidth: '360px', padding: '45px 25px 30px 25px', position: 'relative', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
+              
+              <button onClick={() => setShowModal(false)} style={{ position: 'absolute', top: '15px', right: '15px', border: 'none', background: '#f1f5f9', width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', color: '#64748b', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                &times;
+              </button>
+
+              <div style={{ textAlign: 'center' }}>
+                {!loadingDriver && driverInfo && (
+                  <div style={{ display: 'inline-block', background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)', color: '#fff', padding: '6px 20px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: '700', marginBottom: '20px', textTransform: 'uppercase' }}>
+                    conductor nro: #{driverInfo.usuario_id}
+                  </div>
+                )}
+
+                {loadingDriver ? (
+                  <div style={{ padding: '40px 0' }}>
+                    <div className="spinner" style={{ margin: '0 auto' }}></div>
+                    <p style={{ marginTop: '15px' }}>Cargando información...</p>
+                  </div>
+                ) : driverInfo ? (
+                  <>
+                    <div style={{ marginBottom: '15px' }}>
+                      <img src={driverInfo.foto || 'https://via.placeholder.com/120'} alt="Conductor" style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover', border: '5px solid #f8fafc', boxShadow: '0 8px 15px rgba(0,0,0,0.1)' }} />
+                    </div>
+                    <h4 style={{ margin: '0', fontSize: '1.5rem', color: '#0f172a', fontWeight: '800' }}>{driverInfo.nombre}</h4>
+                    
+                    {/* --- MOSTRAR REPUTACIÓN --- */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', margin: '5px 0' }}>
+                        <span style={{ fontSize: '1.2rem', color: '#f59e0b' }}>
+                            {'★'.repeat(Math.floor(driverInfo.reputacion || 0))}
+                            {'☆'.repeat(5 - Math.floor(driverInfo.reputacion || 0))}
+                        </span>
+                        <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#64748b' }}>
+                            ({driverInfo.reputacion || "0.0"})
+                        </span>
+                    </div>
+                    <p style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '-5px', marginBottom: '10px' }}>
+                        {driverInfo.totalReseñas || 0} viajes calificados
+                    </p>
+
+                    <p style={{ color: '#0ea5e9', fontWeight: '700', fontSize: '1.1rem', margin: '0 0 25px 0' }}>📞 {driverInfo.telefono}</p>
+
+                    <div style={{ background: '#f8fafc', borderRadius: '20px', padding: '15px', border: '1px solid #e2e8f0', marginBottom: '20px' }}>
+                      <p style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: '800', textTransform: 'uppercase', marginBottom: '10px' }}>Vehículo Autorizado</p>
+                      <img src={driverInfo.foto_vehiculo || 'https://via.placeholder.com/300x150'} alt="Vehículo" style={{ width: '100%', borderRadius: '15px', height: '160px', objectFit: 'cover' }} />
+                    </div>
+
+                    <a href={`tel:${driverInfo.telefono}`} style={{ display: 'block', backgroundColor: '#007bff', color: '#fff', textDecoration: 'none', padding: '16px', borderRadius: '18px', fontWeight: '800', fontSize: '1rem', boxShadow: '0 10px 20px rgba(0, 123, 255, 0.2)' }}>
+                      Llamar ahora
+                    </a>
+                  </>
+                ) : (
+                  <p style={{ padding: '20px', color: '#ef4444', fontWeight: '600' }}>No se pudo cargar la información.</p>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -261,6 +302,8 @@ function ClientDashboard() {
 }
 
 export default ClientDashboard;
+
+
 
 // import React, { useState, useEffect, useMemo } from "react";
 // import { useNavigate } from "react-router-dom";
