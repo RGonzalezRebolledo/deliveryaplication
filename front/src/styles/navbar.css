@@ -3,90 +3,99 @@
     justify-content: space-between;
     align-items: center;
     background-color: #ffffff;
-    padding: 10px 20px;
+    padding: 10px 15px;
     border-bottom: 1px solid #e5e7eb;
-    min-height: 85px; /* Altura suficiente para el stack vertical derecho */
+    min-height: 110px;
+    position: relative; /* Importante para que el centro absoluto funcione */
 }
 
-/* --- Izquierda: Logo y Nombre juntos --- */
 .nav-left {
-    display: flex;
-    align-items: center;
-    gap: 15px; /* Espacio entre logo y nombre */
-    flex: 1;
+    z-index: 10; /* Asegura que el logo esté por encima */
 }
 
 .navbar-logo {
-    max-width: 130px;
+    max-width: 110px;
     height: auto;
 }
 
-.user-name-left {
-    font-size: 0.95rem;
-    font-weight: 700;
+/* --- CENTRADO HORIZONTAL ABSOLUTO --- */
+.nav-center-absolute {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%); /* Centra exactamente en el medio X e Y */
+    text-align: center;
+    width: auto;
+    pointer-events: none; /* Evita que el contenedor invisible bloquee clics */
+}
+
+.user-name-stacked {
+    font-size: 0.9rem;
+    font-weight: 800;
     color: #1e293b;
     text-transform: uppercase;
-    border-left: 2px solid #e2e8f0; /* Separador sutil */
-    padding-left: 15px;
+    display: block;
+    pointer-events: auto; /* Reactiva los eventos para el texto si fuera necesario */
 }
 
 .user-type-badge {
-    font-size: 0.75rem;
+    display: block;
+    font-size: 0.7rem;
     color: #64748b;
-    font-weight: 400;
+    font-weight: 500;
 }
 
-/* --- Derecha: Stack Vertical --- */
+/* --- BLOQUE DERECHO --- */
 .nav-right {
     display: flex;
     justify-content: flex-end;
-    align-items: stretch; 
+    z-index: 10;
 }
 
 .user-actions {
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Fuerza al BCV arriba y al botón abajo */
-    align-items: flex-end; /* Alinea ambos a la derecha */
-    height: 65px; /* Controla la separación vertical */
+    height: 90px; /* Misma altura que antes para mantener la simetría */
+    justify-content: space-between;
+}
+
+.action-item {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* El spacer asegura que visualmente el nombre centrado 
+   tenga el mismo aire arriba y abajo que los elementos de la derecha */
+.center-spacer {
+    height: 20px; 
 }
 
 .bcv-container-mini {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     background: #f1f5f9;
-    padding: 2px 8px;
+    padding: 2px 6px;
     border-radius: 4px;
     border: 1px solid #cbd5e1;
     font-weight: 800;
-    color: #0f172a;
 }
 
 .btn-logout {
-    padding: 6px 14px;
-    font-size: 0.8rem;
+    padding: 6px 12px;
+    font-size: 0.75rem;
     cursor: pointer;
     background-color: #ef4444;
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: 5px;
     font-weight: 700;
-    transition: all 0.2s ease;
 }
 
-.btn-logout:hover {
-    background-color: #dc2626;
-    transform: translateY(-1px);
-}
-
-/* Responsivo para móviles */
-@media (max-width: 480px) {
-    .navbar {
-        padding: 10px;
-    }
-    .user-name-left {
-        display: none; /* Oculta nombre en móviles muy pequeños si estorba */
+/* Ajuste para que en móviles no choque el logo con el nombre */
+@media (max-width: 500px) {
+    .user-name-stacked {
+        font-size: 0.75rem;
     }
     .navbar-logo {
-        max-width: 100px;
+        max-width: 80px;
     }
 }
