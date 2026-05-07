@@ -1,11 +1,9 @@
-
-
 import React, { useState } from "react";
 import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-function RatingModal({ pedidoId, nombreConductor, onCalificado }) {
+function RatingModal({ pedidoId, nombreConductor, onCalificado, onClose }) { // Añadimos onClose
   const [estrellas, setEstrellas] = useState(0);
   const [comentario, setComentario] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -39,6 +37,30 @@ function RatingModal({ pedidoId, nombreConductor, onCalificado }) {
   return (
     <div style={modalOverlayStyle}>
       <div style={modalContentStyle}>
+        {/* BOTÓN X - Ahora vive dentro del contenido blanco para que se vea siempre */}
+        <button 
+  onClick={onClose} 
+  style={{ 
+    position: "absolute", 
+    top: "15px", 
+    right: "15px", 
+    border: "none", 
+    background: "#f1f5f9", // Gris clarito igual al otro modal
+    width: "32px", 
+    height: "32px", 
+    borderRadius: "8px", // Bordes un poco cuadrados
+    cursor: "pointer", 
+    color: "#64748b", // Color de la X grisáceo
+    fontSize: "1.2rem", 
+    display: "flex", 
+    alignItems: "center", 
+    justifyContent: "center",
+    zIndex: 10001
+  }}
+>
+  &times;
+</button>
+
         <div style={badgeStyle}>PEDIDO #{pedidoId}</div>
         
         <h3 style={{ margin: "10px 0 5px 0", color: "#0f172a" }}>¡Pedido Entregado! 📦</h3>
@@ -88,19 +110,7 @@ function RatingModal({ pedidoId, nombreConductor, onCalificado }) {
   );
 }
 
-// --- ESTILOS ADICIONALES ---
-
-const badgeStyle = {
-  backgroundColor: "#f1f5f9",
-  color: "#64748b",
-  padding: "5px 12px",
-  borderRadius: "50px",
-  fontSize: "0.75rem",
-  fontWeight: "800",
-  display: "inline-block",
-  marginBottom: "10px",
-  border: "1px solid #e2e8f0"
-};
+// --- ESTILOS ---
 
 const modalOverlayStyle = {
   position: "fixed",
@@ -114,10 +124,11 @@ const modalOverlayStyle = {
   alignItems: "center",
   zIndex: 10000,
   padding: "20px",
-  backdropFilter: "blur(4px)" // Efecto moderno de desenfoque
+  backdropFilter: "blur(4px)"
 };
 
 const modalContentStyle = {
+  position: "relative", // IMPORTANTE para que la X se posicione respecto a esto
   backgroundColor: "#fff",
   padding: "35px 25px",
   borderRadius: "28px",
@@ -125,6 +136,18 @@ const modalContentStyle = {
   width: "100%",
   textAlign: "center",
   boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+};
+
+const badgeStyle = {
+  backgroundColor: "#f1f5f9",
+  color: "#64748b",
+  padding: "5px 12px",
+  borderRadius: "50px",
+  fontSize: "0.75rem",
+  fontWeight: "800",
+  display: "inline-block",
+  marginBottom: "10px",
+  border: "1px solid #e2e8f0"
 };
 
 const textareaStyle = {
@@ -154,6 +177,160 @@ const btnStyle = {
 };
 
 export default RatingModal;
+// import React, { useState } from "react";
+// import axios from "axios";
+
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+// function RatingModal({ pedidoId, nombreConductor, onCalificado }) {
+//   const [estrellas, setEstrellas] = useState(0);
+//   const [comentario, setComentario] = useState("");
+//   const [enviando, setEnviando] = useState(false);
+
+//   const handleSubmit = async () => {
+//     if (estrellas === 0) {
+//       alert("Por favor, selecciona una puntuación.");
+//       return;
+//     }
+
+//     setEnviando(true);
+//     try {
+//       await axios.post(
+//         `${API_BASE_URL}/enviar-calificacion`,
+//         {
+//           pedidoId: pedidoId,
+//           estrellas: estrellas,
+//           comentario: comentario,
+//         },
+//         { withCredentials: true }
+//       );
+//       onCalificado();
+//     } catch (error) {
+//       console.error("Error al enviar calificación:", error);
+//       alert("Hubo un error al guardar tu calificación.");
+//     } finally {
+//       setEnviando(false);
+//     }
+//   };
+
+//   return (
+//     <div style={modalOverlayStyle}>
+//       <div style={modalContentStyle}>
+//         <div style={badgeStyle}>PEDIDO #{pedidoId}</div>
+        
+//         <h3 style={{ margin: "10px 0 5px 0", color: "#0f172a" }}>¡Pedido Entregado! 📦</h3>
+        
+//         <p style={{ fontSize: "0.95rem", color: "#475569", marginBottom: "20px" }}>
+//           ¿Qué tal fue tu experiencia con <br/>
+//           <strong style={{ color: "#007bff" }}>{nombreConductor}</strong>?
+//         </p>
+
+//         <div style={{ margin: "15px 0" }}>
+//           {[1, 2, 3, 4, 5].map((num) => (
+//             <span
+//               key={num}
+//               onClick={() => setEstrellas(num)}
+//               style={{
+//                 fontSize: "2.5rem",
+//                 cursor: "pointer",
+//                 color: num <= estrellas ? "#ffb400" : "#cbd5e1",
+//                 transition: "transform 0.2s, color 0.2s",
+//                 display: "inline-block",
+//                 padding: "0 5px"
+//               }}
+//               onMouseEnter={(e) => e.target.style.transform = "scale(1.2)"}
+//               onMouseLeave={(e) => e.target.style.transform = "scale(1)"}
+//             >
+//               ★
+//             </span>
+//           ))}
+//         </div>
+
+//         <textarea
+//           placeholder="Cuéntanos más sobre el servicio (opcional)..."
+//           value={comentario}
+//           onChange={(e) => setComentario(e.target.value)}
+//           style={textareaStyle}
+//         />
+
+//         <button
+//           onClick={handleSubmit}
+//           disabled={enviando}
+//           style={enviando ? { ...btnStyle, opacity: 0.7 } : btnStyle}
+//         >
+//           {enviando ? "Guardando..." : "Finalizar y Calificar"}
+//         </button>
+//       </div>
+//     </div>
+//   );
+// }
+
+// // --- ESTILOS ADICIONALES ---
+
+// const badgeStyle = {
+//   backgroundColor: "#f1f5f9",
+//   color: "#64748b",
+//   padding: "5px 12px",
+//   borderRadius: "50px",
+//   fontSize: "0.75rem",
+//   fontWeight: "800",
+//   display: "inline-block",
+//   marginBottom: "10px",
+//   border: "1px solid #e2e8f0"
+// };
+
+// const modalOverlayStyle = {
+//   position: "fixed",
+//   top: 0,
+//   left: 0,
+//   width: "100%",
+//   height: "100%",
+//   backgroundColor: "rgba(15, 23, 42, 0.95)", 
+//   display: "flex",
+//   justifyContent: "center",
+//   alignItems: "center",
+//   zIndex: 10000,
+//   padding: "20px",
+//   backdropFilter: "blur(4px)" // Efecto moderno de desenfoque
+// };
+
+// const modalContentStyle = {
+//   backgroundColor: "#fff",
+//   padding: "35px 25px",
+//   borderRadius: "28px",
+//   maxWidth: "380px",
+//   width: "100%",
+//   textAlign: "center",
+//   boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+// };
+
+// const textareaStyle = {
+//   width: "100%",
+//   height: "90px",
+//   borderRadius: "15px",
+//   border: "1px solid #e2e8f0",
+//   padding: "12px",
+//   marginBottom: "20px",
+//   fontSize: "0.9rem",
+//   resize: "none",
+//   backgroundColor: "#f8fafc",
+//   outline: "none"
+// };
+
+// const btnStyle = {
+//   backgroundColor: "#007bff",
+//   color: "#fff",
+//   border: "none",
+//   padding: "16px 20px",
+//   borderRadius: "16px",
+//   fontWeight: "800",
+//   cursor: "pointer",
+//   width: "100%",
+//   fontSize: "1rem",
+//   transition: "background 0.3s"
+// };
+
+// export default RatingModal;
 
 
 // import React, { useState } from "react";
