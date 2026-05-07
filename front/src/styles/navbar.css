@@ -1,205 +1,92 @@
-/* --------------------------------------
-   1. Contenedor Principal (Navbar)
-   -------------------------------------- */
-   .navbar {
-    /* Activa Flexbox para alinear los hijos (Logo y User-Info) */
-    display: flex;
-    
-    /* Mantiene el logo a la izquierda y la info a la derecha,
-       distanciando todo lo posible */
-    justify-content: space-between;
-    
-    /* Centra verticalmente los elementos (imagen, texto, botón) */
-    align-items: center;
-    
-    /* Estilo básico para el navbar */
-    background-color: white; /* Un fondo suave */
-    padding: 5px 5px; /* Espacio interior */
-    /*box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra ligera */
-}
-
-/* --------------------------------------
-   2. Imagen del Logo (Izquierda)
-   -------------------------------------- */
-.navbar-logo {
-    /* Define el ancho máximo para que sea responsive. 
-       Asegura que no ocupe más de, por ejemplo, 150px,
-       pero se encogerá si es necesario. */
-    max-width: 160px; 
-    
-    /* Mantiene la proporción automáticamente */
-    height: auto; 
-}
-
-
-/* --------------------------------------
-   3. Contenedor de Información del Usuario (Derecha)
-   -------------------------------------- */
-.user-info {
-    /* También usa Flexbox para alinear el nombre y el botón */
-    display: flex;
-    align-items: center; /* Centra verticalmente el texto y el botón */
-    gap: 15px; /* Espacio entre el nombre y el botón */
-}
-
-.user-info span {
-    /* Estilo del nombre del cliente */
-    font-weight: 600;
-    color: #333;
-    text-transform: uppercase;
-}
-
-.user-info button {
-    /* Estilo del botón */
-    /* padding: 8px 12px;
-    border: .5px solid #ccc;
-    border-radius: 4px;
-    background-color: #fff;
-    cursor: pointer; */
-
-    background-color: var(--color-primary);
-    color: var(--color-text-light);
-    margin-top: 10px;
-    cursor: pointer;
-    padding: var(--spacing-sm) var(--spacing-sm);
-    border: none;
-    border-radius: var(--radius-md);
-    font-size: .9rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    /* background-color: #e04b4f; */
-}
-
-.user-info button:hover {
-    background-color: #e0e0e0;
-}
-
-/* ESTILOS PARA LA TASA DEL BCV */
-.nav-left {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.bcv-container {
-    display: flex;
-    align-items: center;
-    background-color: #f0f2f5;
-    padding: 4px 10px;
-    border-radius: 8px;
-    border: 1px solid #d1d5db;
-    font-size: 0.9rem;
-}
-
-.bcv-tag {
-    font-weight: bold;
-    color: #1e40af; /* Azul oscuro */
-    margin-right: 6px;
-    border-right: 1px solid #9ca3af;
-    padding-right: 6px;
-}
-
-.bcv-price {
-    color: #374151;
-    font-weight: 600;
-}
-
-.btn-logout {
-    margin-left: 10px;
-    padding: 5px 10px;
-    cursor: pointer;
-}
-
-
-
-/* OTROS ESTILOS  */
-
-/* Contenedor principal del Navbar */
 .navbar {
     display: flex;
-    justify-content: space-between; /* Distribuye las 3 secciones */
-    align-items: center; /* Alinea verticalmente al centro */
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
     padding: 10px 20px;
-    background-color: #ffffff; /* Ajusta según tu diseño */
     border-bottom: 1px solid #e5e7eb;
+    min-height: 85px; /* Altura suficiente para el stack vertical derecho */
 }
 
-/* Base para las tres secciones del navbar */
-.nav-section {
+/* --- Izquierda: Logo y Nombre juntos --- */
+.nav-left {
     display: flex;
     align-items: center;
-    flex: 1; /* Hace que las secciones laterales ocupen espacio igual */
+    gap: 15px; /* Espacio entre logo y nombre */
+    flex: 1;
 }
 
-/* Alineación específica para cada sección */
-.nav-left {
-    justify-content: flex-start; /* Logo a la izquierda */
+.navbar-logo {
+    max-width: 130px;
+    height: auto;
 }
 
-.nav-center {
-    justify-content: center; /* Nombre EXACTAMENTE en el centro */
-    flex: 2; /* Le damos un poco más de peso al centro para textos largos */
-}
-
-.nav-right {
-    justify-content: flex-end; /* Botones a la derecha */
-}
-
-/* Estilos para el texto centrado */
-.user-name-centered {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #1f2937;
-    text-align: center;
-    white-space: nowrap; /* Evita que el nombre salte de línea */
+.user-name-left {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1e293b;
+    text-transform: uppercase;
+    border-left: 2px solid #e2e8f0; /* Separador sutil */
+    padding-left: 15px;
 }
 
 .user-type-badge {
-    font-size: 0.85rem;
-    color: var(--color-primary);
+    font-size: 0.75rem;
+    color: #64748b;
     font-weight: 400;
 }
 
-/* --- Resto de estilos para el bloque derecho (BCV encima del botón) --- */
+/* --- Derecha: Stack Vertical --- */
+.nav-right {
+    display: flex;
+    justify-content: flex-end;
+    align-items: stretch; 
+}
 
 .user-actions {
     display: flex;
     flex-direction: column;
-    align-items: stretch; /* El botón y la tasa miden lo mismo */
-    gap: 2px;
+    justify-content: space-between; /* Fuerza al BCV arriba y al botón abajo */
+    align-items: flex-end; /* Alinea ambos a la derecha */
+    height: 65px; /* Controla la separación vertical */
 }
 
 .bcv-container-mini {
     font-size: 0.75rem;
-    background: #fdfeff;
-    /* border: 1px solid #e2e8f0; */
-    border: none;
+    background: #f1f5f9;
     padding: 2px 8px;
     border-radius: 4px;
-    display: flex;
-    justify-content: space-between;
-}
-
-/* .bcv-tag {
-    font-weight: bold;
-    color: #1e40af;
-} */
-
-.bcv-price {
-    font-weight: 700;
-    color: #050505;
+    border: 1px solid #cbd5e1;
+    font-weight: 800;
+    color: #0f172a;
 }
 
 .btn-logout {
-    margin-top: 80px;
-    padding: 6px 12px;
+    padding: 6px 14px;
     font-size: 0.8rem;
     cursor: pointer;
-    background-color: var(--color-secondary);
-    color: var(--color-text-light);
+    background-color: #ef4444;
+    color: white;
     border: none;
     border-radius: 6px;
-    transition: background 0.2s;
+    font-weight: 700;
+    transition: all 0.2s ease;
 }
 
+.btn-logout:hover {
+    background-color: #dc2626;
+    transform: translateY(-1px);
+}
+
+/* Responsivo para móviles */
+@media (max-width: 480px) {
+    .navbar {
+        padding: 10px;
+    }
+    .user-name-left {
+        display: none; /* Oculta nombre en móviles muy pequeños si estorba */
+    }
+    .navbar-logo {
+        max-width: 100px;
+    }
+}
