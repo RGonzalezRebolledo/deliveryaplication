@@ -363,224 +363,228 @@ function ClientDashboard() {
         </div>
 
         {showModal && (
-  <div
-    style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-      backgroundColor: "rgba(0,0,0,0.7)",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      zIndex: 1000,
-      padding: "15px",
-    }}
-  >
-    <div
-      style={{
-        background: "#fff",
-        borderRadius: "30px",
-        width: "100%",
-        maxWidth: "360px",
-        padding: "45px 25px 30px 25px",
-        position: "relative",
-        boxShadow: "0 20px 40px rgba(0,0,0,0.4)",
-      }}
-    >
-      <button
-        onClick={() => setShowModal(false)}
-        style={{
-          position: "absolute",
-          top: "15px",
-          right: "15px",
-          border: "none",
-          background: "#f1f5f9",
-          width: "32px",
-          height: "32px",
-          borderRadius: "8px",
-          cursor: "pointer",
-          color: "#64748b",
-          fontSize: "1.2rem",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        &times;
-      </button>
-      <div style={{ textAlign: "center" }}>
-        {!loadingDriver && driverInfo && (
           <div
             style={{
-              display: "inline-block",
-              background: "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
-              color: "#fff",
-              padding: "6px 20px",
-              borderRadius: "50px",
-              fontSize: "0.8rem",
-              fontWeight: "700",
-              marginBottom: "20px",
-              textTransform: "uppercase",
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              backgroundColor: "rgba(0,0,0,0.7)",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 1000,
+              padding: "15px",
             }}
           >
-            conductor nro: #{driverInfo.usuario_id}
-          </div>
-        )}
-        {loadingDriver ? (
-          <div style={{ padding: "40px 0" }}>
-            <div className="spinner" style={{ margin: "0 auto" }}></div>
-            <p style={{ marginTop: "15px" }}>Cargando información...</p>
-          </div>
-        ) : driverInfo ? (
-          <>
-            {/* Contenedor de la Foto del Conductor (Igual al del vehículo) */}
             <div
               style={{
-                background: "#f8fafc",
-                borderRadius: "20px",
-                padding: "15px",
-                border: "1px solid #e2e8f0",
-                marginBottom: "15px",
+                background: "#fff",
+                borderRadius: "30px",
+                width: "100%",
+                maxWidth: "360px",
+                padding: "35px 25px 25px 25px", // Compactado un poco el padding superior
+                position: "relative",
+                boxShadow: "0 20px 40px rgba(0,0,0,0.4)",
+                maxHeight: "90vh", // Asegura que el modal no se corte en pantallas muy bajas
+                overflowY: "auto", // Añade scroll interno SOLO si es necesario
               }}
             >
-              <p
+              <button
+                onClick={() => setShowModal(false)}
                 style={{
-                  fontSize: "0.65rem",
-                  color: "#94a3b8",
-                  fontWeight: "800",
-                  textTransform: "uppercase",
-                  marginBottom: "10px",
-                }}
-              >
-                Identificación del Conductor
-              </p>
-              <img
-                src={driverInfo.foto || "https://via.placeholder.com/120"}
-                alt="Conductor"
-                style={{
-                  width: "100%",
-                  borderRadius: "15px",
-                  height: "160px",
-                  objectFit: "cover",
-                }}
-              />
-            </div>
-
-            <h4
-              style={{
-                margin: "0",
-                fontSize: "1.5rem",
-                color: "#0f172a",
-                fontWeight: "800",
-              }}
-            >
-              {driverInfo.nombre}
-            </h4>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "5px",
-                margin: "5px 0",
-              }}
-            >
-              <span style={{ fontSize: "1.2rem", color: "#f59e0b" }}>
-                {"★".repeat(Math.floor(driverInfo.reputacion || 0))}
-                {"☆".repeat(5 - Math.floor(driverInfo.reputacion || 0))}
-              </span>
-              <span
-                style={{
-                  fontSize: "0.9rem",
-                  fontWeight: "bold",
+                  position: "absolute",
+                  top: "15px",
+                  right: "15px",
+                  border: "none",
+                  background: "#f1f5f9",
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "8px",
+                  cursor: "pointer",
                   color: "#64748b",
+                  fontSize: "1.2rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 10,
                 }}
               >
-                ({driverInfo.reputacion || "0.0"})
-              </span>
-            </div>
-            <p
-              style={{
-                fontSize: "0.7rem",
-                color: "#94a3b8",
-                marginTop: "-5px",
-                marginBottom: "10px",
-              }}
-            >
-              {driverInfo.totalReseñas || 0} viajes calificados
-            </p>
-            <p
-              style={{
-                color: "#0ea5e9",
-                fontWeight: "700",
-                fontSize: "1.1rem",
-                margin: "0 0 25px 0",
-              }}
-            >
-              📞 {driverInfo.telefono}
-            </p>
+                &times;
+              </button>
+              <div style={{ textAlign: "center" }}>
+                {!loadingDriver && driverInfo && (
+                  <div
+                    style={{
+                      display: "inline-block",
+                      background:
+                        "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
+                      color: "#fff",
+                      padding: "6px 20px",
+                      borderRadius: "50px",
+                      fontSize: "0.8rem",
+                      fontWeight: "700",
+                      marginBottom: "15px", // Reducido margen
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    conductor nro: #{driverInfo.usuario_id}
+                  </div>
+                )}
+                {loadingDriver ? (
+                  <div style={{ padding: "40px 0" }}>
+                    <div className="spinner" style={{ margin: "0 auto" }}></div>
+                    <p style={{ marginTop: "15px" }}>Cargando información...</p>
+                  </div>
+                ) : driverInfo ? (
+                  <>
+                    {/* Contenedor de la Foto del Conductor */}
+                    <div
+                      style={{
+                        background: "#f8fafc",
+                        borderRadius: "20px",
+                        padding: "10px", // Reducido padding interno
+                        border: "1px solid #e2e8f0",
+                        marginBottom: "10px", // Reducido margen
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontSize: "0.6rem", // Un poco más pequeña la letra
+                          color: "#94a3b8",
+                          fontWeight: "800",
+                          textTransform: "uppercase",
+                          marginBottom: "5px", // Reducido margen
+                        }}
+                      >
+                        Identificación del Conductor
+                      </p>
+                      <img
+                        src={
+                          driverInfo.foto || "https://via.placeholder.com/120"
+                        }
+                        alt="Conductor"
+                        style={{
+                          width: "100%",
+                          borderRadius: "12px", // Bordes un poco más finos
+                          height: "135px", // ALTURA REDUCIDA
+                          objectFit: "cover",
+                        }}
+                      />
+                    </div>
 
-            {/* Contenedor del Vehículo */}
-            <div
-              style={{
-                background: "#f8fafc",
-                borderRadius: "20px",
-                padding: "15px",
-                border: "1px solid #e2e8f0",
-                marginBottom: "20px",
-              }}
-            >
-              <p
-                style={{
-                  fontSize: "0.65rem",
-                  color: "#94a3b8",
-                  fontWeight: "800",
-                  textTransform: "uppercase",
-                  marginBottom: "10px",
-                }}
-              >
-                Vehículo Autorizado
-              </p>
-              <img
-                src={
-                  driverInfo.foto_vehiculo ||
-                  "https://via.placeholder.com/300x150"
-                }
-                alt="Vehículo"
-                style={{
-                  width: "100%",
-                  borderRadius: "15px",
-                  height: "160px",
-                  objectFit: "cover",
-                }}
-              />
+                    <h4
+                      style={{
+                        margin: "0",
+                        fontSize: "1.3rem", // Un poco más pequeña
+                        color: "#0f172a",
+                        fontWeight: "800",
+                      }}
+                    >
+                      {driverInfo.nombre}
+                    </h4>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "5px",
+                        margin: "2px 0", // Reducido margen
+                      }}
+                    >
+                      <span style={{ fontSize: "1.1rem", color: "#f59e0b" }}>
+                        {"★".repeat(Math.floor(driverInfo.reputacion || 0))}
+                        {"☆".repeat(5 - Math.floor(driverInfo.reputacion || 0))}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "0.85rem",
+                          fontWeight: "bold",
+                          color: "#64748b",
+                        }}
+                      >
+                        ({driverInfo.reputacion || "0.0"})
+                      </span>
+                    </div>
+                    <p
+                      style={{
+                        fontSize: "0.65rem",
+                        color: "#94a3b8",
+                        marginTop: "-2px",
+                        marginBottom: "8px", // Reducido margen
+                      }}
+                    >
+                      {/* {driverInfo.totalReseñas || 0} viajes calificados */}
+                    </p>
+                    <p
+                      style={{
+                        color: "#0ea5e9",
+                        fontWeight: "700",
+                        fontSize: "1rem", // Un poco más pequeña
+                        margin: "0 0 15px 0", // Reducido margen inferior
+                      }}
+                    >
+                      📞 {driverInfo.telefono}
+                    </p>
+
+                    {/* Contenedor del Vehículo */}
+                    <div
+                      style={{
+                        background: "#f8fafc",
+                        borderRadius: "20px",
+                        padding: "10px", // Reducido padding interno
+                        border: "1px solid #e2e8f0",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontSize: "0.6rem", // Un poco más pequeña
+                          color: "#94a3b8",
+                          fontWeight: "800",
+                          textTransform: "uppercase",
+                          marginBottom: "5px",
+                        }}
+                      >
+                        Vehículo Autorizado
+                      </p>
+                      <img
+                        src={
+                          driverInfo.foto_vehiculo ||
+                          "https://via.placeholder.com/300x150"
+                        }
+                        alt="Vehículo"
+                        style={{
+                          width: "100%",
+                          borderRadius: "12px",
+                          height: "135px", // ALTURA REDUCIDA
+                          objectFit: "cover",
+                        }}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <p
+                    style={{
+                      padding: "20px",
+                      color: "#ef4444",
+                      fontWeight: "600",
+                    }}
+                  >
+                    No se pudo cargar la información.
+                  </p>
+                )}
+              </div>
             </div>
-          </>
-        ) : (
-          <p
-            style={{
-              padding: "20px",
-              color: "#ef4444",
-              fontWeight: "600",
-            }}
-          >
-            No se pudo cargar la información.
-          </p>
+          </div>
         )}
-      </div>
-    </div>
-  </div>
-)}
       </div>
     </div>
   );
 }
 
 export default ClientDashboard;
-
-
 
 // import React, { useState, useEffect, useMemo } from "react";
 // import { useNavigate } from "react-router-dom";
@@ -1147,10 +1151,6 @@ export default ClientDashboard;
 
 // export default ClientDashboard;
 
-
-
-
-
 // import React, { useState, useEffect, useMemo } from "react";
 // import { useNavigate } from "react-router-dom";
 // import { io } from "socket.io-client";
@@ -1684,4 +1684,3 @@ export default ClientDashboard;
 // }
 
 // export default ClientDashboard;
-

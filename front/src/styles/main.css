@@ -693,3 +693,153 @@ hr {
 
 .status-online { color: var(--color-success); font-weight: bold; }
 .status-offline { color: #cbd5e0; font-weight: bold; }
+
+
+/* ESTILOS NUEVOS
+.contenedor-botones {
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.card-boton {
+  flex: 1;
+  background: white;
+  border-radius: 24px;
+  padding: 20px 10px;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+/* Efecto al tocarlo en el móvil */
+.card-boton:active {
+    transform: scale(0.95);
+    background-color: #f8fafc;
+  }
+  
+  /* Estilo del Icono (Emoji) */
+  .card-icon {
+    font-size: 2.5rem; /* Tamaño grande para que resalte */
+    margin-bottom: 10px;
+    /* Efecto de sombra suave al emoji para que se vea más profundo */
+    filter: drop-shadow(0 4px 4px rgba(0,0,0,0.1));
+  }
+  
+  .card-text {
+    color: #1e293b;
+    font-weight: 800;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  /* Opcional: Diferenciar por colores suaves de fondo */
+  .card-boton.cliente {
+    border-bottom: 4px solid #3b82f6; /* Azul */
+  }
+  
+  .card-boton.conductor {
+    border-bottom: 4px solid #10b981; /* Verde */
+  }
+
+
+  /* NUEVOS ESTILOS HOME
+ /* Ajustes generales de la página */
+/* Ajustes generales de la página */
+.home-page {
+    background-color: #f8fafc;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .hero-section {
+    width: 100%;
+    padding-top: 20px; /* Un poco de espacio arriba */
+  }
+  
+  /* CONTENEDOR DE BOTONES (FLEX) */
+  .grid-botones-home {
+    display: flex; /* Usamos Flexbox para control horizontal */
+    
+    /* --- ADECUACIÓN CLAVE --- */
+    justify-content: space-evenly; /* Distribuye espacio idéntico entre bordes y botones */
+    /* gap: 30px; <- ELIMINADO para que space-evenly funcione correctamente */
+    /* ------------------------ */
+  
+    padding: 20px; /* Espacio mínimo hacia los bordes de la pantalla */
+    width: 100%; /* Asegura que ocupe todo el ancho disponible */
+    max-width: 600px; /* Ancho máximo para evitar que se separen demasiado en PC */
+    margin: 0 auto; /* Centra el contenedor en la página */
+    align-items: center; /* Alinea los botones verticalmente */
+  }
+  
+  /* La tarjeta del botón */
+  .card-boton-home {
+    /* flex: 1; <- Opcional. Si quieres anchos fijos, usa 'width'. Si quieres que crezcan, déjalo. */
+    
+    /* Mantengo tus anchos definidos */
+    min-width: 140px; 
+    max-width: 200px; 
+    
+    background: #ffffff;
+    border-radius: 20px; 
+    
+    /* Mantengo tu padding reducido (menos altos) */
+    padding: 15px 10px; 
+    
+    /* Elimina estilos de enlace */
+    text-decoration: none !important; 
+    color: inherit; 
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    /* Alineación vertical interna */
+    justify-content: center; /* Centrado simple, o 'space-around' si quieres separar imagen de texto */
+    
+    /* Borde y sombra */
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease;
+  }
+  
+  /* Efecto táctil */
+  .card-boton-home:active {
+    transform: scale(0.96);
+    background-color: #f1f5f9;
+  }
+  
+  /* Contenedor para la imagen */
+  .card-image-container-home {
+    width: 50px; 
+    height: 50px;
+    margin-bottom: 8px; /* Espacio controlado hacia el texto */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .card-image-home {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  
+  /* Tipografía */
+  .card-text-home {
+    color: #475569;
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-decoration: none;
+    display: block;
+    letter-spacing: -0.01em;
+  }
