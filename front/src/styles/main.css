@@ -52,9 +52,19 @@ body {
 
 .app-container {
     padding: var(--spacing-md); 
-    max-width: 700px; /* Limita el ancho para diseño móvil */
-    margin: 0 auto; /* Centra el contenedor */
-    min-height: 100vh;
+    max-width: 700px; 
+    margin: 0 auto; 
+    
+    /* CAMBIOS CLAVE: */
+    display: flex;
+    flex-direction: column; /* Alinea hijos en columna (Navbar, Main, Footer) */
+    min-height: 100vh;      /* Ocupa el 100% del alto de la ventana */
+}
+
+/* Nueva clase para el contenido principal */
+.main-content {
+    flex: 1; /* Esto hace que este div crezca y ocupe todo el espacio disponible */
+    width: 100%;
 }
 
 /* ========================================================= */

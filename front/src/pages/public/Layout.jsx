@@ -8,21 +8,33 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 const Layout = () => {
-  return (
-    <div className="app-container">
-      <Navbar /> 
+//   return (
+//     <div className="app-container">
+//       <Navbar /> 
       
-      {/* 2. Main content con min-height para que el footer no flote en páginas cortas */}
-      <main style={{ minHeight: '80vh' }}> 
-        <Outlet /> 
-      </main>
+//       {/* 2. Main content con min-height para que el footer no flote en páginas cortas */}
+//       <main style={{ minHeight: '80vh' }}> 
+//         <Outlet /> 
+//       </main>
       
-      {/* 3. Footer integrado */}
-      <Footer /> 
-    </div>
-  );
+//       {/* 3. Footer integrado */}
+//       <Footer /> 
+//     </div>
+//   );
+// };
+return (
+  <div className="app-container">
+    <Navbar /> 
+    
+    {/* Eliminamos el estilo en línea y usamos una clase para el contenido */}
+    <main className="main-content"> 
+      <Outlet /> 
+    </main>
+    
+    <Footer /> 
+  </div>
+);
 };
-
 export default Layout;
 
 

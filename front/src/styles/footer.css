@@ -4,21 +4,32 @@
 
 
 .footer {
-    background-color: #fffcfc;
-    color: #1a1a1a;
-    padding: 10px 20px 10px 20px;
-    margin-top: 50px;
-    border-radius: 20;
-  }
+  background-color: #fffcfc;
+  color: #1a1a1a;
+  padding: 20px;
+  margin-top: 20px; /* Un margen pequeño para que no toque el contenido bruscamente */
+  width: 100%;
+  border-top: 1px solid #eee; /* Opcional: una línea sutil arriba */
+}
   
-  .footer-content {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    max-width: 1200px;
-    margin: 0 auto;
-    gap: 50px;
-  }
+.footer {
+  position: fixed; /* Lo saca del flujo normal y lo deja quieto */
+  bottom: 0;       /* Lo pega al borde inferior */
+  left: 50%;       /* Lo centra horizontalmente... */
+  transform: translateX(-50%); /* ...junto con el left 50% */
+  
+  width: 100%;
+  max-width: 700px; /* IMPORTANTE: Debe ser igual al max-width de tu .app-container */
+  
+  background-color: #fffcfc;
+  color: #1a1a1a;
+  padding: 10px 20px;
+  z-index: 1000;    /* Asegura que siempre esté por encima de las imágenes y el carrusel */
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1); /* Sombra hacia arriba para dar profundidad */
+  
+  /* Si quieres bordes redondeados solo arriba */
+  border-radius: 20px 20px 0 0; 
+}
   
   .footer-section {
     flex: 1;
