@@ -32,7 +32,7 @@ html, body {
 }
 
 /* ========================================================= */
-/* 2. LAYOUT PRINCIPAL */
+/* 2. LAYOUT PRINCIPAL (CONTROL DE ANCHO) */
 /* ========================================================= */
 
 .app-container {
@@ -42,6 +42,7 @@ html, body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    padding: 0 10px; /* Margen sutil de seguridad para toda la app */
 }
 
 .main-content {
@@ -58,7 +59,7 @@ html, body {
     flex-direction: row; 
     flex-wrap: nowrap;   
     gap: 12px;           
-    padding: 20px 10px;   
+    padding: 20px 0; /* Ajustado para alinear con el contenedor */
     width: 100%;
 }
 
@@ -80,60 +81,47 @@ html, body {
 .card-text-home { color: #475569; font-weight: 800; font-size: 0.85rem; text-transform: uppercase; }
 
 /* ========================================================= */
-/* 4. ORDERFORM (MÁXIMO ANCHO ESTABLE) */
+/* 4. ORDERFORM (AJUSTADO AL CONTENEDOR) */
 /* ========================================================= */
 
 .order-wrapper {
     width: 100%;
-    overflow: hidden;
 }
 
 .order-form {
     background-color: var(--color-card-bg);
-    width: 100%;
-    /* Ajuste de padding lateral mínimo para ganar espacio */
-    padding: 25px 12px; 
-    margin: 0;
-    border-radius: 0;
-    border: none;
+    width: 100%; /* Ocupa exactamente el ancho del app-container */
+    padding: 25px 15px; 
+    margin: 10px 0; /* Pequeña separación vertical */
+    border-radius: var(--radius-md); /* Mantenemos curvas suaves */
+    border: 1px solid #edf2f7;
+    box-shadow: 0 2px 10px var(--color-shadow);
     display: flex;
     flex-direction: column;
     touch-action: pan-y; 
 }
 
-@media (min-width: 700px) {
-    .order-form {
-        border-radius: var(--radius-md);
-        margin: 20px 0;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        border: 1px solid #edf2f7;
-        padding: 30px;
-    }
-}
-
 /* ========================================================= */
-/* 5. TARJETAS DE ÓRDENES (HISTORIAL / DASHBOARD) */
+/* 5. TARJETAS DE ÓRDENES & PILLS */
 /* ========================================================= */
 
 .order-card-modern {
     background-color: var(--color-card-bg);
     border-radius: var(--radius-md);
     padding: 16px;
-    margin: 10px;
+    margin-bottom: 12px;
     border: 1px solid #e2e8f0;
     box-shadow: 0 2px 8px var(--color-shadow);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
 }
 
 .status-pill {
-    align-self: flex-start;
+    display: inline-block;
     padding: 4px 10px;
     border-radius: 20px;
     font-size: 0.7rem;
     font-weight: 800;
     text-transform: uppercase;
+    margin-bottom: 8px;
 }
 
 .pill-pendiente { background: #fffaf0; color: #dd6b20; border: 1px solid #fbd38d; }
@@ -166,12 +154,12 @@ html, body {
     border-radius: 10px;
     font-size: 16px;   
     background-color: #ffffff;
+    transition: border-color 0.2s;
 }
 
 .form-group input:focus {
     border-color: var(--color-primary);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.1);
 }
 
 /* ========================================================= */
@@ -186,40 +174,17 @@ button {
     font-size: 1.1rem;
     font-weight: 800;
     cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
+    transition: transform 0.1s;
 }
 
-button:active {
-    transform: scale(0.98);
-}
+button:active { transform: scale(0.98); }
 
-.btn-primary {
-    background-color: var(--color-primary);
-    color: var(--color-text-light);
-}
-
-.btn-success {
-    background-color: var(--color-success);
-    color: white;
-}
-
-button:disabled {
-    background-color: #e2e8f0;
-    color: #a0aec0;
-    cursor: not-allowed;
-}
+.btn-primary { background-color: var(--color-primary); color: var(--color-text-light); }
+.btn-success { background-color: var(--color-success); color: white; }
 
 /* ========================================================= */
-/* 8. NAVBAR Y UTILIDADES */
+/* 8. UTILIDADES */
 /* ========================================================= */
-
-.contenedor-imagen {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid #fff;
-}
 
 .price-summary {
     background-color: #f8fafc;
@@ -235,4 +200,11 @@ button:disabled {
     font-weight: 800;
     color: var(--color-primary);
     display: block;
+}
+
+.contenedor-imagen {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    overflow: hidden;
 }
