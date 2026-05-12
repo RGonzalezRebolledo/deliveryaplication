@@ -37,7 +37,7 @@ html, body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    padding: 0 !important; /* Forzamos que no haya margen lateral */
+    padding: 0 !important; 
 }
 
 .main-content {
@@ -75,7 +75,7 @@ html, body {
 .card-image-home { width: 100%; height: 100%; object-fit: contain; }
 
 /* ========================================================= */
-/* 4. ORDERFORM - ESTIRADO TOTAL */
+/* 4. ORDERFORM - (ESTIRADO TOTAL - NO TOCAR) */
 /* ========================================================= */
 
 .order-wrapper {
@@ -87,7 +87,7 @@ html, body {
 .order-form {
     background-color: var(--color-card-bg);
     width: 100% !important;
-    min-width: 100% !important; /* Fuerza a ocupar todo el ancho */
+    min-width: 100% !important; 
     margin: 0 !important;
     padding: 35px 20px; 
     border-radius: 0; 
@@ -109,7 +109,38 @@ html, body {
 }
 
 /* ========================================================= */
-/* 5. INPUTS Y FORM GROUPS */
+/* 5. TARJETAS DE ÓRDENES (RESTAURADO) */
+/* ========================================================= */
+
+.order-card-modern {
+    background-color: var(--color-card-bg);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin: 10px; /* Margen para que no peguen al borde del app-container */
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.status-pill {
+    display: inline-block;
+    align-self: flex-start;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.pill-pendiente { background: #fffaf0; color: #dd6b20; border: 1px solid #fbd38d; }
+.pill-entregado { background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4; }
+.pill-en-ruta { background: #ebf8ff; color: #2b6cb0; border: 1px solid #bee3f8; }
+
+/* ========================================================= */
+/* 6. INPUTS Y FORM GROUPS */
 /* ========================================================= */
 
 .form-group {
@@ -139,7 +170,7 @@ html, body {
 }
 
 /* ========================================================= */
-/* 6. BOTONES DE ACCIÓN (RESPETANDO TU ESTILO) */
+/* 7. BOTONES DE ACCIÓN */
 /* ========================================================= */
 
 button {
@@ -158,7 +189,7 @@ button {
 .btn-success { background-color: var(--color-success); color: white; margin-top: 10px; }
 
 /* ========================================================= */
-/* 7. UTILIDADES */
+/* 8. UTILIDADES */
 /* ========================================================= */
 
 .price-summary {
