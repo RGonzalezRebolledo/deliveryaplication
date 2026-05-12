@@ -38,11 +38,11 @@ body {
 }
 
 /* ========================================================= */
-/* 2. LAYOUT PRINCIPAL (APP.JSX) - FULL WIDTH EN MÓVIL */
+/* 2. LAYOUT PRINCIPAL (APP.JSX) - ANCHO TOTAL */
 /* ========================================================= */
 
 .app-container {
-    padding: 0; /* Eliminamos márgenes laterales para máximo espacio */
+    padding: 0; 
     width: 100%;
     max-width: 700px; 
     margin: 0 auto; 
@@ -53,7 +53,7 @@ body {
 
 @media (min-width: 768px) {
     .app-container {
-        padding: 0 var(--spacing-md); /* El aire solo vuelve en pantallas grandes */
+        padding: 0 var(--spacing-md);
     }
 }
 
@@ -90,7 +90,7 @@ button {
 }
 
 /* ========================================================= */
-/* 4. HOME PAGE & PORTAL */
+/* 4. HOME PAGE - BOTONES 50/50 SIEMPRE EN FILA */
 /* ========================================================= */
 
 .home-page {
@@ -100,30 +100,63 @@ button {
 
 .grid-botones-home {
     display: flex;
-    justify-content: space-evenly;
-    flex-wrap: wrap; 
-    gap: 12px;
-    padding: 20px 10px;
+    flex-direction: row; /* Fuerza fila única */
+    flex-wrap: nowrap;   /* Prohíbe el salto de línea */
+    justify-content: center;
+    gap: 10px;           
+    padding: 20px 8px;   
     width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 .card-boton-home {
-    flex: 1;
-    min-width: 145px;
-    max-width: 200px;
+    flex: 1;             /* Distribución equitativa */
+    width: 50%;          
+    min-width: 0;        /* Permite encogimiento en pantallas micro */
     background: #ffffff;
     border-radius: 18px;
-    padding: 20px 10px;
+    padding: 15px 5px;   
     text-decoration: none !important;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     border: 1px solid #f1f5f9;
     box-shadow: var(--shadow-card);
+    transition: all 0.2s ease;
+}
+
+.card-boton-home:active {
+    transform: scale(0.96);
+    background-color: #f8fafc;
+}
+
+.card-text-home {
+    color: #475569;
+    font-weight: 700;
+    font-size: 0.85rem;  
+    text-align: center;
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis; 
+    width: 100%;
+}
+
+.card-image-container-home {
+    width: 42px;         
+    height: 42px;
+    margin-bottom: 8px;
+}
+
+.card-image-home {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 /* ========================================================= */
-/* 5. FORMULARIOS (ORDERFORM.JSX) - MAXIMIZADO */
+/* 5. FORMULARIOS (ORDERFORM.JSX) - FULL WIDTH */
 /* ========================================================= */
 
 .order-wrapper {
@@ -134,7 +167,7 @@ button {
     background-color: var(--color-card-bg);
     padding: var(--spacing-md);
     width: 100%;
-    border-radius: 0; /* Borde recto en móvil para parecer app nativa */
+    border-radius: 0; 
     box-shadow: none;
 }
 
@@ -165,17 +198,11 @@ button {
 .form-group textarea,
 .form-group select {
     width: 100%;
-    padding: 14px 12px; /* Más altos para facilitar el toque con el dedo */
+    padding: 14px 12px; 
     border: 1px solid #cbd5e0;
     border-radius: var(--radius-sm);
-    font-size: 16px; /* Evita zoom automático en iPhone */
+    font-size: 16px; /* Evita zoom en iOS */
     background-color: #ffffff;
-}
-
-.form-group input:focus {
-    border-color: var(--color-primary);
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.1);
 }
 
 /* ========================================================= */
@@ -192,7 +219,6 @@ button {
 @media (min-width: 600px) {
     .orders-grid {
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: var(--spacing-md);
     }
 }
 
@@ -201,12 +227,6 @@ button {
     border-radius: var(--radius-md);
     padding: var(--spacing-md);
     border: 1px solid #e2e8f0;
-}
-
-.price-summary {
-    text-align: right;
-    padding: var(--spacing-md) 0;
-    border-top: 2px dashed #f1f5f9;
 }
 
 .amount-ves {
@@ -228,15 +248,8 @@ button {
     margin-top: 10px;
 }
 
-/* Estilo para los botones cuando están dentro de un contenedor full-width */
-@media (max-width: 480px) {
-    .btn-delivery {
-        border-radius: var(--radius-sm);
-    }
-}
-
 /* ========================================================= */
-/* 8. NAVBAR & IMÁGENES */
+/* 8. NAVBAR & UTILIDADES */
 /* ========================================================= */
 
 .contenedor-imagen {
@@ -244,11 +257,11 @@ button {
     height: 45px;
     border-radius: 50%;
     overflow: hidden;
-    background: #fff;
 }
 
-.card-image-home {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+.status-pill {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 700;
 }
