@@ -1,5 +1,5 @@
 /* ========================================================= */
-/* 1. VARIABLES GLOBALES & RESET */
+/* 1. VARIABLES GLOBALES & RESET ANTI-MOVIMIENTO */
 /* ========================================================= */
 
 :root {
@@ -12,31 +12,27 @@
     --color-success: #4CAF50; 
     --color-shadow: rgba(0, 0, 0, 0.08);
 
-    --spacing-sm: 8px;
-    --spacing-md: 16px;
-    --spacing-lg: 24px;
-
     --radius-sm: 8px;
     --radius-md: 12px;
 }
 
 * {
-    box-sizing: border-box; /* 💡 CRÍTICO: evita que el padding desborde el ancho */
-    font-family: 'Inter', sans-serif;
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
+    -webkit-tap-highlight-color: transparent; /* Elimina el recuadro azul al tocar */
 }
 
-body {
-    background-color: var(--color-background);
-    color: var(--color-text-dark);
-    -webkit-font-smoothing: antialiased;
+html, body {
     width: 100%;
-    overflow-x: hidden; /* Seguridad extra contra desbordes */
+    overflow-x: hidden; /* 💡 CRÍTICO: Elimina el movimiento lateral */
+    position: relative;
+    background-color: var(--color-background);
+    font-family: 'Inter', sans-serif;
 }
 
 /* ========================================================= */
-/* 2. LAYOUT PRINCIPAL - LIMPIO */
+/* 2. LAYOUT PRINCIPAL */
 /* ========================================================= */
 
 .app-container {
@@ -54,28 +50,7 @@ body {
 }
 
 /* ========================================================= */
-/* 3. BOTONES BASE */
-/* ========================================================= */
-
-button {
-    cursor: pointer;
-    padding: 16px;
-    border: none;
-    border-radius: var(--radius-md);
-    font-size: 1rem;
-    font-weight: 700;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-}
-
-.btn-primary { background-color: var(--color-primary); color: var(--color-text-light); }
-.btn-success { background-color: var(--color-success); color: white; }
-
-/* ========================================================= */
-/* 4. HOME PAGE - BOTONES 50/50 */
+/* 3. HOME PAGE - BOTONES 50/50 ESTÁTICOS */
 /* ========================================================= */
 
 .grid-botones-home {
@@ -89,11 +64,10 @@ button {
 
 .card-boton-home {
     flex: 1; 
-    width: 50%; 
     background: #ffffff; 
     border-radius: 20px;
     padding: 20px 10px; 
-    text-decoration: none !important;
+    text-decoration: none;
     display: flex; 
     flex-direction: column; 
     align-items: center;
@@ -103,85 +77,108 @@ button {
 
 .card-image-container-home { width: 65px; height: 65px; margin-bottom: 12px; }
 .card-image-home { width: 100%; height: 100%; object-fit: contain; }
-.card-text-home { color: #475569; font-weight: 800; font-size: 0.9rem; text-transform: uppercase; }
+.card-text-home { color: #475569; font-weight: 800; font-size: 0.85rem; text-transform: uppercase; }
 
 /* ========================================================= */
-/* 5. ORDERFORM - ESTIRAMIENTO SEGURO (SIN DESBORDE) */
+/* 4. ORDERFORM - ELIMINACIÓN DE MOVIMIENTO Y ANCHO MÁXIMO */
 /* ========================================================= */
 
 .order-wrapper {
     width: 100%;
-    display: block;
+    overflow: hidden; /* Evita que el hijo desborde */
 }
 
 .order-form {
     background-color: var(--color-card-bg);
-    width: 100%;           /* Ocupa todo el ancho del contenedor */
-    max-width: 100%;       /* Prohíbe pasarse del borde */
-    padding: var(--spacing-lg) var(--spacing-md);
-    border-radius: 0;      /* Estilo full-screen */
+    width: 100%;
+    /* 💡 Forzamos el ancho para que no haya márgenes visuales */
+    padding: 25px 15px;
     margin: 0;
+    border-radius: 0;
     border: none;
-    box-sizing: border-box; /* Incluye el padding dentro del 100% */
+    display: flex;
+    flex-direction: column;
+    /* 💡 Evita que el formulario se mueva al interactuar */
+    touch-action: pan-y; 
 }
 
 @media (min-width: 700px) {
     .order-form {
         border-radius: var(--radius-md);
-        margin: var(--spacing-md) 0;
-        border: 1px solid #edf2f7;
+        margin: 20px 0;
         box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        border: 1px solid #edf2f7;
     }
 }
 
+/* ========================================================= */
+/* 5. INPUTS Y FORM GROUPS (MÁS ANCHOS) */
+/* ========================================================= */
+
 .form-group {
-    margin-bottom: 18px;
+    margin-bottom: 20px;
     width: 100%;
 }
 
 .form-group label {
     display: block;
     font-weight: 700;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     color: #4a5568;
-    font-size: 0.95rem;
 }
 
 .form-group input, 
 .form-group select,
 .form-group textarea {
     width: 100%;       
-    padding: 14px 12px; 
-    border: 1px solid #cbd5e0;
-    border-radius: var(--radius-sm);
+    padding: 16px 12px; /* Más alto para mejor tacto */
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
     font-size: 16px;   
     background-color: #ffffff;
-    box-sizing: border-box; /* Evita que los inputs se salgan del form */
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+    border-color: var(--color-primary);
+    outline: none;
 }
 
 /* ========================================================= */
-/* 6. OTROS (DASHBOARD & NAVBAR) */
+/* 6. BOTONES DE ACCIÓN (ESTÁTICOS) */
 /* ========================================================= */
 
-.order-card-modern {
-    background-color: var(--color-card-bg);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-md);
-    border: 1px solid #e2e8f0;
-    margin: 10px; /* Margen para que no peguen al borde en el historial */
+button {
+    width: 100%;
+    padding: 18px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    cursor: pointer;
 }
 
-.price-summary {
-    text-align: right;
-    padding: var(--spacing-md) 0;
-    border-top: 2px dashed #f1f5f9;
+.btn-success {
+    background-color: var(--color-success);
+    color: white;
     margin-top: 10px;
 }
 
-.amount-ves {
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: var(--color-primary);
+/* ========================================================= */
+/* 7. NAVBAR Y OTROS */
+/* ========================================================= */
+
+.contenedor-imagen {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    overflow: hidden;
 }
 
-.contenedor-imagen { width: 45px; height: 45px; border-radius: 50%; overflow: hidden; }
+.price-summary {
+    background-color: #f8fafc;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #edf2f7;
+}
