@@ -1,20 +1,15 @@
 /* ========================================================= */
-/* 1. VARIABLES GLOBALES & RESET */
+/* 1. VARIABLES GLOBALES & RESET TOTAL */
 /* ========================================================= */
 
 :root {
     --color-primary: #00BFFF; 
     --color-secondary: #FF5A5F;  
-    --color-background: #f9fafc; 
+    --color-background: #f1f5f9; 
     --color-card-bg: #ffffff; 
-    --color-text-dark: #333333;
-    --color-text-light: #050505;
+    --color-text-dark: #1e293b;
     --color-success: #4CAF50; 
-    --color-shadow: rgba(0, 0, 0, 0.08);
-
-    --radius-sm: 8px;
     --radius-md: 12px;
-    --radius-lg: 24px; /* Para la curva superior de la tarjeta */
 }
 
 * {
@@ -36,14 +31,13 @@ html, body {
 /* ========================================================= */
 
 .app-container {
-    width: 100%;
+    width: 100% !important;
     max-width: 700px; 
     margin: 0 auto; 
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    /* Quitamos el padding lateral para que el form pueda tocar los bordes */
-    padding: 0; 
+    padding: 0 !important; /* Forzamos que no haya margen lateral */
 }
 
 .main-content {
@@ -60,7 +54,7 @@ html, body {
     flex-direction: row; 
     flex-wrap: nowrap;   
     gap: 12px;           
-    padding: 20px 10px; /* Aquí sí mantenemos algo de aire lateral */
+    padding: 20px 10px; 
     width: 100%;
 }
 
@@ -73,54 +67,53 @@ html, body {
     display: flex; 
     flex-direction: column; 
     align-items: center;
-    border: 1px solid #f1f5f9; 
-    box-shadow: 0 4px 12px var(--color-shadow);
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.card-image-container-home { width: 60px; height: 60px; margin-bottom: 12px; }
+.card-image-container-home { width: 65px; height: 65px; margin-bottom: 12px; }
 .card-image-home { width: 100%; height: 100%; object-fit: contain; }
-.card-text-home { color: #475569; font-weight: 800; font-size: 0.85rem; text-transform: uppercase; }
 
 /* ========================================================= */
-/* 4. ORDERFORM (MÁXIMO ANCHO INTEGRADO) */
+/* 4. ORDERFORM - ESTIRADO TOTAL */
 /* ========================================================= */
 
 .order-wrapper {
-    width: 100%;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
 .order-form {
     background-color: var(--color-card-bg);
-    width: 100%; 
-    /* Padding interno: 25px arriba/abajo, 20px a los lados */
-    padding: 30px 20px; 
-    margin: 0; /* Pegado a los bordes laterales */
-    
-    /* Mantenemos bordes redondeados solo arriba para un look moderno */
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0; 
+    width: 100% !important;
+    min-width: 100% !important; /* Fuerza a ocupar todo el ancho */
+    margin: 0 !important;
+    padding: 35px 20px; 
+    border-radius: 0; 
     border: none;
-    box-shadow: 0 -4px 15px rgba(0,0,0,0.03);
-    
+    box-shadow: none;
     display: flex;
     flex-direction: column;
-    touch-action: pan-y; 
 }
 
 @media (min-width: 500px) {
     .order-form {
-        width: 95%;
-        margin: 20px auto;
-        border-radius: var(--radius-md);
-        box-shadow: 0 4px 20px var(--color-shadow);
+        width: 92% !important;
+        min-width: 0 !important;
+        margin: 20px auto !important;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        border: 1px solid #e2e8f0;
     }
 }
 
 /* ========================================================= */
-/* 5. INPUTS Y FORM GROUPS (MÁS GRANDES) */
+/* 5. INPUTS Y FORM GROUPS */
 /* ========================================================= */
 
 .form-group {
-    margin-bottom: 22px;
+    margin-bottom: 25px;
     width: 100%;
 }
 
@@ -128,70 +121,64 @@ html, body {
     display: block;
     font-weight: 700;
     margin-bottom: 10px;
-    color: #2d3748;
+    color: #475569;
     font-size: 1rem;
-    text-align: center; /* Alineado con tu diseño de la imagen */
+    text-align: center;
 }
 
 .form-group input, 
 .form-group select,
 .form-group textarea {
     width: 100%;       
-    padding: 16px 15px; 
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
+    padding: 18px 15px; 
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
     font-size: 16px;   
-    background-color: #f8fafc; /* Un gris muy tenue para que resalte el blanco */
-    color: #333;
-    transition: all 0.2s;
-}
-
-.form-group input:focus {
     background-color: #ffffff;
-    border-color: var(--color-primary);
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.1);
+    color: #1e293b;
 }
 
 /* ========================================================= */
-/* 6. BOTONES DE ACCIÓN */
+/* 6. BOTONES DE ACCIÓN (RESPETANDO TU ESTILO) */
 /* ========================================================= */
 
 button {
     width: 100%;
-    padding: 18px;
+    padding: 20px;
     border: none;
     border-radius: 14px;
     font-size: 1.1rem;
     font-weight: 800;
     cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.btn-primary { background-color: var(--color-primary); color: #fff; }
+.btn-primary { background-color: var(--color-primary); color: #000; }
 .btn-success { background-color: var(--color-success); color: white; margin-top: 10px; }
 
 /* ========================================================= */
-/* 7. TARJETAS Y UTILIDADES */
+/* 7. UTILIDADES */
 /* ========================================================= */
-
-.order-card-modern {
-    background: white;
-    border-radius: 15px;
-    padding: 15px;
-    margin: 10px;
-    border: 1px solid #eee;
-}
 
 .price-summary {
     background-color: #f8fafc;
     padding: 20px;
     border-radius: 15px;
-    margin: 20px 0;
+    margin: 15px 0;
+    border: 1px solid #e2e8f0;
     text-align: center;
 }
 
 .amount-ves {
-    font-size: 1.6rem;
-    font-weight: 800;
+    font-size: 1.8rem;
+    font-weight: 900;
     color: var(--color-primary);
+}
+
+.contenedor-imagen {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    overflow: hidden;
 }
