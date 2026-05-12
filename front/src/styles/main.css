@@ -1,5 +1,5 @@
 /* ========================================================= */
-/* 1. VARIABLES GLOBALES & RESET ANTI-MOVIMIENTO */
+/* 1. VARIABLES GLOBALES & RESET */
 /* ========================================================= */
 
 :root {
@@ -20,12 +20,12 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    -webkit-tap-highlight-color: transparent; /* Elimina el recuadro azul al tocar */
+    -webkit-tap-highlight-color: transparent;
 }
 
 html, body {
     width: 100%;
-    overflow-x: hidden; /* 💡 CRÍTICO: Elimina el movimiento lateral */
+    overflow-x: hidden; 
     position: relative;
     background-color: var(--color-background);
     font-family: 'Inter', sans-serif;
@@ -50,7 +50,7 @@ html, body {
 }
 
 /* ========================================================= */
-/* 3. HOME PAGE - BOTONES 50/50 ESTÁTICOS */
+/* 3. HOME PAGE (BOTONES PORTAL) */
 /* ========================================================= */
 
 .grid-botones-home {
@@ -80,25 +80,24 @@ html, body {
 .card-text-home { color: #475569; font-weight: 800; font-size: 0.85rem; text-transform: uppercase; }
 
 /* ========================================================= */
-/* 4. ORDERFORM - ELIMINACIÓN DE MOVIMIENTO Y ANCHO MÁXIMO */
+/* 4. ORDERFORM (MÁXIMO ANCHO ESTABLE) */
 /* ========================================================= */
 
 .order-wrapper {
     width: 100%;
-    overflow: hidden; /* Evita que el hijo desborde */
+    overflow: hidden;
 }
 
 .order-form {
     background-color: var(--color-card-bg);
     width: 100%;
-    /* 💡 Forzamos el ancho para que no haya márgenes visuales */
-    padding: 25px 15px;
+    /* Ajuste de padding lateral mínimo para ganar espacio */
+    padding: 25px 12px; 
     margin: 0;
     border-radius: 0;
     border: none;
     display: flex;
     flex-direction: column;
-    /* 💡 Evita que el formulario se mueva al interactuar */
     touch-action: pan-y; 
 }
 
@@ -108,11 +107,41 @@ html, body {
         margin: 20px 0;
         box-shadow: 0 4px 20px rgba(0,0,0,0.05);
         border: 1px solid #edf2f7;
+        padding: 30px;
     }
 }
 
 /* ========================================================= */
-/* 5. INPUTS Y FORM GROUPS (MÁS ANCHOS) */
+/* 5. TARJETAS DE ÓRDENES (HISTORIAL / DASHBOARD) */
+/* ========================================================= */
+
+.order-card-modern {
+    background-color: var(--color-card-bg);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin: 10px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px var(--color-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.status-pill {
+    align-self: flex-start;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.pill-pendiente { background: #fffaf0; color: #dd6b20; border: 1px solid #fbd38d; }
+.pill-entregado { background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4; }
+.pill-en-ruta { background: #ebf8ff; color: #2b6cb0; border: 1px solid #bee3f8; }
+
+/* ========================================================= */
+/* 6. INPUTS Y FORM GROUPS */
 /* ========================================================= */
 
 .form-group {
@@ -125,27 +154,28 @@ html, body {
     font-weight: 700;
     margin-bottom: 8px;
     color: #4a5568;
+    font-size: 0.9rem;
 }
 
 .form-group input, 
 .form-group select,
 .form-group textarea {
     width: 100%;       
-    padding: 16px 12px; /* Más alto para mejor tacto */
+    padding: 16px 12px; 
     border: 1.5px solid #e2e8f0;
     border-radius: 10px;
     font-size: 16px;   
     background-color: #ffffff;
-    transition: border-color 0.2s;
 }
 
 .form-group input:focus {
     border-color: var(--color-primary);
     outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.1);
 }
 
 /* ========================================================= */
-/* 6. BOTONES DE ACCIÓN (ESTÁTICOS) */
+/* 7. BOTONES DE ACCIÓN */
 /* ========================================================= */
 
 button {
@@ -156,16 +186,31 @@ button {
     font-size: 1.1rem;
     font-weight: 800;
     cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-text-light);
 }
 
 .btn-success {
     background-color: var(--color-success);
     color: white;
-    margin-top: 10px;
+}
+
+button:disabled {
+    background-color: #e2e8f0;
+    color: #a0aec0;
+    cursor: not-allowed;
 }
 
 /* ========================================================= */
-/* 7. NAVBAR Y OTROS */
+/* 8. NAVBAR Y UTILIDADES */
 /* ========================================================= */
 
 .contenedor-imagen {
@@ -173,6 +218,7 @@ button {
     height: 45px;
     border-radius: 50%;
     overflow: hidden;
+    border: 2px solid #fff;
 }
 
 .price-summary {
@@ -181,4 +227,12 @@ button {
     border-radius: 10px;
     margin-bottom: 20px;
     border: 1px solid #edf2f7;
+    text-align: right;
+}
+
+.amount-ves {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    display: block;
 }
