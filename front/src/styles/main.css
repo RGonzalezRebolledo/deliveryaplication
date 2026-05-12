@@ -19,7 +19,6 @@
 
     --radius-sm: 8px;
     --radius-md: 12px;
-    --shadow-card: 0 4px 12px var(--color-shadow);
 }
 
 * {
@@ -33,10 +32,11 @@ body {
     background-color: var(--color-background);
     color: var(--color-text-dark);
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden; /* Evita scroll horizontal por el estiramiento */
 }
 
 /* ========================================================= */
-/* 2. LAYOUT PRINCIPAL - ANCHO TOTAL */
+/* 2. LAYOUT PRINCIPAL */
 /* ========================================================= */
 
 .app-container {
@@ -46,18 +46,15 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    padding: 0; 
 }
 
 .main-content {
     flex: 1;
     width: 100%;
-    display: flex;
-    flex-direction: column;
 }
 
 /* ========================================================= */
-/* 3. BOTONES BASE (RESTAURADOS Y MEJORADOS) */
+/* 3. BOTONES BASE */
 /* ========================================================= */
 
 button {
@@ -71,90 +68,37 @@ button {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-button:active {
-    transform: scale(0.98);
-}
-
-.btn-primary {
-    background-color: var(--color-primary);
-    color: var(--color-text-light);
-    width: 100%;
-}
-
-.btn-success {
-    background-color: var(--color-success);
-    color: white;
-    width: 100%;
-}
-
-.btn-delivery {
-    background-color: var(--color-primary);
-    color: white;
-    width: 100%;
-    padding: 18px;
-    font-size: 1.1rem;
-}
-
-button:disabled {
-    background-color: #cbd5e0 !important;
-    color: #a0aec0 !important;
-    cursor: not-allowed;
-    box-shadow: none;
-}
+.btn-primary { background-color: var(--color-primary); color: var(--color-text-light); width: 100%; }
+.btn-success { background-color: var(--color-success); color: white; width: 100%; }
 
 /* ========================================================= */
-/* 4. HOME PAGE - PORTAL DE ROLES */
+/* 4. HOME PAGE - BOTONES 50/50 SIEMPRE EN FILA */
 /* ========================================================= */
 
 .grid-botones-home {
     display: flex;
     flex-direction: row; 
     flex-wrap: nowrap;   
-    justify-content: center;
     gap: 12px;           
     padding: 25px 10px;   
     width: 100%;
 }
 
 .card-boton-home {
-    flex: 1;             
-    width: 50%;          
-    background: #ffffff;
-    border-radius: 20px;
-    padding: 20px 10px;
-    text-decoration: none !important;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    border: 1px solid #f1f5f9;
-    box-shadow: var(--shadow-card);
+    flex: 1; width: 50%; background: #ffffff; border-radius: 20px;
+    padding: 20px 10px; text-decoration: none !important;
+    display: flex; flex-direction: column; align-items: center;
+    border: 1px solid #f1f5f9; box-shadow: 0 4px 12px var(--color-shadow);
 }
 
-.card-image-container-home {
-    width: 65px;         
-    height: 65px;
-    margin-bottom: 12px;
-}
-
-.card-image-home {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-
-.card-text-home {
-    color: #475569;
-    font-weight: 800;
-    font-size: 0.9rem;  
-    text-align: center;
-    text-transform: uppercase;
-}
+.card-image-container-home { width: 65px; height: 65px; margin-bottom: 12px; }
+.card-image-home { width: 100%; height: 100%; object-fit: contain; }
+.card-text-home { color: #475569; font-weight: 800; font-size: 0.9rem; text-transform: uppercase; }
 
 /* ========================================================= */
-/* 5. ORDERFORM - ANCHO TOTAL SIN RESTRICCIONES */
+/* 5. ORDERFORM - ADECUACIÓN PARA ESTIRAMIENTO TOTAL */
 /* ========================================================= */
 
 .order-wrapper {
@@ -163,20 +107,31 @@ button:disabled {
 
 .order-form {
     background-color: var(--color-card-bg);
-    width: 100%;       
-    padding: var(--spacing-lg) var(--spacing-md);
-    border-radius: 0;  
+    
+    /* 💡 ESTA ES LA CLAVE PARA EL ESTIRAMIENTO TOTAL EN MÓVIL */
+    width: 100vw; 
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    
+    padding: var(--spacing-lg) 20px; /* Padding lateral interno para que el contenido no pegue al borde físico */
+    border-radius: 0;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
 }
 
-@media (min-width: 480px) {
+/* En pantallas grandes, volvemos al comportamiento contenido */
+@media (min-width: 700px) {
     .order-form {
+        width: 100%;
+        margin: var(--spacing-md) 0;
+        left: auto;
+        right: auto;
+        position: static;
         border-radius: var(--radius-md);
-        margin-top: var(--spacing-md);
-        border: 1px solid #edf2f7;
-        box-shadow: var(--shadow-card);
-        width: 95%;
-        margin-left: auto;
-        margin-right: auto;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
     }
 }
 
@@ -200,12 +155,12 @@ button:disabled {
     padding: 14px 12px; 
     border: 1px solid #cbd5e0;
     border-radius: var(--radius-sm);
-    font-size: 16px;   
+    font-size: 16px; /* Evita zoom en iOS */
     background-color: #ffffff;
 }
 
 /* ========================================================= */
-/* 6. DASHBOARDS, CARDS & OTROS */
+/* 6. OTROS (DASHBOARD & NAVBAR) */
 /* ========================================================= */
 
 .order-card-modern {
@@ -226,20 +181,6 @@ button:disabled {
     font-size: 1.4rem;
     font-weight: 800;
     color: var(--color-primary);
-    display: block;
 }
 
-.contenedor-imagen {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    overflow: hidden;
-}
-
-.status-pill {
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-}
+.contenedor-imagen { width: 45px; height: 45px; border-radius: 50%; overflow: hidden; }
