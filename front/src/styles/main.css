@@ -10,6 +10,8 @@
     --color-text-dark: #1e293b;
     --color-success: #4CAF50; 
     --radius-md: 12px;
+    /* Guardamos la altura estimada del footer para usarla de margen */
+    --footer-height: 100px; 
 }
 
 * {
@@ -27,7 +29,7 @@ html, body {
 }
 
 /* ========================================================= */
-/* 2. LAYOUT PRINCIPAL */
+/* 2. LAYOUT PRINCIPAL (CON AJUSTE PARA FOOTER) */
 /* ========================================================= */
 
 .app-container {
@@ -43,6 +45,9 @@ html, body {
 .main-content {
     width: 100%;
     flex: 1;
+    /* 💡 ESTA ES LA CLAVE: Empuja el contenido hacia arriba 
+       para que el footer no tape el final de los formularios */
+    padding-bottom: var(--footer-height); 
 }
 
 /* ========================================================= */
@@ -75,7 +80,7 @@ html, body {
 .card-image-home { width: 100%; height: 100%; object-fit: contain; }
 
 /* ========================================================= */
-/* 4. ORDERFORM - (ESTIRADO TOTAL - NO TOCAR) */
+/* 4. ORDERFORM (ESTIRADO TOTAL - NO TOCAR) */
 /* ========================================================= */
 
 .order-wrapper {
@@ -116,7 +121,7 @@ html, body {
     background-color: var(--color-card-bg);
     border-radius: var(--radius-md);
     padding: 16px;
-    margin: 10px; /* Margen para que no peguen al borde del app-container */
+    margin: 10px; 
     border: 1px solid #e2e8f0;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     display: flex;
@@ -140,51 +145,55 @@ html, body {
 .pill-en-ruta { background: #ebf8ff; color: #2b6cb0; border: 1px solid #bee3f8; }
 
 /* ========================================================= */
-/* 6. INPUTS Y FORM GROUPS */
+/* 6. FOOTER (CORREGIDO) */
 /* ========================================================= */
 
-.form-group {
-    margin-bottom: 25px;
+.footer {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
     width: 100%;
+    max-width: 700px;
+    background-color: #ffffff; /* Blanco puro para que no desentone con el form */
+    color: #1a1a1a;
+    padding: 10px 20px;
+    z-index: 1000;
+    box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.08);
+    border-radius: 20px 20px 0 0;
+    border-top: 1px solid #f1f5f9;
 }
 
-.form-group label {
-    display: block;
-    font-weight: 700;
-    margin-bottom: 10px;
-    color: #475569;
-    font-size: 1rem;
+.social-icons {
+    display: flex;
+    gap: 15px;
+    font-size: 1.4rem;
+    justify-content: center;
+    margin-bottom: 5px;
+}
+
+.social-icons a { color: #1a1a1a; transition: 0.3s; }
+.social-icons a:hover { color: var(--color-secondary); }
+
+.footer-bottom {
     text-align: center;
-}
-
-.form-group input, 
-.form-group select,
-.form-group textarea {
-    width: 100%;       
-    padding: 18px 15px; 
-    border: 1.5px solid #e2e8f0;
-    border-radius: 12px;
-    font-size: 16px;   
-    background-color: #ffffff;
-    color: #1e293b;
+    padding-top: 5px;
+    border-top: 1px solid #f1f5f9;
+    font-size: 0.75rem;
+    color: #64748b;
 }
 
 /* ========================================================= */
-/* 7. BOTONES DE ACCIÓN */
+/* 7. BOTONES E INPUTS */
 /* ========================================================= */
 
-button {
-    width: 100%;
-    padding: 20px;
-    border: none;
-    border-radius: 14px;
-    font-size: 1.1rem;
-    font-weight: 800;
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+.form-group { margin-bottom: 25px; width: 100%; }
+.form-group label { display: block; font-weight: 700; margin-bottom: 10px; text-align: center; }
+.form-group input, .form-group select, .form-group textarea {
+    width: 100%; padding: 18px 15px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-size: 16px;
 }
 
+button { width: 100%; padding: 20px; border: none; border-radius: 14px; font-size: 1.1rem; font-weight: 800; cursor: pointer; text-transform: uppercase; }
 .btn-primary { background-color: var(--color-primary); color: #000; }
 .btn-success { background-color: var(--color-success); color: white; margin-top: 10px; }
 
@@ -192,24 +201,5 @@ button {
 /* 8. UTILIDADES */
 /* ========================================================= */
 
-.price-summary {
-    background-color: #f8fafc;
-    padding: 20px;
-    border-radius: 15px;
-    margin: 15px 0;
-    border: 1px solid #e2e8f0;
-    text-align: center;
-}
-
-.amount-ves {
-    font-size: 1.8rem;
-    font-weight: 900;
-    color: var(--color-primary);
-}
-
-.contenedor-imagen {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    overflow: hidden;
-}
+.price-summary { background-color: #f8fafc; padding: 20px; border-radius: 15px; margin: 15px 0; border: 1px solid #e2e8f0; text-align: center; }
+.amount-ves { font-size: 1.8rem; font-weight: 900; color: var(--color-primary); }
