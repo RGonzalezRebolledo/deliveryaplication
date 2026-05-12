@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://delivery-backend-production-c3cb.up.railway.app';
 
-// 💡 INTERCEPTOR GLOBAL: Inyecta el token en los Headers para todas las peticiones de la app
+// 💡 INTERCEPTOR GLOBAL: Inyecta el token en los Headers para todas las peticiones
 axios.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('accessToken');
@@ -36,20 +36,27 @@ export const AuthProvider = ({ children }) => {
         try {
             await axios.post(`${API_BASE_URL}/logout`, {}, { withCredentials: true });
         } catch (error) {
-            console.warn("Logout en servidor fallido, procediendo con limpieza local.");
+            console.warn("Sesión ya cerrada o inválida en el servidor.");
         } finally {
-            // Limpieza absoluta de rastros
+            // 1. Limpieza absoluta de almacenamiento
             localStorage.removeItem('accessToken');
             localStorage.removeItem('user');
+            
+            // 2. Limpieza de estado (Detiene disparadores de useEffect)
             setUser(null);
             setIsAuthenticated(false);
-            window.location.href = "/login";
+            
+            // 3. Redirección forzada eliminando el historial para evitar 404 al volver atrás
+            window.location.replace("/login");
         }
     };
 
-    // Cargar tasa de cambio (ahora usa el interceptor automáticamente)
+    // Cargar tasa de cambio (Solo si hay un intento de sesión o usuario activo)
     useEffect(() => {
         const fetchExchangeRate = async () => {
+            const token = localStorage.getItem('accessToken');
+            if (!token) return; // 💡 No pedir si no hay token (Evita 401 innecesarios)
+
             try {
                 const response = await axios.get(`${API_BASE_URL}/api/exchange-rate`, {
                     withCredentials: true
@@ -60,11 +67,19 @@ export const AuthProvider = ({ children }) => {
             }
         };
         fetchExchangeRate();
-    }, []);
+    }, [isAuthenticated]); // Se dispara cuando el estado de auth cambia
 
     // Verificar sesión al cargar o refrescar la PWA
     useEffect(() => {
         const checkSession = async () => {
+            const token = localStorage.getItem('accessToken');
+            
+            // 💡 Si no hay rastro de token, no disparamos la petición
+            if (!token) {
+                setLoading(false);
+                return;
+            }
+
             try {
                 const response = await axios.get(`${API_BASE_URL}/check-session`, {
                     withCredentials: true
@@ -74,14 +89,14 @@ export const AuthProvider = ({ children }) => {
                     setUser(response.data.user);
                     setIsAuthenticated(true);
                     
-                    // Si el backend refrescó el token, lo actualizamos localmente
                     if (response.data.token) {
                         localStorage.setItem('accessToken', response.data.token);
                     }
                 }
             } catch (error) {
-                console.log("Sesión no válida en este dispositivo.");
+                console.log("Sesión expirada. Limpiando datos locales.");
                 localStorage.removeItem('accessToken');
+                localStorage.removeItem('user');
                 setUser(null);
                 setIsAuthenticated(false);
             } finally {
