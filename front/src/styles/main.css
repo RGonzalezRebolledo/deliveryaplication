@@ -38,11 +38,11 @@ body {
 }
 
 /* ========================================================= */
-/* 2. LAYOUT PRINCIPAL (APP.JSX) - AJUSTE RESPONSIVO */
+/* 2. LAYOUT PRINCIPAL (APP.JSX) - FULL WIDTH EN MÓVIL */
 /* ========================================================= */
 
 .app-container {
-    padding: var(--spacing-sm); /* Menos espacio a los lados en móvil */
+    padding: 0; /* Eliminamos márgenes laterales para máximo espacio */
     width: 100%;
     max-width: 700px; 
     margin: 0 auto; 
@@ -53,7 +53,7 @@ body {
 
 @media (min-width: 768px) {
     .app-container {
-        padding: var(--spacing-md);
+        padding: 0 var(--spacing-md); /* El aire solo vuelve en pantallas grandes */
     }
 }
 
@@ -72,9 +72,8 @@ button {
     border: none;
     border-radius: var(--radius-md);
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 700;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -85,114 +84,80 @@ button {
     color: var(--color-text-light);
 }
 
-.btn-primary:hover {
-    transform: translateY(-1px);
-}
-
 .btn-success {
     background-color: var(--color-success);
     color: var(--color-text-light);
 }
 
 /* ========================================================= */
-/* 4. HOME PAGE & PORTAL SELECTION */
+/* 4. HOME PAGE & PORTAL */
 /* ========================================================= */
 
 .home-page {
     background-color: #f8fafc;
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
 }
 
 .grid-botones-home {
     display: flex;
     justify-content: space-evenly;
-    flex-wrap: wrap; /* Permite que bajen si el móvil es muy angosto */
-    gap: 15px;
+    flex-wrap: wrap; 
+    gap: 12px;
     padding: 20px 10px;
     width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
 }
 
 .card-boton-home {
-    min-width: 140px; 
-    flex: 1; /* Crecen para ocupar el espacio */
-    max-width: 200px; 
+    flex: 1;
+    min-width: 145px;
+    max-width: 200px;
     background: #ffffff;
-    border-radius: 20px; 
-    padding: 15px 10px; 
-    text-decoration: none !important; 
-    color: inherit; 
+    border-radius: 18px;
+    padding: 20px 10px;
+    text-decoration: none !important;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     border: 1px solid #f1f5f9;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
-    transition: all 0.2s ease;
-}
-
-.card-boton-home:active {
-    transform: scale(0.96);
-    background-color: #f1f5f9;
-}
-
-.card-image-container-home {
-    width: 50px; 
-    height: 50px;
-    margin-bottom: 8px;
-}
-
-.card-image-home {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-
-.card-text-home {
-    color: #475569;
-    font-weight: 600;
-    font-size: 0.9rem;
+    box-shadow: var(--shadow-card);
 }
 
 /* ========================================================= */
-/* 5. FORMULARIOS (ORDERFORM.JSX) - OPTIMIZADO PARA MÓVIL */
+/* 5. FORMULARIOS (ORDERFORM.JSX) - MAXIMIZADO */
 /* ========================================================= */
 
 .order-wrapper {
     width: 100%;
-    display: flex;
-    justify-content: center;
 }
 
 .order-form {
     background-color: var(--color-card-bg);
-    padding: var(--spacing-md); /* Reducido para móviles */
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-card);
+    padding: var(--spacing-md);
     width: 100%;
+    border-radius: 0; /* Borde recto en móvil para parecer app nativa */
+    box-shadow: none;
 }
 
-@media (max-width: 480px) {
+@media (min-width: 480px) {
     .order-form {
-        padding: var(--spacing-md) var(--spacing-sm);
-        border-radius: var(--radius-sm);
-        box-shadow: none; /* Limpieza en pantallas pequeñas */
-        border: 1px solid #eee;
+        border-radius: var(--radius-md);
+        padding: var(--spacing-lg);
+        margin-top: var(--spacing-md);
+        box-shadow: var(--shadow-card);
+        border: 1px solid #edf2f7;
     }
 }
 
 .form-group {
     margin-bottom: var(--spacing-md);
+    width: 100%;
 }
 
 .form-group label {
     display: block;
-    font-weight: 600;
+    font-weight: 700;
     margin-bottom: 6px;
-    color: #555;
+    color: #4a5568;
     font-size: 0.9rem;
 }
 
@@ -200,16 +165,14 @@ button {
 .form-group textarea,
 .form-group select {
     width: 100%;
-    padding: 12px; 
-    border: 1px solid #ccc;
+    padding: 14px 12px; /* Más altos para facilitar el toque con el dedo */
+    border: 1px solid #cbd5e0;
     border-radius: var(--radius-sm);
-    font-size: 16px; /* 💡 Evita zoom automático en iPhone */
-    transition: all 0.2s;
-    background-color: #fff;
+    font-size: 16px; /* Evita zoom automático en iPhone */
+    background-color: #ffffff;
 }
 
-.form-group input:focus, 
-.form-group select:focus {
+.form-group input:focus {
     border-color: var(--color-primary);
     outline: none;
     box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.1);
@@ -221,13 +184,15 @@ button {
 
 .orders-grid {
     display: grid;
-    gap: var(--spacing-md);
-    grid-template-columns: 1fr; /* Una columna en móvil */
+    gap: var(--spacing-sm);
+    grid-template-columns: 1fr;
+    padding: var(--spacing-sm);
 }
 
 @media (min-width: 600px) {
     .orders-grid {
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: var(--spacing-md);
     }
 }
 
@@ -235,59 +200,43 @@ button {
     background-color: var(--color-card-bg);
     border-radius: var(--radius-md);
     padding: var(--spacing-md);
-    box-shadow: var(--shadow-card);
-    border: 1px solid #edf2f7;
-    transition: transform 0.2s;
+    border: 1px solid #e2e8f0;
 }
-
-.price-tag .amount-ves {
-    font-size: 1.2rem;
-    font-weight: 800;
-    color: var(--color-primary);
-}
-
-/* ========================================================= */
-/* 7. STATUS & PILLS */
-/* ========================================================= */
-
-.status-pill {
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.65rem;
-    font-weight: 700;
-    text-transform: uppercase;
-}
-
-.pill-pendiente { background: #fffaf0; color: #dd6b20; border: 1px solid #fbd38d; }
-.pill-entregado { background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4; }
-.pill-en-ruta   { background: #fef3f3; color: var(--color-primary); border: 1px solid #feb2b2; }
-
-/* ========================================================= */
-/* 8. ELEMENTOS DE CARGA (SPINNERS) */
-/* ========================================================= */
 
 .price-summary {
     text-align: right;
     padding: var(--spacing-md) 0;
-    border-top: 1px dashed #eee;
-    margin-top: var(--spacing-md);
+    border-top: 2px dashed #f1f5f9;
 }
 
-.btn-delivery {
-    width: 100%;
-    padding: 16px;
-    font-size: 1.1rem;
-}
-
-.btn-delivery:disabled {
-    background-color: #e2e8f0;
-    color: #a0aec0;
-    cursor: not-allowed;
-    transform: none !important;
+.amount-ves {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    display: block;
 }
 
 /* ========================================================= */
-/* 9. NAVBAR UTILS */
+/* 7. BOTONES DE ACCIÓN (DELIVERY) */
+/* ========================================================= */
+
+.btn-delivery {
+    width: 100%;
+    padding: 18px;
+    font-size: 1.2rem;
+    border-radius: var(--radius-md);
+    margin-top: 10px;
+}
+
+/* Estilo para los botones cuando están dentro de un contenedor full-width */
+@media (max-width: 480px) {
+    .btn-delivery {
+        border-radius: var(--radius-sm);
+    }
+}
+
+/* ========================================================= */
+/* 8. NAVBAR & IMÁGENES */
 /* ========================================================= */
 
 .contenedor-imagen {
@@ -295,5 +244,11 @@ button {
     height: 45px;
     border-radius: 50%;
     overflow: hidden;
-    border: 2px solid #eee;
+    background: #fff;
+}
+
+.card-image-home {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
