@@ -3,22 +3,13 @@
 /* ========================================================= */
 
 :root {
-    /* Paleta de colores inspirada en PedidosYa/Delivery Apps */
-    /*  --color-primary: #FF5A5F; Naranja/Rojo vibrante (Main Brand Color) */
-    /* --color-secondary: #00BFFF;  Azul vibrante (Accent/Delivery) */
-
-    --color-primary: #00BFFF; /* Naranja/Rojo vibrante (Main Brand Color) */
-    --color-secondary: #FF5A5F;  /*Azul vibrante (Accent/Delivery) */
-
-    
-    /* --color-background: linear-gradient(to bottom, rgba(0, 123, 255, 0.5), rgba(0, 0, 139, 0.7)); /* Degradado azul semi-transparente 
-  */
-
-    --color-background: #f9fafc; /* Fondo general muy suave */
-    --color-card-bg: #ffffff; /* Fondo de tarjetas */
+    --color-primary: #00BFFF; 
+    --color-secondary: #FF5A5F;  
+    --color-background: #f9fafc; 
+    --color-card-bg: #ffffff; 
     --color-text-dark: #333333;
     --color-text-light: #050505;
-    --color-success: #4CAF50; /* Verde para acciones positivas */
+    --color-success: #4CAF50; 
     --color-shadow: rgba(0, 0, 0, 0.08);
 
     /* Espaciado */
@@ -35,7 +26,7 @@
 
 * {
     box-sizing: border-box;
-    font-family: 'Inter', sans-serif; /* Usamos una fuente moderna por defecto */
+    font-family: 'Inter', sans-serif;
     margin: 0;
     padding: 0;
 }
@@ -43,27 +34,31 @@
 body {
     background-color: var(--color-background);
     color: var(--color-text-dark);
-    
+    -webkit-font-smoothing: antialiased;
 }
 
 /* ========================================================= */
-/* 2. LAYOUT PRINCIPAL (APP.JSX) */
+/* 2. LAYOUT PRINCIPAL (APP.JSX) - AJUSTE RESPONSIVO */
 /* ========================================================= */
 
 .app-container {
-    padding: var(--spacing-md); 
+    padding: var(--spacing-sm); /* Menos espacio a los lados en móvil */
+    width: 100%;
     max-width: 700px; 
     margin: 0 auto; 
-    
-    /* CAMBIOS CLAVE: */
     display: flex;
-    flex-direction: column; /* Alinea hijos en columna (Navbar, Main, Footer) */
-    min-height: 100vh;      /* Ocupa el 100% del alto de la ventana */
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-/* Nueva clase para el contenido principal */
+@media (min-width: 768px) {
+    .app-container {
+        padding: var(--spacing-md);
+    }
+}
+
 .main-content {
-    flex: 1; /* Esto hace que este div crezca y ocupe todo el espacio disponible */
+    flex: 1;
     width: 100%;
 }
 
@@ -80,6 +75,9 @@ button {
     font-weight: 600;
     transition: all 0.2s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-primary {
@@ -88,7 +86,6 @@ button {
 }
 
 .btn-primary:hover {
-    /* background-color: #e04b4f; */
     transform: translateY(-1px);
 }
 
@@ -97,759 +94,206 @@ button {
     color: var(--color-text-light);
 }
 
-.btn-success:hover {
-    background-color: #3e8e41;
-}
-
 /* ========================================================= */
-/* 4. ESTILOS DE HOME.JSX (Portal de Roles) */
+/* 4. HOME PAGE & PORTAL SELECTION */
 /* ========================================================= */
 
-.home-page {
-
-    text-align: center;
-}
-
-.hero-section {
-    display: flex;
-    
-    /* 2. Distribuye el espacio (opcional, pero ayuda a separar las secciones) */
-    justify-content: space-around; 
-    flex-direction: row; /*Los pone en fila */
-    /* justify-content: center;  Los centra en la pantalla */
-    /* gap: 15px;  Crea una separación de 15px entre los botones */
-    /* 3. Alineación vertical (si los elementos tienen diferentes alturas) */
-    align-items: center;
-    padding: var(--spacing-lg) 0;
-     /* background-color: var(--color-card-bg);  */
-    /* border-radius: var(--radius-md); */
-    border-radius: none;
-    margin-bottom: var(--spacing-sm);
-    /* box-shadow: var(--shadow-card); */
-}
-
-.hero-section h1 {
-    font-size: 2.2rem;
-    color: var(--color-primary);
-    margin-bottom: var(--spacing-sm);
-}
-
-.tagline {
-    font-size: 1.1rem;
-    color: #666;
-}
-
-.portal-selection {
-    padding: var(--spacing-md) 0;
-}
-
-.portal-selection h2 {
-    font-size: 1.5rem;
-    margin-bottom: var(--spacing-lg);
-    text-align: left;
-}
-
-.portal-card {
-    background-color: var(--color-card-bg);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-lg);
-    margin-bottom: var(--spacing-md);
-    text-align: left;
-    box-shadow: var(--shadow-card);
-}
-
-.portal-card h3 {
-    margin-bottom: var(--spacing-sm);
-    color: var(--color-text-dark);
-}
-
-.portal-card p {
-    margin-bottom: var(--spacing-md);
-    color: #777;
-}
-
-.btn-client {
-    background-color: var(--color-secondary);
-    color: var(--color-text-light);
-    width: 100%; /* Botón de ancho completo en móvil */
-    margin-top: 10px;
-}
-
-.btn-delivery {
-    background-color: var(--color-primary);
-    color: var(--color-text-light);
-    width: 100%;
-    margin-top: 10px;
-}
-
-.btn-delivery:disabled {
-    background-color: #ccc; /* Gris */
-    cursor: not-allowed;    /* Cursor de bloqueo */
-    opacity: 0.7;
-    transform: none !important; /* Evita efectos de escala al hacer clic */
-}
-
-hr {
-    border: none;
-    height: 1px;
-    background-color: #ddd;
-    margin: var(--spacing-lg) 0;
-}
-
-.footer-info {
-    margin-top: var(--spacing-xl);
-    padding-top: var(--spacing-md);
-    border-top: 1px solid #eee;
-    color: #999;
-}
-
-/* ========================================================= */
-/* 5. ESTILOS DE CLIENTDASHBOARD.JSX */
-/* ========================================================= */
-
-.client-dashboard h2 {
-    color: var(--color-primary);
-    margin-bottom: var(--spacing-sm);
-}
-
-.client-dashboard .btn-primary {
-    width: 100%;
-    margin: var(--spacing-md) 0 var(--spacing-lg);
-}
-
-.recent-orders h3 {
-    margin-bottom: var(--spacing-md);
-    border-bottom: 2px solid var(--color-primary);
-    padding-bottom: var(--spacing-sm);
-}
-
-.order-card {
-    background-color: var(--color-card-bg);
-    border-left: 5px solid var(--color-primary); /* Barra de estado lateral */
-    border-radius: var(--radius-md);
-    padding: var(--spacing-md);
-    margin-bottom: var(--spacing-md);
-    box-shadow: var(--shadow-card);
-}
-
-.order-card h4 {
-    color: var(--color-text-dark);
-    margin-bottom: var(--spacing-sm);
-}
-
-/* ========================================================= */
-/* 6. ESTILOS DE ORDERFORM.JSX (FORMULARIOS) */
-/* ========================================================= */
-
-.order-form {
-    background-color: var(--color-card-bg);
-    padding: var(--spacing-lg);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-card);
-}
-
-.order-form h2 {
-    color: var(--color-primary);
-    margin-bottom: var(--spacing-lg);
-    border-bottom: 1px solid #eee;
-    padding-bottom: var(--spacing-sm);
-}
-
-.form-group {
-    margin-bottom: var(--spacing-sm);
-    
-}
-
-.form-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: var(--spacing-sm);
-    color: #555;
-}
-
-.form-group input, 
-.form-group textarea,
-.form-group select{
-    width: 100%;
-    padding: var(--spacing-sm);
-    border: 1px solid #ccc;
-    border-radius: var(--radius-sm);
-    font-size: 1rem;
-    transition: border-color 0.2s;
-}
-
-.form-group input:focus, 
-.form-group textarea:focus
- {
-    border-color: var(--color-secondary);
-    outline: none;
-}
-
-.form-group textarea {
-    resize: vertical;
-    min-height: 100px;
-}
-
-.price-summary {
-    text-align: right;
-    font-size: 1.2rem;
-    font-weight: 700;
-    padding: var(--spacing-md) 0;
-    color: var(--color-success);
-}
-
-.order-form .btn-success {
-    width: 100%;
-    margin-top: var(--spacing-md);
-}
-
-/* ========================================================= */
-/* 7. ESTILOS DE ORDERTRACKING.JSX */
-/* ========================================================= */
-
-.order-tracking h2 {
-    color: var(--color-primary);
-    margin-bottom: var(--spacing-lg);
-    text-align: center;
-}
-
-.status-display {
-    text-align: center;
-    padding: var(--spacing-lg);
-    border-radius: var(--radius-md);
-    margin-bottom: var(--spacing-lg);
-    color: var(--color-text-light);
-    box-shadow: var(--shadow-card);
-}
-
-.status-display p {
-    font-size: 1rem;
-    margin-bottom: var(--spacing-sm);
-}
-
-.status-display h3 {
-    font-size: 1.8rem;
-    margin-bottom: var(--spacing-sm);
-    font-weight: 800;
-}
-
-/* Colores de estado simulados */
-.status-EsperandoRepartidor {
-    background-color: #ff9800; /* Naranja */
-}
-.status-RepartidorAsignado {
-    background-color: var(--color-secondary); /* Azul */
-}
-.status-EnCaminoaRecoger, .status-EnRutaatuDestino {
-    background-color: var(--color-primary); /* Rojo/Naranja Principal */
-}
-/* .status-Entregado-¡Disfruta! {
-    background-color: var(--color-success);} /* Verde */
-
-
-.map-placeholder {
-    height: 200px;
-    background-color: #e0e0e0;
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: var(--spacing-lg);
-    font-style: italic;
-    color: #666;
-}
-
-.rating-section {
-    background-color: var(--color-card-bg);
-    padding: var(--spacing-md);
-    border-radius: var(--radius-md);
-    text-align: center;
-}
-
-.rating-section button {
-    background: none;
-    border: 1px solid #ccc;
-    color: var(--color-primary);
-    padding: var(--spacing-sm) var(--spacing-md);
-    margin: 0 var(--spacing-sm);
-}
-
-.rating-section button:hover {
-    background-color: #fff3e0;
-}
-
-
-.contenedor-botones {
-    display: flex;
-    gap: 20px;       /* Espacio entre los dos bloques */
-    width: 100%;     /* Que ocupe todo el ancho disponible */
-    padding: 0 10px; /* Un pequeño margen a los lados para que no toque los bordes de la pantalla */
-}
-
-/* ESTA ES LA CLAVE: Hace que cada DIV crezca por igual */
-.contenedor-botones > div {
-    flex: 1;         /* Distribuye el espacio 50/50 de forma automática */
-    display: flex;   /* Permite que el Link interno también se estire */
-}
-
-.mi-enlace {
-    display: block;    /* Importante para que acepte el ancho total */
-    width: 100%;       /* Hace que el botón ocupe todo el ancho de su DIV */
-    text-align: center; /* Centra el texto (Cliente / Conductor) */
-    
-    color: black;
-    text-decoration: none;
-    font-size: 16px;
-    /* Reducimos el padding lateral porque el ancho ya es dinámico */
-    padding: 20px 0; 
-    
-    background-color: var(--color-card-bg);
-    border-radius: 5px;
-    margin-bottom: var(--spacing-sm);
-    box-shadow: var(--shadow-card);
-    transition: background-color 0.3s;
-  }
-  
-   /*.mi-enlace:hover {
-    background-color: lightblue;  Cambia el fondo al pasar el mouse */
-    /* color: white; 
-  } */
-  
-  /* .mi-enlace:active {
-    color: darkblue; /* Color cuando se hace clic
-  } */
-
-  /* ========================================================= */
-/* 7. ESTILOS DE navbar.JSX */
-/* ========================================================= */
-
-.contenedor-imagen {
-    width: 50px;
-    height: 50px;
-    overflow: hidden; /* Asegura que no se vea el recorte */
-  }
-
-  /* ========================================================= */
-/* 5. ACTUALIZACIÓN: DASHBOARD CARDS */
-/* ========================================================= */
-
-.orders-grid {
-    display: grid;
-    gap: var(--spacing-lg);
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-}
-
-.order-card-modern {
-    background-color: var(--color-card-bg);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-lg);
-    box-shadow: var(--shadow-card);
-    transition: transform 0.2s, box-shadow 0.2s;
-    border: 1px solid #edf2f7;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    position: relative;
-    overflow: hidden;
-}
-
-.order-card-modern:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-}
-
-.order-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--spacing-md);
-}
-
-.order-id-badge {
-    font-size: 0.75rem;
-    font-weight: 800;
-    color: #a0aec0;
-    letter-spacing: 0.05em;
-}
-
-.status-pill {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-}
-
-/* Colores Dinámicos de Estado */
-.pill-pendiente { background: #fffaf0; color: #dd6b20; border: 1px solid #fbd38d; }
-.pill-entregado { background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4; }
-.pill-proceso   { background: #ebf8ff; color: #3182ce; border: 1px solid #90cdf4; }
-
-.order-body {
-    margin-bottom: var(--spacing-lg);
-}
-
-.address-info {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 8px;
-}
-
-.address-text {
-    font-size: 0.95rem;
-    color: var(--color-text-dark);
-    font-weight: 500;
-    line-height: 1.4;
-}
-
-.order-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    padding-top: var(--spacing-md);
-    border-top: 1px dashed #e2e8f0;
-}
-
-.price-tag {
-    text-align: right;
-}
-
-.amount-ves {
-    display: block;
-    font-size: 1.25rem;
-    font-weight: 800;
-    color: var(--color-primary);
-}
-
-.amount-usd {
-    font-size: 0.85rem;
-    color: #718096;
-}
-
-/* Colores Dinámicos de Estado para las Pills */
-.status-pill {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    display: inline-block;
-}
-
-/* Pendiente de pago o asignación */
-.pill-pendiente { 
-    background: #fffaf0; color: #dd6b20; border: 1px solid #fbd38d; 
-}
-
-/* El repartidor ya aceptó y va a la tienda/origen */
-.pill-asignado { 
-    background: #ebf8ff; color: #3182ce; border: 1px solid #90cdf4; 
-}
-
-/* El repartidor tiene el paquete y está viajando */
-.pill-en-ruta { 
-    background: #fef3f3; color: var(--color-primary); border: 1px solid #feb2b2; 
-}
-
-/* Entrega exitosa */
-.pill-entregado { 
-    background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4; 
-}
-
-/* Pedido anulado */
-.pill-cancelado { 
-    background: #edf2f7; color: #718096; border: 1px solid #e2e8f0; 
-}
-
-.search-container {
-    position: relative;
-    margin-bottom: var(--spacing-lg);
-}
-
-.search-input {
-    width: 100%;
-    padding: 12px 16px 12px 45px;
-    border: 1px solid #e2e8f0;
-    border-radius: var(--radius-md);
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    background-color: white;
-}
-
-.search-input:focus {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(255, 90, 95, 0.1);
-    outline: none;
-}
-
-.search-icon {
-    position: absolute;
-    left: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1.2rem;
-    pointer-events: none;
-}
-
-/* ========================================================= */
-/* 8. DASHBOARD REPARTIDOR - TARJETA DE ASIGNACIÓN VIVA */
-/* ========================================================= */
-
-.no-orders-container {
-    text-align: center;
-    padding: var(--spacing-xl);
-    background: #fff;
-    border-radius: var(--radius-md);
-    border: 2px dashed #cbd5e0;
-}
-
-/* Animación de pulso para atraer la atención del repartidor */
-@keyframes pulse-border {
-    0% { box-shadow: 0 0 0 0px rgba(0, 191, 255, 0.4); }
-    70% { box-shadow: 0 0 0 15px rgba(0, 191, 255, 0); }
-    100% { box-shadow: 0 0 0 0px rgba(0, 191, 255, 0); }
-}
-
-.order-card-delivery.highlight-order {
-    background-color: #ffffff;
-    border: 2px solid var(--color-primary);
-    animation: pulse-border 2s infinite;
-    position: relative;
-    padding: var(--spacing-lg);
-    border-radius: var(--radius-md);
-    margin-top: var(--spacing-md);
-}
-
-.badge-new {
-    position: absolute;
-    top: -12px;
-    right: 20px;
-    background-color: var(--color-secondary);
-    color: white;
-    padding: 4px 15px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 800;
-    box-shadow: 0 4px 8px rgba(255, 90, 95, 0.3);
-}
-
-.order-info-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-}
-
-.icon-circle {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    background: #f0f9ff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-}
-
-.order-details-container {
-    margin: var(--spacing-md) 0;
-    padding: var(--spacing-md);
-    background: #f8fafc;
-    border-radius: var(--radius-sm);
-}
-
-.price-main-display {
-    text-align: center;
-    padding: var(--spacing-md);
-    background: #e0f7ff;
-    border-radius: var(--radius-md);
-    margin-bottom: var(--spacing-lg);
-}
-
-.price-main-display h2 {
-    color: var(--color-primary) !important;
-    font-size: 2.2rem;
-    font-weight: 900;
-    margin: 0;
-}
-
-.price-main-display span {
-    font-size: 0.9rem;
-    color: #4a5568;
-    text-transform: uppercase;
-}
-
-.action-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.btn-accept {
-    background: var(--color-primary);
-    color: white;
-    font-size: 1.2rem;
-    padding: 18px;
-    box-shadow: 0 6px 15px rgba(0, 191, 255, 0.3);
-}
-
-.btn-reject {
-    background: transparent;
-    color: #a0aec0;
-    font-size: 0.9rem;
-    border: 1px solid #e2e8f0;
-}
-
-.status-online { color: var(--color-success); font-weight: bold; }
-.status-offline { color: #cbd5e0; font-weight: bold; }
-
-
-/* ESTILOS NUEVOS
-.contenedor-botones {
-  display: flex;
-  gap: 16px;
-  padding: 20px;
-  max-width: 500px;
-  margin: 0 auto;
-}
-
-.card-boton {
-  flex: 1;
-  background: white;
-  border-radius: 24px;
-  padding: 20px 10px;
-  text-decoration: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
-}
-
-/* Efecto al tocarlo en el móvil */
-.card-boton:active {
-    transform: scale(0.95);
-    background-color: #f8fafc;
-  }
-  
-  /* Estilo del Icono (Emoji) */
-  .card-icon {
-    font-size: 2.5rem; /* Tamaño grande para que resalte */
-    margin-bottom: 10px;
-    /* Efecto de sombra suave al emoji para que se vea más profundo */
-    filter: drop-shadow(0 4px 4px rgba(0,0,0,0.1));
-  }
-  
-  .card-text {
-    color: #1e293b;
-    font-weight: 800;
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  
-  /* Opcional: Diferenciar por colores suaves de fondo */
-  .card-boton.cliente {
-    border-bottom: 4px solid #3b82f6; /* Azul */
-  }
-  
-  .card-boton.conductor {
-    border-bottom: 4px solid #10b981; /* Verde */
-  }
-
-
-  /* NUEVOS ESTILOS HOME
- /* Ajustes generales de la página */
-/* Ajustes generales de la página */
 .home-page {
     background-color: #f8fafc;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-  }
-  
-  .hero-section {
+}
+
+.grid-botones-home {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap; /* Permite que bajen si el móvil es muy angosto */
+    gap: 15px;
+    padding: 20px 10px;
     width: 100%;
-    padding-top: 20px; /* Un poco de espacio arriba */
-  }
-  
-  /* CONTENEDOR DE BOTONES (FLEX) */
-  .grid-botones-home {
-    display: flex; /* Usamos Flexbox para control horizontal */
-    
-    /* --- ADECUACIÓN CLAVE --- */
-    justify-content: space-evenly; /* Distribuye espacio idéntico entre bordes y botones */
-    /* gap: 30px; <- ELIMINADO para que space-evenly funcione correctamente */
-    /* ------------------------ */
-  
-    padding: 20px; /* Espacio mínimo hacia los bordes de la pantalla */
-    width: 100%; /* Asegura que ocupe todo el ancho disponible */
-    max-width: 600px; /* Ancho máximo para evitar que se separen demasiado en PC */
-    margin: 0 auto; /* Centra el contenedor en la página */
-    align-items: center; /* Alinea los botones verticalmente */
-  }
-  
-  /* La tarjeta del botón */
-  .card-boton-home {
-    /* flex: 1; <- Opcional. Si quieres anchos fijos, usa 'width'. Si quieres que crezcan, déjalo. */
-    
-    /* Mantengo tus anchos definidos */
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.card-boton-home {
     min-width: 140px; 
+    flex: 1; /* Crecen para ocupar el espacio */
     max-width: 200px; 
-    
     background: #ffffff;
     border-radius: 20px; 
-    
-    /* Mantengo tu padding reducido (menos altos) */
     padding: 15px 10px; 
-    
-    /* Elimina estilos de enlace */
     text-decoration: none !important; 
     color: inherit; 
-    
     display: flex;
     flex-direction: column;
     align-items: center;
-    
-    /* Alineación vertical interna */
-    justify-content: center; /* Centrado simple, o 'space-around' si quieres separar imagen de texto */
-    
-    /* Borde y sombra */
+    justify-content: center;
     border: 1px solid #f1f5f9;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
     transition: all 0.2s ease;
-  }
-  
-  /* Efecto táctil */
-  .card-boton-home:active {
+}
+
+.card-boton-home:active {
     transform: scale(0.96);
     background-color: #f1f5f9;
-  }
-  
-  /* Contenedor para la imagen */
-  .card-image-container-home {
+}
+
+.card-image-container-home {
     width: 50px; 
     height: 50px;
-    margin-bottom: 8px; /* Espacio controlado hacia el texto */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .card-image-home {
+    margin-bottom: 8px;
+}
+
+.card-image-home {
     width: 100%;
     height: 100%;
     object-fit: contain;
-  }
-  
-  /* Tipografía */
-  .card-text-home {
+}
+
+.card-text-home {
     color: #475569;
-    font-weight: 500;
+    font-weight: 600;
     font-size: 0.9rem;
-    text-decoration: none;
+}
+
+/* ========================================================= */
+/* 5. FORMULARIOS (ORDERFORM.JSX) - OPTIMIZADO PARA MÓVIL */
+/* ========================================================= */
+
+.order-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.order-form {
+    background-color: var(--color-card-bg);
+    padding: var(--spacing-md); /* Reducido para móviles */
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    width: 100%;
+}
+
+@media (max-width: 480px) {
+    .order-form {
+        padding: var(--spacing-md) var(--spacing-sm);
+        border-radius: var(--radius-sm);
+        box-shadow: none; /* Limpieza en pantallas pequeñas */
+        border: 1px solid #eee;
+    }
+}
+
+.form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+.form-group label {
     display: block;
-    letter-spacing: -0.01em;
-  }
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.form-group input, 
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px; 
+    border: 1px solid #ccc;
+    border-radius: var(--radius-sm);
+    font-size: 16px; /* 💡 Evita zoom automático en iPhone */
+    transition: all 0.2s;
+    background-color: #fff;
+}
+
+.form-group input:focus, 
+.form-group select:focus {
+    border-color: var(--color-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.1);
+}
+
+/* ========================================================= */
+/* 6. DASHBOARDS & CARDS */
+/* ========================================================= */
+
+.orders-grid {
+    display: grid;
+    gap: var(--spacing-md);
+    grid-template-columns: 1fr; /* Una columna en móvil */
+}
+
+@media (min-width: 600px) {
+    .orders-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+}
+
+.order-card-modern {
+    background-color: var(--color-card-bg);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-card);
+    border: 1px solid #edf2f7;
+    transition: transform 0.2s;
+}
+
+.price-tag .amount-ves {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+/* ========================================================= */
+/* 7. STATUS & PILLS */
+/* ========================================================= */
+
+.status-pill {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.pill-pendiente { background: #fffaf0; color: #dd6b20; border: 1px solid #fbd38d; }
+.pill-entregado { background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4; }
+.pill-en-ruta   { background: #fef3f3; color: var(--color-primary); border: 1px solid #feb2b2; }
+
+/* ========================================================= */
+/* 8. ELEMENTOS DE CARGA (SPINNERS) */
+/* ========================================================= */
+
+.price-summary {
+    text-align: right;
+    padding: var(--spacing-md) 0;
+    border-top: 1px dashed #eee;
+    margin-top: var(--spacing-md);
+}
+
+.btn-delivery {
+    width: 100%;
+    padding: 16px;
+    font-size: 1.1rem;
+}
+
+.btn-delivery:disabled {
+    background-color: #e2e8f0;
+    color: #a0aec0;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* ========================================================= */
+/* 9. NAVBAR UTILS */
+/* ========================================================= */
+
+.contenedor-imagen {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #eee;
+}
