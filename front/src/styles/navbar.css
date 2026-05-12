@@ -1,3 +1,39 @@
+/* --- SOLO LO QUE CAMBIA PARA EL LOGO --- */
+
+.nav-left {
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    /* Pegamos el contenedor al margen izquierdo */
+    margin-left: -10px; 
+}
+
+.navbar-logo {
+    /* Crecimiento de la imagen */
+    width: 140px; 
+    max-width: 150px;
+    height: auto;
+    /* La movemos hacia arriba */
+    transform: translateY(-8px); 
+    display: block;
+}
+
+/* --- PROTECCIÓN PARA QUE EL NOMBRE NO SE MONTE --- */
+
+.nav-center-absolute {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    /* Limitamos el ancho para que el logo tenga su espacio */
+    width: auto;
+    max-width: 35%;
+    pointer-events: none;
+}
+
+/* --- TUS ESTILOS ORIGINALES (RESTABLECIDOS) --- */
+
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -7,27 +43,7 @@
     border-bottom: 1px solid #e5e7eb;
     min-height: 110px;
     border-radius: 5px;
-    position: relative; /* Importante para que el centro absoluto funcione */
-}
-
-.nav-left {
-    z-index: 10; /* Asegura que el logo esté por encima */
-}
-
-.navbar-logo {
-    max-width: 110px;
-    height: auto;
-}
-
-/* --- CENTRADO HORIZONTAL ABSOLUTO --- */
-.nav-center-absolute {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%); /* Centra exactamente en el medio X e Y */
-    text-align: center;
-    width: auto;
-    pointer-events: none; /* Evita que el contenedor invisible bloquee clics */
+    position: relative;
 }
 
 .user-name-stacked {
@@ -36,7 +52,7 @@
     color: #1e293b;
     text-transform: uppercase;
     display: block;
-    pointer-events: auto; /* Reactiva los eventos para el texto si fuera necesario */
+    pointer-events: auto;
 }
 
 .user-type-badge {
@@ -46,7 +62,6 @@
     font-weight: 500;
 }
 
-/* --- BLOQUE DERECHO --- */
 .nav-right {
     display: flex;
     justify-content: flex-end;
@@ -56,19 +71,13 @@
 .user-actions {
     display: flex;
     flex-direction: column;
-    height: 90px; /* Misma altura que antes para mantener la simetría */
+    height: 90px;
     justify-content: space-between;
 }
 
 .action-item {
     display: flex;
     justify-content: flex-end;
-}
-
-/* El spacer asegura que visualmente el nombre centrado 
-   tenga el mismo aire arriba y abajo que los elementos de la derecha */
-.center-spacer {
-    height: 20px; 
 }
 
 .bcv-container-mini {
@@ -91,12 +100,22 @@
     font-weight: 300;
 }
 
-/* Ajuste para que en móviles no choque el logo con el nombre */
+/* --- AJUSTE MÓVIL SIN PERDER EL LOGO GRANDE --- */
 @media (max-width: 500px) {
+    .navbar-logo {
+        width: 105px;
+        margin-left: 5px;
+        transform: translateY(-5px);
+    }
+    
+    .nav-center-absolute {
+        /* Empujamos un poco el nombre a la derecha en móviles 
+           porque el logo es más ancho que los botones de la derecha */
+        left: 55%;
+        max-width: 120px;
+    }
+
     .user-name-stacked {
         font-size: 0.75rem;
-    }
-    .navbar-logo {
-        max-width: 80px;
     }
 }
