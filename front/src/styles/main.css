@@ -15,14 +15,13 @@
     --spacing-sm: 8px;
     --spacing-md: 16px;
     --spacing-lg: 24px;
-    --spacing-xl: 40px;
 
     --radius-sm: 8px;
     --radius-md: 12px;
 }
 
 * {
-    box-sizing: border-box;
+    box-sizing: border-box; /* 💡 CRÍTICO: evita que el padding desborde el ancho */
     font-family: 'Inter', sans-serif;
     margin: 0;
     padding: 0;
@@ -32,11 +31,12 @@ body {
     background-color: var(--color-background);
     color: var(--color-text-dark);
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden; /* Evita scroll horizontal por el estiramiento */
+    width: 100%;
+    overflow-x: hidden; /* Seguridad extra contra desbordes */
 }
 
 /* ========================================================= */
-/* 2. LAYOUT PRINCIPAL */
+/* 2. LAYOUT PRINCIPAL - LIMPIO */
 /* ========================================================= */
 
 .app-container {
@@ -49,8 +49,8 @@ body {
 }
 
 .main-content {
-    flex: 1;
     width: 100%;
+    flex: 1;
 }
 
 /* ========================================================= */
@@ -59,7 +59,7 @@ body {
 
 button {
     cursor: pointer;
-    padding: var(--spacing-md) var(--spacing-lg);
+    padding: 16px;
     border: none;
     border-radius: var(--radius-md);
     font-size: 1rem;
@@ -68,13 +68,14 @@ button {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
 }
 
-.btn-primary { background-color: var(--color-primary); color: var(--color-text-light); width: 100%; }
-.btn-success { background-color: var(--color-success); color: white; width: 100%; }
+.btn-primary { background-color: var(--color-primary); color: var(--color-text-light); }
+.btn-success { background-color: var(--color-success); color: white; }
 
 /* ========================================================= */
-/* 4. HOME PAGE - BOTONES 50/50 SIEMPRE EN FILA */
+/* 4. HOME PAGE - BOTONES 50/50 */
 /* ========================================================= */
 
 .grid-botones-home {
@@ -82,15 +83,22 @@ button {
     flex-direction: row; 
     flex-wrap: nowrap;   
     gap: 12px;           
-    padding: 25px 10px;   
+    padding: 20px 10px;   
     width: 100%;
 }
 
 .card-boton-home {
-    flex: 1; width: 50%; background: #ffffff; border-radius: 20px;
-    padding: 20px 10px; text-decoration: none !important;
-    display: flex; flex-direction: column; align-items: center;
-    border: 1px solid #f1f5f9; box-shadow: 0 4px 12px var(--color-shadow);
+    flex: 1; 
+    width: 50%; 
+    background: #ffffff; 
+    border-radius: 20px;
+    padding: 20px 10px; 
+    text-decoration: none !important;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    border: 1px solid #f1f5f9; 
+    box-shadow: 0 4px 12px var(--color-shadow);
 }
 
 .card-image-container-home { width: 65px; height: 65px; margin-bottom: 12px; }
@@ -98,45 +106,36 @@ button {
 .card-text-home { color: #475569; font-weight: 800; font-size: 0.9rem; text-transform: uppercase; }
 
 /* ========================================================= */
-/* 5. ORDERFORM - ADECUACIÓN PARA ESTIRAMIENTO TOTAL */
+/* 5. ORDERFORM - ESTIRAMIENTO SEGURO (SIN DESBORDE) */
 /* ========================================================= */
 
 .order-wrapper {
     width: 100%;
+    display: block;
 }
 
 .order-form {
     background-color: var(--color-card-bg);
-    
-    /* 💡 ESTA ES LA CLAVE PARA EL ESTIRAMIENTO TOTAL EN MÓVIL */
-    width: 100vw; 
-    position: relative;
-    left: 50%;
-    right: 50%;
-    margin-left: -50vw;
-    margin-right: -50vw;
-    
-    padding: var(--spacing-lg) 20px; /* Padding lateral interno para que el contenido no pegue al borde físico */
-    border-radius: 0;
-    border-top: 1px solid #eee;
-    border-bottom: 1px solid #eee;
+    width: 100%;           /* Ocupa todo el ancho del contenedor */
+    max-width: 100%;       /* Prohíbe pasarse del borde */
+    padding: var(--spacing-lg) var(--spacing-md);
+    border-radius: 0;      /* Estilo full-screen */
+    margin: 0;
+    border: none;
+    box-sizing: border-box; /* Incluye el padding dentro del 100% */
 }
 
-/* En pantallas grandes, volvemos al comportamiento contenido */
 @media (min-width: 700px) {
     .order-form {
-        width: 100%;
-        margin: var(--spacing-md) 0;
-        left: auto;
-        right: auto;
-        position: static;
         border-radius: var(--radius-md);
+        margin: var(--spacing-md) 0;
+        border: 1px solid #edf2f7;
         box-shadow: 0 4px 20px rgba(0,0,0,0.05);
     }
 }
 
 .form-group {
-    margin-bottom: var(--spacing-md);
+    margin-bottom: 18px;
     width: 100%;
 }
 
@@ -155,8 +154,9 @@ button {
     padding: 14px 12px; 
     border: 1px solid #cbd5e0;
     border-radius: var(--radius-sm);
-    font-size: 16px; /* Evita zoom en iOS */
+    font-size: 16px;   
     background-color: #ffffff;
+    box-sizing: border-box; /* Evita que los inputs se salgan del form */
 }
 
 /* ========================================================= */
@@ -168,13 +168,14 @@ button {
     border-radius: var(--radius-md);
     padding: var(--spacing-md);
     border: 1px solid #e2e8f0;
-    margin: var(--spacing-sm);
+    margin: 10px; /* Margen para que no peguen al borde en el historial */
 }
 
 .price-summary {
     text-align: right;
     padding: var(--spacing-md) 0;
     border-top: 2px dashed #f1f5f9;
+    margin-top: 10px;
 }
 
 .amount-ves {
