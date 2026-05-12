@@ -12,13 +12,10 @@
     --color-success: #4CAF50; 
     --color-shadow: rgba(0, 0, 0, 0.08);
 
-    /* Espaciado */
     --spacing-sm: 8px;
     --spacing-md: 16px;
     --spacing-lg: 24px;
-    --spacing-xl: 40px;
 
-    /* Bordes y Sombras */
     --radius-sm: 8px;
     --radius-md: 12px;
     --shadow-card: 0 4px 12px var(--color-shadow);
@@ -38,60 +35,29 @@ body {
 }
 
 /* ========================================================= */
-/* 2. LAYOUT PRINCIPAL (APP.JSX) */
+/* 2. LAYOUT PRINCIPAL - AJUSTE DE ANCHO TOTAL */
 /* ========================================================= */
 
 .app-container {
-    padding: 0; 
     width: 100%;
     max-width: 700px; 
     margin: 0 auto; 
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-}
-
-@media (min-width: 768px) {
-    .app-container {
-        padding: 0 var(--spacing-md);
-    }
+    padding: 0; /* Eliminamos cualquier padding del contenedor padre */
 }
 
 .main-content {
     flex: 1;
     width: 100%;
-}
-
-/* ========================================================= */
-/* 3. BOTONES BASE */
-/* ========================================================= */
-
-button {
-    cursor: pointer;
-    padding: var(--spacing-md) var(--spacing-lg);
-    border: none;
-    border-radius: var(--radius-md);
-    font-size: 1rem;
-    font-weight: 700;
-    transition: all 0.2s ease;
     display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.btn-primary {
-    background-color: var(--color-primary);
-    color: var(--color-text-light);
+    flex-direction: column;
 }
 
 /* ========================================================= */
-/* 4. HOME PAGE - BOTONES CON IMÁGENES GRANDES */
+/* 3. HOME PAGE - BOTONES 50/50 */
 /* ========================================================= */
-
-.home-page {
-    background-color: #f8fafc;
-    min-height: 100vh;
-}
 
 .grid-botones-home {
     display: flex;
@@ -101,79 +67,83 @@ button {
     gap: 12px;           
     padding: 25px 10px;   
     width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
 }
 
 .card-boton-home {
     flex: 1;             
     width: 50%;          
-    min-width: 0;        
     background: #ffffff;
     border-radius: 20px;
-    padding: 20px 10px; /* Aumentamos un poco el padding vertical */
+    padding: 20px 10px;
     text-decoration: none !important;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     border: 1px solid #f1f5f9;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
-    transition: all 0.2s ease;
-}
-
-.card-boton-home:active {
-    transform: scale(0.95);
-    background-color: #f8fafc;
+    box-shadow: var(--shadow-card);
 }
 
 .card-image-container-home {
-    /* AJUSTE: Imágenes más grandes */
     width: 65px;         
     height: 65px;
-    margin-bottom: 12px; /* Más espacio entre imagen y texto */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin-bottom: 12px;
 }
 
 .card-image-home {
     width: 100%;
     height: 100%;
-    object-fit: contain; /* Asegura que la imagen no se deforme */
+    object-fit: contain;
 }
 
 .card-text-home {
     color: #475569;
-    font-weight: 800; /* Texto más negrita para resaltar con la imagen grande */
+    font-weight: 800;
     font-size: 0.9rem;  
     text-align: center;
-    white-space: nowrap; 
-    overflow: hidden;
-    text-overflow: ellipsis; 
-    width: 100%;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
 /* ========================================================= */
-/* 5. FORMULARIOS (ORDERFORM.JSX) */
+/* 4. ORDERFORM - ELIMINACIÓN DE RESTRICCIONES DE ANCHO */
 /* ========================================================= */
+
+.order-wrapper {
+    width: 100%;
+    padding: 0; /* Asegura que no haya aire lateral */
+}
 
 .order-form {
     background-color: var(--color-card-bg);
-    padding: var(--spacing-md);
-    width: 100%;
-    border-radius: 0; 
+    width: 100%;       /* Ocupa el 100% del padre */
+    min-width: 100%;   /* Fuerza el estiramiento */
+    margin: 0;
+    padding: var(--spacing-lg) var(--spacing-md);
+    border-radius: 0;  /* Estilo App nativa: pega a los bordes */
+    box-shadow: none;  /* Limpieza visual en móvil */
+    border: none;
 }
 
+/* Ajuste para pantallas un poco más grandes (Tablets) */
 @media (min-width: 480px) {
     .order-form {
         border-radius: var(--radius-md);
         padding: var(--spacing-lg);
         margin-top: var(--spacing-md);
         border: 1px solid #edf2f7;
+        box-shadow: var(--shadow-card);
+        width: 95%; /* Un poco de margen solo si la pantalla no es de un celular */
+        margin-left: auto;
+        margin-right: auto;
     }
+}
+
+/* ========================================================= */
+/* 5. FORM GROUPS & INPUTS */
+/* ========================================================= */
+
+.form-group {
+    margin-bottom: var(--spacing-md);
+    width: 100%;
 }
 
 .form-group label {
@@ -181,20 +151,35 @@ button {
     font-weight: 700;
     margin-bottom: 6px;
     color: #4a5568;
+    font-size: 0.95rem;
 }
 
 .form-group input, 
-.form-group select {
-    width: 100%;
+.form-group select,
+.form-group textarea {
+    width: 100%;       /* Asegura que el input ocupe todo el ancho del form */
     padding: 14px 12px; 
     border: 1px solid #cbd5e0;
     border-radius: var(--radius-sm);
-    font-size: 16px;
+    font-size: 16px;   /* Evita zoom en móviles */
     background-color: #ffffff;
+    appearance: none;  /* Limpia estilos de navegador */
 }
 
 /* ========================================================= */
-/* 6. DASHBOARDS & CARDS */
+/* 6. BOTONES DE ACCIÓN */
+/* ========================================================= */
+
+.order-form .btn-success {
+    width: 100%;       /* Botón de pago a todo lo ancho */
+    padding: 18px;
+    font-size: 1.2rem;
+    margin-top: var(--spacing-lg);
+    border-radius: var(--radius-md);
+}
+
+/* ========================================================= */
+/* 7. OTROS (DASHBOARD & NAVBAR) */
 /* ========================================================= */
 
 .order-card-modern {
@@ -202,31 +187,12 @@ button {
     border-radius: var(--radius-md);
     padding: var(--spacing-md);
     border: 1px solid #e2e8f0;
-    margin-bottom: var(--spacing-sm);
-}
-
-.amount-ves {
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: var(--color-primary);
-    display: block;
-}
-
-/* ========================================================= */
-/* 7. UTILIDADES */
-/* ========================================================= */
-
-.status-pill {
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
+    margin: var(--spacing-sm); /* Un pequeño margen para las tarjetas de historial */
 }
 
 .contenedor-imagen {
-    width: 45px;
-    height: 45px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     overflow: hidden;
 }
