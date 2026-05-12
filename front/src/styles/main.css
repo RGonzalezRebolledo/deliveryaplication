@@ -1,15 +1,20 @@
 /* ========================================================= */
-/* 1. VARIABLES GLOBALES & RESET TOTAL */
+/* 1. VARIABLES GLOBALES & RESET */
 /* ========================================================= */
 
 :root {
     --color-primary: #00BFFF; 
     --color-secondary: #FF5A5F;  
-    --color-background: #f1f5f9; /* Un gris un poco más marcado para que el blanco resalte */
+    --color-background: #f9fafc; 
     --color-card-bg: #ffffff; 
-    --color-text-dark: #1e293b;
+    --color-text-dark: #333333;
+    --color-text-light: #050505;
     --color-success: #4CAF50; 
+    --color-shadow: rgba(0, 0, 0, 0.08);
+
+    --radius-sm: 8px;
     --radius-md: 12px;
+    --radius-lg: 24px; /* Para la curva superior de la tarjeta */
 }
 
 * {
@@ -27,17 +32,18 @@ html, body {
 }
 
 /* ========================================================= */
-/* 2. LAYOUT PRINCIPAL - SIN RESTRICCIONES LATERALES */
+/* 2. LAYOUT PRINCIPAL */
 /* ========================================================= */
 
 .app-container {
     width: 100%;
-    max-width: 700px; /* Solo limita en tablets/PC */
+    max-width: 700px; 
     margin: 0 auto; 
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    padding: 0; /* 💡 IMPORTANTE: Cero espacio a los lados */
+    /* Quitamos el padding lateral para que el form pueda tocar los bordes */
+    padding: 0; 
 }
 
 .main-content {
@@ -54,7 +60,7 @@ html, body {
     flex-direction: row; 
     flex-wrap: nowrap;   
     gap: 12px;           
-    padding: 20px 10px; /* Aquí sí dejamos un poco de aire para los botones */
+    padding: 20px 10px; /* Aquí sí mantenemos algo de aire lateral */
     width: 100%;
 }
 
@@ -67,15 +73,16 @@ html, body {
     display: flex; 
     flex-direction: column; 
     align-items: center;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid #f1f5f9; 
+    box-shadow: 0 4px 12px var(--color-shadow);
 }
 
-.card-image-container-home { width: 65px; height: 65px; margin-bottom: 12px; }
+.card-image-container-home { width: 60px; height: 60px; margin-bottom: 12px; }
 .card-image-home { width: 100%; height: 100%; object-fit: contain; }
+.card-text-home { color: #475569; font-weight: 800; font-size: 0.85rem; text-transform: uppercase; }
 
 /* ========================================================= */
-/* 4. ORDERFORM - ANCHO TOTAL (PEGADO AL BORDE) */
+/* 4. ORDERFORM (MÁXIMO ANCHO INTEGRADO) */
 /* ========================================================= */
 
 .order-wrapper {
@@ -84,33 +91,36 @@ html, body {
 
 .order-form {
     background-color: var(--color-card-bg);
-    width: 100%;      /* 💡 Ocupa el 100% del app-container */
-    margin: 0;        /* 💡 Eliminamos cualquier margen que lo encoga */
-    padding: 35px 20px; 
-    border-radius: 0;  /* 💡 En móvil, que sea recto para llenar la pantalla */
+    width: 100%; 
+    /* Padding interno: 25px arriba/abajo, 20px a los lados */
+    padding: 30px 20px; 
+    margin: 0; /* Pegado a los bordes laterales */
+    
+    /* Mantenemos bordes redondeados solo arriba para un look moderno */
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0; 
     border: none;
-    box-shadow: none;
+    box-shadow: 0 -4px 15px rgba(0,0,0,0.03);
+    
     display: flex;
     flex-direction: column;
+    touch-action: pan-y; 
 }
 
-/* En pantallas un poco más anchas, le devolvemos la forma de tarjeta */
 @media (min-width: 500px) {
     .order-form {
-        width: 92%;
+        width: 95%;
         margin: 20px auto;
-        border-radius: 20px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-        border: 1px solid #e2e8f0;
+        border-radius: var(--radius-md);
+        box-shadow: 0 4px 20px var(--color-shadow);
     }
 }
 
 /* ========================================================= */
-/* 5. INPUTS Y FORM GROUPS */
+/* 5. INPUTS Y FORM GROUPS (MÁS GRANDES) */
 /* ========================================================= */
 
 .form-group {
-    margin-bottom: 25px;
+    margin-bottom: 22px;
     width: 100%;
 }
 
@@ -118,28 +128,29 @@ html, body {
     display: block;
     font-weight: 700;
     margin-bottom: 10px;
-    color: #475569;
+    color: #2d3748;
     font-size: 1rem;
-    text-align: center;
+    text-align: center; /* Alineado con tu diseño de la imagen */
 }
 
 .form-group input, 
 .form-group select,
 .form-group textarea {
     width: 100%;       
-    padding: 18px 15px; 
-    border: 1.5px solid #e2e8f0;
-    border-radius: 12px;
+    padding: 16px 15px; 
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
     font-size: 16px;   
-    background-color: #ffffff;
-    color: #1e293b;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+    background-color: #f8fafc; /* Un gris muy tenue para que resalte el blanco */
+    color: #333;
+    transition: all 0.2s;
 }
 
 .form-group input:focus {
+    background-color: #ffffff;
     border-color: var(--color-primary);
     outline: none;
-    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.1);
 }
 
 /* ========================================================= */
@@ -148,41 +159,39 @@ html, body {
 
 button {
     width: 100%;
-    padding: 20px;
+    padding: 18px;
     border: none;
     border-radius: 14px;
     font-size: 1.1rem;
     font-weight: 800;
     cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
-.btn-primary { background-color: var(--color-primary); color: #000; }
+.btn-primary { background-color: var(--color-primary); color: #fff; }
 .btn-success { background-color: var(--color-success); color: white; margin-top: 10px; }
 
 /* ========================================================= */
-/* 7. UTILIDADES */
+/* 7. TARJETAS Y UTILIDADES */
 /* ========================================================= */
+
+.order-card-modern {
+    background: white;
+    border-radius: 15px;
+    padding: 15px;
+    margin: 10px;
+    border: 1px solid #eee;
+}
 
 .price-summary {
     background-color: #f8fafc;
     padding: 20px;
     border-radius: 15px;
-    margin: 15px 0;
-    border: 1px solid #e2e8f0;
+    margin: 20px 0;
     text-align: center;
 }
 
 .amount-ves {
-    font-size: 1.8rem;
-    font-weight: 900;
+    font-size: 1.6rem;
+    font-weight: 800;
     color: var(--color-primary);
-}
-
-.contenedor-imagen {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    overflow: hidden;
 }
