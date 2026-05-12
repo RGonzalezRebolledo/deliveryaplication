@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
             setIsAuthenticated(false);
             
             // 3. Redirección forzada eliminando el historial para evitar 404 al volver atrás
-            window.location.replace("/login");
+            // window.location.replace("/");
         }
     };
 
