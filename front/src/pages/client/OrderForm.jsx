@@ -44,17 +44,36 @@ function OrderForm() {
       setError(null);
 
       // Función auxiliar para cargar cada endpoint de forma independiente
+      // const load = async (endpoint, setter, label) => {
+      //   try {
+      //     const res = await axios.get(`${API_BASE_URL}${endpoint}`, { withCredentials: true });
+      //     if (label === 'addresses') {
+      //       setter(res.data.map((addr) => addr.calle));
+      //     } else {
+      //       setter(res.data);
+      //     }
+      //   } catch (err) {
+      //     console.warn(`⚠️ Error al cargar ${label}:`, err.message);
+      //     // No lanzamos error global para que el formulario no se bloquee
+      //   }
+      // };
       const load = async (endpoint, setter, label) => {
         try {
-          const res = await axios.get(`${API_BASE_URL}${endpoint}`, { withCredentials: true });
+          // 💡 Esto elimina barras dobles accidentales (reemplaza // por / después del protocolo)
+          const url = `${API_BASE_URL}${endpoint}`.replace(/([^:]\/)\/+/g, "$1");
+          
+          console.log(`🚀 Gazzella Debug: Cargando ${label} desde ${url}`);
+      
+          const res = await axios.get(url, { withCredentials: true });
+          
           if (label === 'addresses') {
             setter(res.data.map((addr) => addr.calle));
           } else {
             setter(res.data);
           }
         } catch (err) {
-          console.warn(`⚠️ Error al cargar ${label}:`, err.message);
-          // No lanzamos error global para que el formulario no se bloquee
+          // Si da 404, aquí verás exactamente qué URL falló en la consola del celular
+          console.error(`❌ Error 404 o conexión en ${label}:`, err.message);
         }
       };
 
